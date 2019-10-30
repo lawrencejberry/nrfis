@@ -1,1 +1,1 @@
-# iris
+# IRIS - Infrastructure Research Information System
