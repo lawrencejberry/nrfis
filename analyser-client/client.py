@@ -21,7 +21,7 @@ class Analyser:
 
     def read(self, command : bytes):
         self.socket.sendall(command+b"\n")
-        message_length = self.socket.recv(self.ACKNOWLEDGEMENT_LENGTH)
+        message_length = int(self.socket.recv(self.ACKNOWLEDGEMENT_LENGTH))
         message = self.socket.recv(message_length)
         status_header = message[:88]
         try:
