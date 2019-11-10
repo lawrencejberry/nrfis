@@ -24,14 +24,16 @@ class AnalyserClient:
     def end(self):
         self.socket.close()
 
-    def execute(self, command: bytes, override_length: int = None):
-        self.socket.sendall(command + b"\n")
+    def read(self, override_length: int = None):
         length = int(self.socket.recv(self.ACKNOWLEDGEMENT_LENGTH))
         if length is not None:  # Override message length if provided
             length = override_length
-        message = self.socket.recv(length)
+        response = self.socket.recv(length)
+        return response
 
-        return message
+    def execute(self, command: bytes, override_length: int = None):
+        self.socket.sendall(command + b"\n")
+        return self.read(override_length)
 
     def get_data(self):
         return self.execute(b"#GET_DATA")
