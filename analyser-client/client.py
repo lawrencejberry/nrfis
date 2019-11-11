@@ -1,6 +1,6 @@
 import socket
 
-from protocol import Request, GET_DATA
+from protocol import Request, GET_DATA, SET_STREAMING_DATA
 
 
 class x30Client:
@@ -34,6 +34,9 @@ class x30Client:
         self.granularity = None
         self.full_spectrum_start_wvl = None
         self.full_spectrum_end_wvl = None
+
+        # Streaming toggle
+        self.streaming = False
 
     def connect(self):
         self.socket.connect((self.host, self.port))
@@ -72,3 +75,10 @@ class x30Client:
         self.granularity = int(status_header[576:608], 2)
         self.full_spectrum_start_wvl = int(status_header[640:672], 2)
         self.full_spectrum_end_wvl = int(status_header[672:], 2)
+
+    def stream_data(self):
+        self.streaming = bool(int(self.execute(SET_STREAMING_DATA(val=True))))
+        while self.streaming:
+            response = self.read()
+            # Then process the response
+        self.execute(SET_STREAMING_DATA(val=False))
