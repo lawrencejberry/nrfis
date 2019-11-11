@@ -18,6 +18,22 @@ class x30Client:
         # State
         self.host = "10.0.0.126"
         self.port = 1852
+        self.fs_radix = None
+        self.fw_version = None
+        self.secondary_fan = None
+        self.primary_fan = None
+        self.calibration_fault = None
+        self.switch_position = None
+        self.mux_level = None
+        self.triggering_mode = None
+        self.operating_mode = None
+        self.num_peaks_detected = None
+        self.error = None
+        self.buffer = None
+        self.header_version = None
+        self.granularity = None
+        self.full_spectrum_start_wvl = None
+        self.full_spectrum_end_wvl = None
 
     def connect(self):
         self.socket.connect((self.host, self.port))
