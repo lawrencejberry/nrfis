@@ -39,7 +39,7 @@ class x30Client:
     async def connect(self):
         self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
         response = await self.execute(GET_DATA())
-        status_header = response[:88]
+        status_header = response[: self.STATUS_HEADER_LENGTH]
         self.update_status(status_header)
 
     async def close(self):
@@ -58,22 +58,22 @@ class x30Client:
         return await self.read(override_length)
 
     def update_status(self, status_header: bytes):
-        self.fs_radix = int(status_header[0:8], 2)
-        self.fw_version = status_header[16:24].decode("ascii")
-        self.secondary_fan = bool(status_header[27] == b"1")
-        self.primary_fan = bool(status_header[28] == b"1")
-        self.calibration_fault = bool(status_header[30] == b"1")
-        self.switch_position = int(status_header[48:50], 2)
-        self.mux_level = int(status_header[49:51], 2)
-        self.triggering_mode = int(status_header[52:54], 2)
-        self.operating_mode = int(status_header[54:56], 2)
-        self.num_peaks_detected = status_header[128:192]
-        self.error = status_header[376:384].decode("ascii")
-        self.buffer = status_header[384:392].decode("ascii")
-        self.header_version = status_header[392:400].decode("ascii")
-        self.granularity = int(status_header[576:608], 2)
-        self.full_spectrum_start_wvl = int(status_header[640:672], 2)
-        self.full_spectrum_end_wvl = int(status_header[672:], 2)
+        self.fs_radix = int(status_header[0], 2)
+        self.fw_version = status_header[2].decode("ascii")
+        self.secondary_fan = bool((status_header[3] >> 3) & 1)
+        self.primary_fan = bool((status_header[3] >> 4) & 1)
+        self.calibration_fault = bool((status_header[3] >> 6) & 1)
+        self.switch_position = int(status_header[6] & 3, 2)
+        self.mux_level = int((status_header[6] >> 1) & 3, 2)
+        self.triggering_mode = int((status_header[6] >> 4) & 3, 2)
+        self.operating_mode = int((status_header[6] >> 6) & 3, 2)
+        self.num_peaks_detected = status_header[16:24].decode("ascii")
+        self.error = status_header[47].decode("ascii")
+        self.buffer = status_header[48].decode("ascii")
+        self.header_version = status_header[49].decode("ascii")
+        self.granularity = int(status_header[72:76], 2)
+        self.full_spectrum_start_wvl = int(status_header[80:84], 2)
+        self.full_spectrum_end_wvl = int(status_header[84:88], 2)
 
     async def stream_data(self):
         self.streaming = await bool(int(self.execute(SET_STREAMING_DATA(val=True))))
