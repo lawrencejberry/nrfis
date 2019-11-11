@@ -61,7 +61,8 @@ class TrigMode(IntEnum):
 
 class Request(BaseModel):
     _serializers = {
-        "date": lambda x: x.strftime(f"%m.%d.%H.%M.%y"),
+        datetime: lambda x: x.strftime(f"%m.%d.%H.%M.%y").encode("ascii"),
+        bool: lambda x: str(int(x)).encode("ascii"),
     }
     _default_serializer = lambda x: str(x).encode("ascii")
 
@@ -75,7 +76,7 @@ class Request(BaseModel):
             self._serializers.get(self.fields[k].type_, self._default_serializer)(v)
             for k, v in self.dict().items()
         ]
-        return (b" ".join((command, arguments))) + "\n"
+        return (b" ".join((command, *arguments))) + "\n"
 
 
 class GET_DATA(Request):
