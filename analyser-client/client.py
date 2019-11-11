@@ -1,4 +1,4 @@
-import socket
+import asyncio
 
 from protocol import Request, GET_DATA, SET_STREAMING_DATA
 
@@ -13,8 +13,6 @@ class x30Client:
     STATUS_HEADER_LENGTH = 88  # bytes
 
     def __init__(self):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
         # State
         self.host = "10.0.0.126"
         self.port = 1852
@@ -38,25 +36,26 @@ class x30Client:
         # Streaming toggle
         self.streaming = False
 
-    def connect(self):
-        self.socket.connect((self.host, self.port))
-        response = self.execute(GET_DATA())
+    async def connect(self):
+        self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
+        response = await self.execute(GET_DATA())
         status_header = response[:88]
         self.update_status(status_header)
 
-    def close(self):
-        self.socket.close()
+    async def close(self):
+        self.writer.close()
+        await self.writer.wait_closed()
 
-    def read(self, override_length: int = None) -> bytes:
-        length = int(self.socket.recv(self.ACKNOWLEDGEMENT_LENGTH))
+    async def read(self, override_length: int = None) -> bytes:
+        length = await int(self.reader.read(self.ACKNOWLEDGEMENT_LENGTH))
         if length is not None:  # Override message length if provided
             length = override_length
-        response = self.socket.recv(length)
+        response = await self.reader.read(length)
         return response
 
-    def execute(self, request: Request, override_length: int = None) -> bytes:
-        self.socket.sendall(request.serialize())
-        return self.read(override_length)
+    async def execute(self, request: Request, override_length: int = None) -> bytes:
+        self.writer.write(request.serialize())
+        return await self.read(override_length)
 
     def update_status(self, status_header: bytes):
         self.fs_radix = int(status_header[0:8], 2)
@@ -76,9 +75,9 @@ class x30Client:
         self.full_spectrum_start_wvl = int(status_header[640:672], 2)
         self.full_spectrum_end_wvl = int(status_header[672:], 2)
 
-    def stream_data(self):
-        self.streaming = bool(int(self.execute(SET_STREAMING_DATA(val=True))))
+    async def stream_data(self):
+        self.streaming = await bool(int(self.execute(SET_STREAMING_DATA(val=True))))
         while self.streaming:
-            response = self.read()
+            response = await self.read()
             # Then process the response
-        self.execute(SET_STREAMING_DATA(val=False))
+        await self.execute(SET_STREAMING_DATA(val=False))
