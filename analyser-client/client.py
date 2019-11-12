@@ -77,6 +77,7 @@ class x30Client:
 
     async def stream_data(self):
         self.streaming = await bool(int(self.execute(SET_STREAMING_DATA(val=True))))
+        await self.execute(GET_DATA())
         while self.streaming:
             response = await self.read()
             # Then process the response
