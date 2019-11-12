@@ -13,9 +13,12 @@ class x30Client:
     STATUS_HEADER_LENGTH = 88  # bytes
 
     def __init__(self):
-        # State
+        # Connection information
         self.host = "10.0.0.126"
         self.port = 1852
+        self.connected = False
+
+        # Status information
         self.fs_radix = None
         self.fw_version = None
         self.secondary_fan = None
@@ -37,14 +40,18 @@ class x30Client:
         self.streaming = False
 
     async def connect(self):
+        print("connecting")
         self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
         response = await self.execute(GET_DATA())
         status_header = response[: self.STATUS_HEADER_LENGTH]
         self.update_status(status_header)
+        self.connected = True
+        print("done connecting")
 
-    async def close(self):
+    async def disconnect(self):
         self.writer.close()
         await self.writer.wait_closed()
+        self.connected = False
 
     async def read(self, override_length: int = None) -> bytes:
         length = await int(self.reader.read(self.ACKNOWLEDGEMENT_LENGTH))
