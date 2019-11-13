@@ -76,7 +76,7 @@ class Request(BaseModel):
             self._serializers.get(self.fields[k].type_, self._default_serializer)(v)
             for k, v in self.dict().items()
         ]
-        return (b" ".join((command, *arguments))) + "\n"
+        return (b" ".join((command, *arguments))) + b"\n"
 
 
 class GET_DATA(Request):
