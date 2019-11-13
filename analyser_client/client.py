@@ -60,7 +60,9 @@ class x30Client:
         self.writer.write(request.serialize())
         return await self.read(override_length)
 
-    def update_status(self, status_header: bytes):
+    async def update_status(self):
+        response = await self.execute(GET_DATA())
+        status_header = response[:88]
         self.fs_radix = status_header[0]
         self.fw_version = status_header[2]
         self.secondary_fan = bool((status_header[3] >> 3) & 1)
