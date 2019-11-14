@@ -1,7 +1,7 @@
 import asyncio
 import struct
 
-from .protocol import Request, GET_DATA, SET_STREAMING_DATA
+from protocol import Request, GET_DATA, SET_STREAMING_DATA
 
 
 class x30Client:
