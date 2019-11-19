@@ -27,7 +27,7 @@ class Gui(wx.Frame):
         self.SetMenuBar(menu_bar)
 
         # Configure the widgets
-        self.title = wx.StaticText(self, wx.ID_ANY, "Analyser 1")
+        self.title = wx.StaticText(self, wx.ID_ANY, "Analyser 1 ")
         self.host_label = wx.StaticText(self, wx.ID_ANY, "Host: ")
         self.host = wx.TextCtrl(self, wx.ID_ANY, self.client.host)
         self.port_label = wx.StaticText(self, wx.ID_ANY, "Port: ")
@@ -37,28 +37,40 @@ class Gui(wx.Frame):
         self.stream.Disable()  # Streaming button disabled until client has connected
 
         # Status information
-        self.fs_radix = wx.StaticText(self, wx.ID_ANY, "FS Radix:")
-        self.fw_version = wx.StaticText(self, wx.ID_ANY, "FW version:")
-        self.primary_fan = wx.StaticText(self, wx.ID_ANY, "Primary fan:")
-        self.secondary_fan = wx.StaticText(self, wx.ID_ANY, "Secondary fan:")
-        self.calibration_fault = wx.StaticText(self, wx.ID_ANY, "Calibration fault:")
-        self.switch_position = wx.StaticText(self, wx.ID_ANY, "Switch position:")
-        self.mux_level = wx.StaticText(self, wx.ID_ANY, "MUX level:")
-        self.triggering_mode = wx.StaticText(self, wx.ID_ANY, "Triggering mode:")
-        self.operating_mode = wx.StaticText(self, wx.ID_ANY, "Operating mode:")
-        self.num_peaks_detected = wx.StaticText(
-            self, wx.ID_ANY, "Number of peaks detected:"
-        )
-        self.error = wx.StaticText(self, wx.ID_ANY, "Error:")
-        self.buffer = wx.StaticText(self, wx.ID_ANY, "Buffer:")
-        self.header_version = wx.StaticText(self, wx.ID_ANY, "Header version:")
-        self.granularity = wx.StaticText(self, wx.ID_ANY, "Granularity:")
-        self.full_spectrum_start_wvl = wx.StaticText(
-            self, wx.ID_ANY, "Full spectrum start wavelength:"
-        )
-        self.full_spectrum_end_wvl = wx.StaticText(
-            self, wx.ID_ANY, "Full spectrum end wavelength:"
-        )
+        status_labels = {
+            "fs_radix": "FS Radix ",
+            "fw_version": "FW Version ",
+            "primary_fan": "Primary Fan ",
+            "secondary_fan": "Secondary Fan ",
+            "calibration_fault": "Calibration Fault ",
+            "switch_position": "Switch Position ",
+            "mux_level": "MUX Level",
+            "triggering_mode": "Triggering Mode ",
+            "operating_mode": "Operating Mode ",
+            "num_peaks_detected": "Number of Peaks Detected ",
+            "error": "Error ",
+            "buffer": "Buffer ",
+            "header_version": "Header Version ",
+            "granularity": "Granularity ",
+            "full_spectrum_start_wvl": "Full Spectrum Start Wavelength ",
+            "full_spectrum_end_wvl": "Full Spectrum End Wavelength ",
+        }
+        self.fs_radix = wx.StaticText(self, wx.ID_ANY, "Not acquired ")
+        self.fw_version = wx.StaticText(self, wx.ID_ANY, "Not acquired ")
+        self.primary_fan = wx.StaticText(self, wx.ID_ANY, "Not acquired ")
+        self.secondary_fan = wx.StaticText(self, wx.ID_ANY, "Not acquired ")
+        self.calibration_fault = wx.StaticText(self, wx.ID_ANY, "Not acquired ")
+        self.switch_position = wx.StaticText(self, wx.ID_ANY, "Not acquired ")
+        self.mux_level = wx.StaticText(self, wx.ID_ANY, "Not acquired ")
+        self.triggering_mode = wx.StaticText(self, wx.ID_ANY, "Not acquired ")
+        self.operating_mode = wx.StaticText(self, wx.ID_ANY, "Not acquired ")
+        self.num_peaks_detected = wx.StaticText(self, wx.ID_ANY, "Not acquired ")
+        self.error = wx.StaticText(self, wx.ID_ANY, "Not acquired ")
+        self.buffer = wx.StaticText(self, wx.ID_ANY, "Not acquired ")
+        self.header_version = wx.StaticText(self, wx.ID_ANY, "Not acquired ")
+        self.granularity = wx.StaticText(self, wx.ID_ANY, "Not acquired ")
+        self.full_spectrum_start_wvl = wx.StaticText(self, wx.ID_ANY, "Not acquired ")
+        self.full_spectrum_end_wvl = wx.StaticText(self, wx.ID_ANY, "Not acquired ")
 
         # Bind events to widgets
         self.Bind(wx.EVT_MENU, self.on_menu)
@@ -66,33 +78,29 @@ class Gui(wx.Frame):
         AsyncBind(wx.EVT_BUTTON, self.on_stream, self.stream)
 
         # Configure sizers for layout
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(self.title, 0, wx.ALL, 5)
-        sizer.Add(self.host_label, 0, wx.ALL, 5)
-        sizer.Add(self.host, 0, wx.ALL, 5)
-        sizer.Add(self.port_label, 0, wx.ALL, 5)
-        sizer.Add(self.port, 0, wx.ALL, 5)
-        sizer.Add(self.connect, 0, wx.ALL, 5)
-        sizer.Add(self.stream, 0, wx.ALL, 5)
-        sizer.Add(self.fs_radix, 0, wx.ALL, 5)
-        sizer.Add(self.fw_version, 0, wx.ALL, 5)
-        sizer.Add(self.primary_fan, 0, wx.ALL, 5)
-        sizer.Add(self.secondary_fan, 0, wx.ALL, 5)
-        sizer.Add(self.calibration_fault, 0, wx.ALL, 5)
-        sizer.Add(self.switch_position, 0, wx.ALL, 5)
-        sizer.Add(self.mux_level, 0, wx.ALL, 5)
-        sizer.Add(self.triggering_mode, 0, wx.ALL, 5)
-        sizer.Add(self.operating_mode, 0, wx.ALL, 5)
-        sizer.Add(self.num_peaks_detected, 0, wx.ALL, 5)
-        sizer.Add(self.error, 0, wx.ALL, 5)
-        sizer.Add(self.buffer, 0, wx.ALL, 5)
-        sizer.Add(self.header_version, 0, wx.ALL, 5)
-        sizer.Add(self.granularity, 0, wx.ALL, 5)
-        sizer.Add(self.full_spectrum_start_wvl, 0, wx.ALL, 5)
-        sizer.Add(self.full_spectrum_end_wvl, 0, wx.ALL, 5)
+        main_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        client_sizer = wx.BoxSizer(wx.VERTICAL)
+        status_sizer = wx.GridSizer(16, 2, 0, 10)
+
+        main_sizer.Add(client_sizer)
+
+        client_sizer.Add(self.title, 0, wx.ALL, 5)
+        client_sizer.Add(self.host_label, 0, wx.ALL, 5)
+        client_sizer.Add(self.host, 0, wx.ALL | wx.EXPAND, 5)
+        client_sizer.Add(self.port_label, 0, wx.ALL, 5)
+        client_sizer.Add(self.port, 0, wx.ALL | wx.EXPAND, 5)
+        client_sizer.Add(self.connect, 0, wx.ALL | wx.EXPAND, 5)
+        client_sizer.Add(self.stream, 0, wx.ALL | wx.EXPAND, 5)
+        client_sizer.Add(status_sizer, 0, wx.ALL | wx.EXPAND, 5)
+
+        for status in status_labels:
+            status_sizer.Add(
+                wx.StaticText(self, wx.ID_ANY, status_labels[status]), 0, wx.ALL, 5
+            )
+            status_sizer.Add(getattr(self, status), 0, wx.ALL, 5)
 
         self.SetSizeHints(600, 600)  # Sets the minimum window size
-        self.SetSizer(sizer)
+        self.SetSizer(main_sizer)
 
         # Add tooltips
         self.connect.SetToolTip("Connect/disconnect to the specified host and port")
