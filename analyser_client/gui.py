@@ -27,10 +27,11 @@ class Gui(wx.Frame):
         self.SetMenuBar(menu_bar)
 
         # Configure the widgets
-        self.label = wx.StaticText(self, wx.ID_ANY, "Analyser 1")
-        self.title = wx.StaticText(self, wx.ID_ANY, "")
-        self.host = wx.TextCtrl(self, wx.ID_ANY, "")
-        self.port = wx.TextCtrl(self, wx.ID_ANY, "")
+        self.title = wx.StaticText(self, wx.ID_ANY, "Analyser 1")
+        self.host_label = wx.StaticText(self, wx.ID_ANY, "Host: ")
+        self.host = wx.TextCtrl(self, wx.ID_ANY, self.client.host)
+        self.port_label = wx.StaticText(self, wx.ID_ANY, "Port: ")
+        self.port = wx.TextCtrl(self, wx.ID_ANY, str(self.client.port))
         self.connect = wx.Button(self, wx.ID_ANY, "Connect")
         self.stream = wx.Button(self, wx.ID_ANY, "Start streaming")
         self.stream.Disable()  # Streaming button disabled until client has connected
@@ -66,9 +67,10 @@ class Gui(wx.Frame):
 
         # Configure sizers for layout
         sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(self.label, 0, wx.ALL, 5)
         sizer.Add(self.title, 0, wx.ALL, 5)
+        sizer.Add(self.host_label, 0, wx.ALL, 5)
         sizer.Add(self.host, 0, wx.ALL, 5)
+        sizer.Add(self.port_label, 0, wx.ALL, 5)
         sizer.Add(self.port, 0, wx.ALL, 5)
         sizer.Add(self.connect, 0, wx.ALL, 5)
         sizer.Add(self.stream, 0, wx.ALL, 5)
