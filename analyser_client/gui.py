@@ -37,7 +37,7 @@ class Gui(wx.Frame):
         self.stream.Disable()  # Streaming button disabled until client has connected
 
         # Status information
-        status_labels = {
+        self.status_labels = {
             "fs_radix": "FS Radix ",
             "fw_version": "FW Version ",
             "primary_fan": "Primary Fan ",
@@ -93,9 +93,9 @@ class Gui(wx.Frame):
         client_sizer.Add(self.stream, 0, wx.ALL | wx.EXPAND, 5)
         client_sizer.Add(status_sizer, 0, wx.ALL | wx.EXPAND, 5)
 
-        for status in status_labels:
+        for status in self.status_labels:
             status_sizer.Add(
-                wx.StaticText(self, wx.ID_ANY, status_labels[status]), 0, wx.ALL, 5
+                wx.StaticText(self, wx.ID_ANY, self.status_labels[status]), 0, wx.ALL, 5
             )
             status_sizer.Add(getattr(self, status), 0, wx.ALL, 5)
 
@@ -127,7 +127,7 @@ class Gui(wx.Frame):
         else:
             await self.client.connect()
             self.connect.SetLabel("Disconnect")
-            self.update_status_information()
+            await self.update_status()
             self.stream.Enable()
 
     async def on_stream(self, event):
@@ -139,54 +139,7 @@ class Gui(wx.Frame):
             await self.client.stream_data()
             self.stream.SetLabel("Stop streaming")
 
-    def update_status_information(self):
-        self.fs_radix = wx.StaticText(
-            self, wx.ID_ANY, f"FS Radix:{self.client.fs_radix}"
-        )
-        self.fw_version = wx.StaticText(
-            self, wx.ID_ANY, f"FW version: {self.client.fw_version}"
-        )
-        self.primary_fan = wx.StaticText(
-            self, wx.ID_ANY, f"Primary fan: {self.client.primary_fan}"
-        )
-        self.secondary_fan = wx.StaticText(
-            self, wx.ID_ANY, f"Secondary fan: {self.client.secondary_fan}"
-        )
-        self.calibration_fault = wx.StaticText(
-            self, wx.ID_ANY, f"Calibration fault: {self.client.calibration_fault}"
-        )
-        self.switch_position = wx.StaticText(
-            self, wx.ID_ANY, f"Switch position: {self.client.switch_position}"
-        )
-        self.mux_level = wx.StaticText(
-            self, wx.ID_ANY, f"MUX level: {self.client.mux_level}"
-        )
-        self.triggering_mode = wx.StaticText(
-            self, wx.ID_ANY, f"Triggering mode: {self.client.triggering_mode}"
-        )
-        self.operating_mode = wx.StaticText(
-            self, wx.ID_ANY, f"Operating mode: {self.client.operating_mode}"
-        )
-        self.num_peaks_detected = wx.StaticText(
-            self,
-            wx.ID_ANY,
-            f"Number of peaks detected: {self.client.num_peaks_detected}",
-        )
-        self.error = wx.StaticText(self, wx.ID_ANY, f"Error: {self.client.error}")
-        self.buffer = wx.StaticText(self, wx.ID_ANY, f"Buffer: {self.client.buffer}")
-        self.header_version = wx.StaticText(
-            self, wx.ID_ANY, f"Header version: {self.client.header_version}"
-        )
-        self.granularity = wx.StaticText(
-            self, wx.ID_ANY, f"Granularity: {self.client.granularity}"
-        )
-        self.full_spectrum_start_wvl = wx.StaticText(
-            self,
-            wx.ID_ANY,
-            f"Full spectrum start wavelength: {self.client.full_spectrum_start_wvl}",
-        )
-        self.full_spectrum_end_wvl = wx.StaticText(
-            self,
-            wx.ID_ANY,
-            f"Full spectrum end wavelength: {self.client.full_spectrum_end_wvl}",
-        )
+    async def update_status(self):
+        await self.client.update_status()
+        for status in self.status_labels:
+            getattr(self, status).SetLabel(str(getattr(self.client, status)))
