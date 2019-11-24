@@ -73,7 +73,7 @@ class Request(BaseModel):
             + getattr(self, "x", "")
         ).encode("ascii")
         arguments = [
-            self._serializers.get(self.fields[k].type_, self._default_serializer)(v)
+            self._serializers.get(self.__fields__[k].type_, self._default_serializer)(v)
             for k, v in self.dict().items()
         ]
         return (b" ".join((command, *arguments))) + b"\n"
