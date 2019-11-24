@@ -1,5 +1,0 @@
-numpy==1.17.4
-Pillow==6.2.1
-pydantic==1.1
-six==1.13.0
-wxPython==4.0.7.post1

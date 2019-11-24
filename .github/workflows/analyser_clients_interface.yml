@@ -1,0 +1,22 @@
+name: Analyser Clients Interface
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        pip install -r analyser_clients_interface/requirements.txt -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04
+    - name: Test with pytest
+      run: |
+        export PYTHONPATH=`pwd`/analyser_clients_interface
+        pytest analyser_clients_interface
