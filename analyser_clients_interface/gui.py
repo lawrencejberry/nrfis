@@ -142,4 +142,4 @@ class Gui(wx.Frame):
     async def update_status(self):
         await self.client.update_status()
         for status in self.status_labels:
-            getattr(self, status).SetLabel(str(getattr(self.client, status)))
+            getattr(self, status).SetLabel(f"{str(getattr(self.client, status))} ")

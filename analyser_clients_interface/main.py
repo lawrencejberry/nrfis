@@ -1,7 +1,5 @@
-import asyncio
 from asyncio.events import get_event_loop
 
-import wx
 from wxasync import WxAsyncApp
 
 from gui import Gui

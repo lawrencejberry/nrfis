@@ -27,3 +27,18 @@ class MockServer:
             reply = acknowledgment_response + data_response
             print("Replying with:", reply)
             conn.sendall(reply)
+
+    def stream(self):
+        while True:
+            self.socket.listen()
+            conn, _ = self.socket.accept()
+            while True:
+                data = conn.recv(1024)
+                if b"\n" in data:
+                    break
+            while True:
+                acknowledgment_response = b"0000000096"
+                data_response = bytes(88)
+                message_end = b"XXXXXXXX"
+                reply = acknowledgment_response + data_response + message_end
+                conn.sendall(reply)

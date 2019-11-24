@@ -14,10 +14,16 @@ class x30Client:
     STATUS_HEADER_LENGTH = 88  # bytes
 
     def __init__(self):
+        self.name = "Client 1"  # Increment this when there are more clients
+
         # Connection information
         self.host = "10.0.0.126"
         self.port = 1852
         self.connected = False
+
+        # I/O
+        self.reader = None
+        self.writer = None
 
         # Status information
         self.fs_radix = None
@@ -43,11 +49,13 @@ class x30Client:
     async def connect(self):
         self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
         self.connected = True
+        print(f"{self.name} connected")
 
     async def disconnect(self):
         self.writer.close()
         await self.writer.wait_closed()
         self.connected = False
+        print(f"{self.name} disconnected")
 
     async def read(self, override_length: int = None) -> bytes:
         length = int(await self.reader.read(self.ACKNOWLEDGEMENT_LENGTH))
@@ -77,13 +85,27 @@ class x30Client:
         self.buffer = status_header[48]
         self.header_version = status_header[49]
         self.granularity = struct.unpack("<L", status_header[72:76])[0]
-        self.full_spectrum_start_wvl = struct.unpack("<L", status_header[80:84])
-        self.full_spectrum_end_wvl = struct.unpack("<L", status_header[84:88])
+        self.full_spectrum_start_wvl = struct.unpack("<L", status_header[80:84])[0]
+        self.full_spectrum_end_wvl = struct.unpack("<L", status_header[84:88])[0]
 
     async def stream_data(self):
-        self.streaming = await bool(int(self.execute(SET_STREAMING_DATA(val=True))))
+        self.streaming = (
+            await self.execute(SET_STREAMING_DATA(val=True))
+        ) == b"Streaming data enabled.\n"
         await self.execute(GET_DATA())
+        print(f"{self.name} started streaming")
+
         while self.streaming:
             response = await self.read()
+            while (
+                response[-8:] != b"XXXXXXXX"
+            ):  # Continue reading in response until 8 Xs have been received
+                response += self.reader.read(1)
             # Then process the response
-        await self.execute(SET_STREAMING_DATA(val=False))
+            # print(f"{self.name} stream response: {response}")
+
+        response = await self.execute(SET_STREAMING_DATA(val=False))
+        # Stop streaming after receiving 8 Zs
+        while response[-8:] != b"ZZZZZZZZ":
+            response += self.reader.read(1)
+        print(f"{self.name} finished streaming")

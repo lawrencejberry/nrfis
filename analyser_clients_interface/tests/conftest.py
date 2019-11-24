@@ -2,8 +2,8 @@ import threading
 
 import pytest
 
-from ..client import x30Client
 from .utils import MockServer
+from ..client import x30Client
 
 
 @pytest.fixture(autouse=True)
