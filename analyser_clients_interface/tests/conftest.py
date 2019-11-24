@@ -9,7 +9,7 @@ from ..client import x30Client
 @pytest.fixture(autouse=True)
 def server():
     with MockServer() as mock_server:
-        thread = threading.Thread(target=mock_server.respond)
+        thread = threading.Thread(target=mock_server.start)
         thread.daemon = True
         thread.start()
         yield mock_server
