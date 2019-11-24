@@ -99,13 +99,14 @@ class x30Client:
             response = await self.read()
             while (
                 response[-8:] != b"XXXXXXXX"
-            ):  # Continue reading in response until 8 Xs have been received
+            ):  # Continue reading in until 8 Xs have been received
                 response += self.reader.read(1)
-            # Then process the response
-            # print(f"{self.name} stream response: {response}")
+            yield response
 
-        response = await self.execute(SET_STREAMING_DATA(val=False))
-        # Stop streaming after receiving 8 Zs
-        while response[-8:] != b"ZZZZZZZZ":
-            response += self.reader.read(1)
+        exit_response = await self.execute(SET_STREAMING_DATA(val=False))
+        # Stop streaming after 8 Zs have been received
+        while exit_response[-8:] != b"ZZZZZZZZ":
+            exit_response += self.reader.read(1024)
         print(f"{self.name} finished streaming")
+        # Yield the full exit response, which shows how much data we haven't processed since stopping streaming
+        yield exit_response
