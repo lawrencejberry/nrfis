@@ -1,7 +1,15 @@
 import asyncio
 import struct
 
-from protocol import ACKNOWLEDGEMENT_LENGTH, STATUS_HEADER_LENGTH, Request, GET_DATA, SET_STREAMING_DATA, Response, DATA
+from protocol import (
+    ACKNOWLEDGEMENT_LENGTH,
+    STATUS_HEADER_LENGTH,
+    Request,
+    GET_DATA,
+    SET_STREAMING_DATA,
+    Response,
+    DATA,
+)
 
 
 class x30Client:
@@ -68,7 +76,7 @@ class x30Client:
 
     async def update_status(self):
         response = await self.execute(GET_DATA())
-        status_header = response[:STATUS_HEADER_LENGTH§]
+        status_header = response[:STATUS_HEADER_LENGTH]
         self.fs_radix = status_header[0]
         self.fw_version = status_header[2]
         self.secondary_fan = bool((status_header[3] >> 3) & 1)
@@ -78,7 +86,9 @@ class x30Client:
         self.mux_level = int((status_header[6] >> 1) & 3)
         self.triggering_mode = int((status_header[6] >> 4) & 3)
         self.operating_mode = int((status_header[6] >> 6) & 3)
-        self.num_peaks_detected = status_header[16:24].decode("ascii")
+        self.num_peaks_detected = ", ".join(
+            [str(num) for num in struct.unpack("<HHHH", status_header[16:24])]
+        )
         self.error = status_header[47]
         self.buffer = status_header[48]
         self.header_version = status_header[49]
@@ -106,14 +116,24 @@ class x30Client:
         while exit_response[-8:] != b"ZZZZZZZZ":
             exit_response += await self.reader.read(1024)
         # Print the length of the exit response, which shows how much data we haven't processed since stopping streaming
-        print(f"{self.name} finished streaming. {len(exit_response)} bytes in the streaming buffer were not processed.")
+        print(
+            f"{self.name} finished streaming. {len(exit_response)} bytes in the streaming buffer were not processed."
+        )
 
     async def record(self):
         async for response in self.stream:
-            channel_1_peaks_in_nm = [peak/response.granularity for peak in response.channel_1_peaks]
-            channel_2_peaks_in_nm = [peak/response.granularity for peak in response.channel_2_peaks]
-            channel_3_peaks_in_nm = [peak/response.granularity for peak in response.channel_3_peaks]
-            channel_4_peaks_in_nm = [peak/response.granularity for peak in response.channel_4_peaks]
+            channel_1_peaks_in_nm = [
+                peak / response.granularity for peak in response.channel_1_peaks
+            ]
+            channel_2_peaks_in_nm = [
+                peak / response.granularity for peak in response.channel_2_peaks
+            ]
+            channel_3_peaks_in_nm = [
+                peak / response.granularity for peak in response.channel_3_peaks
+            ]
+            channel_4_peaks_in_nm = [
+                peak / response.granularity for peak in response.channel_4_peaks
+            ]
 
             # Now store data in database
 
