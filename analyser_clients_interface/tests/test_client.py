@@ -1,6 +1,6 @@
 import pytest
 
-from ..protocol import GET_DATA
+from ..protocol import GET_DATA, DATA
 
 
 @pytest.mark.asyncio
@@ -11,8 +11,7 @@ async def test_get_data(client):
 
 @pytest.mark.asyncio
 async def test_stream_data(client):
-    streamer = client.stream_data()
-    assert await streamer.__anext__() == bytes(88) + b"XXXXXXXX"
-    assert await streamer.__anext__() == bytes(88) + b"XXXXXXXX"
+    streamer = client.stream()
+    assert await streamer.__anext__() == DATA(bytes(88) + b"XXXXXXXX")
+    assert await streamer.__anext__() == DATA(bytes(88) + b"XXXXXXXX")
     client.streaming = False
-    assert (await streamer.__anext__())[-8:] == b"ZZZZZZZZ"

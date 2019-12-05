@@ -133,11 +133,11 @@ class Gui(wx.Frame):
     async def on_stream(self, event):
         """Handle the event when the user clicks the start/stop streaming button."""
         if self.client.streaming:
-            self.client.streaming = False
             self.stream.SetLabel("Start streaming")
+            self.client.streaming = False
         else:
-            await self.client.stream_data()
             self.stream.SetLabel("Stop streaming")
+            await self.client.record()
 
     async def update_status(self):
         await self.client.update_status()
