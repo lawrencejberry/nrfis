@@ -1,6 +1,9 @@
 import asyncio
 import struct
 
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 from protocol import (
     ACKNOWLEDGEMENT_LENGTH,
     STATUS_HEADER_LENGTH,
@@ -10,6 +13,7 @@ from protocol import (
     Response,
     DATA,
 )
+from schema import TestTable
 
 
 class x30Client:
@@ -121,7 +125,14 @@ class x30Client:
         )
 
     async def record(self):
-        async for response in self.stream:
+        db = create_engine(
+            "postgresql+psycopg2://postgres:@localhost/timescaletest", echo=False
+        )
+        Session = sessionmaker(db)
+        session = Session()
+
+        i = 0
+        async for response in self.stream():
             channel_1_peaks_in_nm = [
                 peak / response.granularity for peak in response.channel_1_peaks
             ]
@@ -136,4 +147,13 @@ class x30Client:
             ]
 
             # Now store data in database
+            # Create
+            entry = TestTable(sensor_1=channel_1_peaks_in_nm[0], sensor_2=0.0)
+            session.add(entry)
+            i += 1
+            if i > 2000:
+                session.flush()
+                i = 0
 
+        session.flush()
+        session.commit()
