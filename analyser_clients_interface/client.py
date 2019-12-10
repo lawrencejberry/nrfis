@@ -1,7 +1,19 @@
 import asyncio
 import struct
 
-from protocol import Request, GET_DATA, SET_STREAMING_DATA
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from protocol import (
+    ACKNOWLEDGEMENT_LENGTH,
+    STATUS_HEADER_LENGTH,
+    Request,
+    GET_DATA,
+    SET_STREAMING_DATA,
+    Response,
+    DATA,
+)
+from schema import TestTable
 
 
 class x30Client:
@@ -9,9 +21,6 @@ class x30Client:
     Client to interact with an sm130 fibre optic analyser box. Reflects the TCP protocol as far as possible.
     See the Micron Optics User Guide, Revision 1.139 section 4.4.4.5 for details.
     """
-
-    ACKNOWLEDGEMENT_LENGTH = 10  # bytes
-    STATUS_HEADER_LENGTH = 88  # bytes
 
     def __init__(self):
         self.name = "Client 1"  # Increment this when there are more clients
@@ -43,7 +52,8 @@ class x30Client:
         self.full_spectrum_start_wvl = None
         self.full_spectrum_end_wvl = None
 
-        # Streaming toggle
+        # Recording and streaming toggles
+        self.recording = False
         self.streaming = False
 
     async def connect(self):
@@ -58,7 +68,7 @@ class x30Client:
         print(f"{self.name} disconnected")
 
     async def read(self, override_length: int = None) -> bytes:
-        length = int(await self.reader.read(self.ACKNOWLEDGEMENT_LENGTH))
+        length = int(await self.reader.read(ACKNOWLEDGEMENT_LENGTH))
         if override_length is not None:  # Override message length if provided
             length = override_length
         response = await self.reader.read(length)
@@ -70,7 +80,7 @@ class x30Client:
 
     async def update_status(self):
         response = await self.execute(GET_DATA())
-        status_header = response[:88]
+        status_header = response[:STATUS_HEADER_LENGTH]
         self.fs_radix = status_header[0]
         self.fw_version = status_header[2]
         self.secondary_fan = bool((status_header[3] >> 3) & 1)
@@ -80,7 +90,9 @@ class x30Client:
         self.mux_level = int((status_header[6] >> 1) & 3)
         self.triggering_mode = int((status_header[6] >> 4) & 3)
         self.operating_mode = int((status_header[6] >> 6) & 3)
-        self.num_peaks_detected = status_header[16:24].decode("ascii")
+        self.num_peaks_detected = ", ".join(
+            [str(num) for num in struct.unpack("<HHHH", status_header[16:24])]
+        )
         self.error = status_header[47]
         self.buffer = status_header[48]
         self.header_version = status_header[49]
@@ -88,7 +100,7 @@ class x30Client:
         self.full_spectrum_start_wvl = struct.unpack("<L", status_header[80:84])[0]
         self.full_spectrum_end_wvl = struct.unpack("<L", status_header[84:88])[0]
 
-    async def stream_data(self):
+    async def stream(self):
         self.streaming = (
             await self.execute(SET_STREAMING_DATA(val=True))
         ) == b"Streaming data enabled.\n"
@@ -100,13 +112,48 @@ class x30Client:
             while (
                 response[-8:] != b"XXXXXXXX"
             ):  # Continue reading in until 8 Xs have been received
-                response += self.reader.read(1)
-            yield response
+                response += await self.reader.read(1)
+            yield DATA(response)
 
         exit_response = await self.execute(SET_STREAMING_DATA(val=False))
         # Stop streaming after 8 Zs have been received
         while exit_response[-8:] != b"ZZZZZZZZ":
-            exit_response += self.reader.read(1024)
-        print(f"{self.name} finished streaming")
-        # Yield the full exit response, which shows how much data we haven't processed since stopping streaming
-        yield exit_response
+            exit_response += await self.reader.read(1024)
+        # Print the length of the exit response, which shows how much data we haven't processed since stopping streaming
+        print(
+            f"{self.name} finished streaming. {len(exit_response)} bytes in the streaming buffer were not processed."
+        )
+
+    async def record(self):
+        db = create_engine(
+            "postgresql+psycopg2://postgres:@localhost/timescaletest", echo=False
+        )
+        Session = sessionmaker(db)
+        session = Session()
+
+        i = 0
+        async for response in self.stream():
+            channel_1_peaks_in_nm = [
+                peak / response.granularity for peak in response.channel_1_peaks
+            ]
+            channel_2_peaks_in_nm = [
+                peak / response.granularity for peak in response.channel_2_peaks
+            ]
+            channel_3_peaks_in_nm = [
+                peak / response.granularity for peak in response.channel_3_peaks
+            ]
+            channel_4_peaks_in_nm = [
+                peak / response.granularity for peak in response.channel_4_peaks
+            ]
+
+            # Now store data in database
+            # Create
+            entry = TestTable(sensor_1=channel_1_peaks_in_nm[0], sensor_2=0.0)
+            session.add(entry)
+            i += 1
+            if i > 2000:
+                session.flush()
+                i = 0
+
+        session.flush()
+        session.commit()

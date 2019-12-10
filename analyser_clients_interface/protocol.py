@@ -1,9 +1,15 @@
 from ipaddress import IPv4Address
 from enum import Enum, IntEnum
 from datetime import datetime
-from typing import Union
+from typing import Union, List
+from itertools import accumulate
+from struct import unpack
 
 from pydantic import BaseModel
+
+
+ACKNOWLEDGEMENT_LENGTH = 10  # bytes
+STATUS_HEADER_LENGTH = 88  # bytes
 
 
 class Channel(IntEnum):
@@ -59,6 +65,7 @@ class TrigMode(IntEnum):
     HW_TRIGGERED = 3
 
 
+# Requests
 class Request(BaseModel):
     _serializers = {
         datetime: lambda x: x.strftime(f"%m.%d.%H.%M.%y").encode("ascii"),
@@ -410,3 +417,45 @@ class SET_SENSOR_LOCATION(Request):
 class GET_SENSOR_LOCATION(Request):
     ch: Union[Channel, SubChannel]
     sensor: int
+
+
+# Responses
+class Response(BaseModel):
+    def __init__(self, response: bytes):
+        try:
+            super().__init__(**self.parse(response))
+        except:
+            raise ValueError("Could not parse response")
+
+
+class DATA(Response):
+    granularity: int
+    channel_1_peaks: List[int]
+    channel_2_peaks: List[int]
+    channel_3_peaks: List[int]
+    channel_4_peaks: List[int]
+
+    def parse(self, response: bytes):
+        status_header = response[:STATUS_HEADER_LENGTH]
+        granularity = unpack("<L", status_header[72:76])[0]
+        cumulative_num_peaks = list(accumulate(unpack("<HHHH", status_header[16:24])))
+        peaks = unpack(
+            "<" + ("L" * cumulative_num_peaks[3]),
+            response[
+                STATUS_HEADER_LENGTH : STATUS_HEADER_LENGTH
+                + (4 * cumulative_num_peaks[3])
+            ],
+        )
+        channel_1_peaks = peaks[0 : cumulative_num_peaks[0]]
+        channel_2_peaks = peaks[cumulative_num_peaks[0] : cumulative_num_peaks[1]]
+        channel_3_peaks = peaks[cumulative_num_peaks[1] : cumulative_num_peaks[2]]
+        channel_4_peaks = peaks[cumulative_num_peaks[2] : cumulative_num_peaks[3]]
+
+        return {
+            "granularity": granularity,
+            "channel_1_peaks": channel_1_peaks,
+            "channel_2_peaks": channel_2_peaks,
+            "channel_3_peaks": channel_3_peaks,
+            "channel_4_peaks": channel_4_peaks,
+        }
+
