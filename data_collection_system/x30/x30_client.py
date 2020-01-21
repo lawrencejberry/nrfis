@@ -1,19 +1,21 @@
 import asyncio
 import struct
+from itertools import count
+import logging
+import sys
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-from protocol import (
+from .x30_protocol import (
+    Request,
+    Response,
     ACKNOWLEDGEMENT_LENGTH,
     STATUS_HEADER_LENGTH,
-    Request,
     GET_DATA,
     SET_STREAMING_DATA,
-    Response,
     DATA,
 )
-from schema import TestTable
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.StreamHandler(stream=sys.stdout))
 
 
 class x30Client:
@@ -22,10 +24,12 @@ class x30Client:
     See the Micron Optics User Guide, Revision 1.139 section 4.4.4.5 for details.
     """
 
-    def __init__(self):
-        self.name = "Client 1"  # Increment this when there are more clients
+    _count = count(1)
 
-        # Connection information
+    def __init__(self):
+        self.name = next(self._count)
+
+        # Default connection information
         self.host = "10.0.0.126"
         self.port = 1852
         self.connected = False
@@ -59,13 +63,13 @@ class x30Client:
     async def connect(self):
         self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
         self.connected = True
-        print(f"{self.name} connected")
+        logger.info(f"{self.name} connected")
 
     async def disconnect(self):
         self.writer.close()
         await self.writer.wait_closed()
         self.connected = False
-        print(f"{self.name} disconnected")
+        logger.info(f"{self.name} disconnected")
 
     async def read(self, override_length: int = None) -> bytes:
         length = int(await self.reader.read(ACKNOWLEDGEMENT_LENGTH))
@@ -105,7 +109,7 @@ class x30Client:
             await self.execute(SET_STREAMING_DATA(val=True))
         ) == b"Streaming data enabled.\n"
         await self.execute(GET_DATA())
-        print(f"{self.name} started streaming")
+        logger.info(f"{self.name} started streaming")
 
         while self.streaming:
             response = await self.read()
@@ -119,41 +123,41 @@ class x30Client:
         # Stop streaming after 8 Zs have been received
         while exit_response[-8:] != b"ZZZZZZZZ":
             exit_response += await self.reader.read(1024)
-        # Print the length of the exit response, which shows how much data we haven't processed since stopping streaming
-        print(
+        # logger.info the length of the exit response, which shows how much data we haven't processed since stopping streaming
+        logger.info(
             f"{self.name} finished streaming. {len(exit_response)} bytes in the streaming buffer were not processed."
         )
 
-    async def record(self):
-        db = create_engine(
-            "postgresql+psycopg2://postgres:@localhost/timescaletest", echo=False
-        )
-        Session = sessionmaker(db)
-        session = Session()
+    # async def record(self):
+    #     db = create_engine(
+    #         "postgresql+psycopg2://postgres:@localhost/timescaletest", echo=False
+    #     )
+    #     Session = sessionmaker(db)
+    #     session = Session()
 
-        i = 0
-        async for response in self.stream():
-            channel_1_peaks_in_nm = [
-                peak / response.granularity for peak in response.channel_1_peaks
-            ]
-            channel_2_peaks_in_nm = [
-                peak / response.granularity for peak in response.channel_2_peaks
-            ]
-            channel_3_peaks_in_nm = [
-                peak / response.granularity for peak in response.channel_3_peaks
-            ]
-            channel_4_peaks_in_nm = [
-                peak / response.granularity for peak in response.channel_4_peaks
-            ]
+    #     i = 0
+    #     async for response in self.stream():
+    #         channel_1_peaks_in_nm = [
+    #             peak / response.granularity for peak in response.channel_1_peaks
+    #         ]
+    #         channel_2_peaks_in_nm = [
+    #             peak / response.granularity for peak in response.channel_2_peaks
+    #         ]
+    #         channel_3_peaks_in_nm = [
+    #             peak / response.granularity for peak in response.channel_3_peaks
+    #         ]
+    #         channel_4_peaks_in_nm = [
+    #             peak / response.granularity for peak in response.channel_4_peaks
+    #         ]
 
-            # Now store data in database
-            # Create
-            entry = TestTable(sensor_1=channel_1_peaks_in_nm[0], sensor_2=0.0)
-            session.add(entry)
-            i += 1
-            if i > 2000:
-                session.flush()
-                i = 0
+    #         # Now store data in database
+    #         # Create
+    #         entry = TestTable(sensor_1=channel_1_peaks_in_nm[0], sensor_2=0.0)
+    #         session.add(entry)
+    #         i += 1
+    #         if i > 2000:
+    #             session.flush()
+    #             i = 0
 
-        session.flush()
-        session.commit()
+    #     session.flush()
+    #     session.commit()

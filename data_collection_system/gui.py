@@ -1,7 +1,7 @@
 import wx
 from wxasync import AsyncBind
 
-from client import x30Client
+from .x30.x30_client import x30Client
 
 
 class Gui(wx.Frame):
