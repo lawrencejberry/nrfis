@@ -74,15 +74,19 @@ class Request(BaseModel):
     _default_serializer = lambda x: str(x).encode("ascii")
 
     def serialize(self):
-        command = b"#%b" % (
-            self.__class__.__name__
-            + getattr(self, "append", "")
-            + getattr(self, "x", "")
-        ).encode("ascii")
+        try:  # Command included as field
+            command = (getattr(self, "command")).encode("ascii")
+        except AttributeError:  # Take class name as command, with value x appended if specified
+            command = b"#%b%b" % (
+                (self.__class__.__name__).encode("ascii"),
+                str(getattr(self, "x", "")).encode("ascii"),
+            )
+
         arguments = [
             self._serializers.get(self.__fields__[k].type_, self._default_serializer)(v)
             for k, v in self.dict().items()
         ]
+
         return (b" ".join((command, *arguments))) + b"\n"
 
 
@@ -111,7 +115,7 @@ class HELP(Request):
 
 
 class IDN(Request):
-    append = "?"
+    command = "#IDN?"
 
 
 class GET_CAPABILITIES(Request):
@@ -175,11 +179,11 @@ class GET_DNS_SERVER(Request):
 
 
 class WHO(Request):
-    append = "?"
+    command = "#WHO?"
 
 
 class WHOAMI(Request):
-    append = "?"
+    command = "#WHOAMI?"
 
 
 class SET_DATE(Request):

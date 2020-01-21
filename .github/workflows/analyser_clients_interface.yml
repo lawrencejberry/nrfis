@@ -1,4 +1,4 @@
-name: Analyser Clients Interface
+name: Data Collection System
 
 on: [push]
 
@@ -16,11 +16,11 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get install libpq-dev
-        pip install -r analyser_clients_interface/requirements.txt -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04
+        pip install -r data_collection_system/requirements.txt -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04
     - name: Test with pytest
       run: |
-        export PYTHONPATH=`pwd`/analyser_clients_interface
-        pytest analyser_clients_interface --cov=./analyser_clients_interface/ --cov-report=xml
+        export PYTHONPATH=`pwd`/data_collection_system
+        pytest data_collection_system --cov=./data_collection_system/ --cov-report=xml
     - name: Upload coverage to Codecov  
       uses: codecov/codecov-action@v1
       with:

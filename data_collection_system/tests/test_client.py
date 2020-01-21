@@ -1,6 +1,6 @@
 import pytest
 
-from ..protocol import GET_DATA, DATA
+from ..x30.x30_protocol import GET_DATA, DATA
 
 
 @pytest.mark.asyncio
