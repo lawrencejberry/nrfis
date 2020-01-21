@@ -85,6 +85,7 @@ class Request(BaseModel):
         arguments = [
             self._serializers.get(self.__fields__[k].type_, self._default_serializer)(v)
             for k, v in self.dict().items()
+            if k != "command"
         ]
 
         return (b" ".join((command, *arguments))) + b"\n"
