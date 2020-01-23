@@ -2,7 +2,7 @@ from asyncio.events import get_event_loop
 
 from wxasync import WxAsyncApp
 
-from gui import Gui
+from data_collection_system.gui import Gui
 
 
 def main():
