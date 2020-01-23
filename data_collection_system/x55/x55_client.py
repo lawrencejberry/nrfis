@@ -1,9 +1,13 @@
 import asyncio
-from struct import pack, unpack
-from itertools import count
 import logging
 import sys
+from itertools import count
+from struct import pack, unpack
+from enum import Enum
 
+from .. import Session
+from ..schema import Basement, StrongFloor, SteelFrame
+from ..mappings import Mappings
 
 from .x55_protocol import Request, Response, EnablePeakDataStreaming, Peaks
 
@@ -17,6 +21,11 @@ STREAM_SPECTRA_PORT = 51973
 STREAM_SENSORS_PORT = 51974
 
 ACKNOWLEDGEMENT_LENGTH = 8
+
+
+class Configuration(Enum):
+    BASEMENT_AND_FRAME = 0
+    STRONG_FLOOR = 1
 
 
 class Connection:
@@ -82,6 +91,11 @@ class x55Client:
         self.recording = False
         self.streaming = False
 
+        # Configuration setting
+        self.configuration = (
+            Configuration.BASEMENT_AND_FRAME
+        )  # Set to basement and frame by default
+
     async def update_status(self):
         pass
 
@@ -110,36 +124,26 @@ class x55Client:
             f"{self.name} finished streaming with {len(buffer)} unproccessed bytes in the streaming buffer"
         )
 
-    # async def record(self):
-    #     db = create_engine(
-    #         "postgresql+psycopg2://postgres:@localhost/timescaletest", echo=False
-    #     )
-    #     Session = sessionmaker(db)
-    #     session = Session()
+    async def record(self):
+        session = Session()
+        sample_count = 0
 
-    #     i = 0
-    #     async for response in self.stream():
-    #         channel_1_peaks_in_nm = [
-    #             peak / response.granularity for peak in response.channel_1_peaks
-    #         ]
-    #         channel_2_peaks_in_nm = [
-    #             peak / response.granularity for peak in response.channel_2_peaks
-    #         ]
-    #         channel_3_peaks_in_nm = [
-    #             peak / response.granularity for peak in response.channel_3_peaks
-    #         ]
-    #         channel_4_peaks_in_nm = [
-    #             peak / response.granularity for peak in response.channel_4_peaks
-    #         ]
+        async for peaks in self.stream():
+            if self.configuration == Configuration.BASEMENT_AND_FRAME:
+                basement_sample = Basement(peaks.timestamp, peaks.peaks)
+                steel_frame_sample = SteelFrame(peaks.timestamp, peaks.peaks)
+                session.add(basement_sample)
+                session.add(steel_frame_sample)
 
-    #         # Now store data in database
-    #         # Create
-    #         entry = TestTable(sensor_1=channel_1_peaks_in_nm[0], sensor_2=0.0)
-    #         session.add(entry)
-    #         i += 1
-    #         if i > 2000:
-    #             session.flush()
-    #             i = 0
+            elif self.configuration == Configuration.STRONG_FLOOR:
+                strong_floor_sample = StrongFloor(peaks.timestamp, peaks.peaks)
+                session.add(strong_floor_sample)
 
-    #     session.flush()
-    #     session.commit()
+            # Commit after every 2000 samples
+            sample_count += 1
+            if sample_count > 2000:
+                session.commit()
+                sample_count = 0
+
+        session.commit()
+        session.close()
