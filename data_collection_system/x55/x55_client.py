@@ -47,22 +47,23 @@ class Configuration(Enum):
 
 
 class Connection:
-    def __init__(self, port: int):
+    def __init__(self, host: str, port: int):
+        self.host = host
         self.port = port
         self.active = False
         self.reader = None
         self.writer = None
 
     async def connect(self):
-        self.reader, self.writer = await asyncio.open_connection(HOST, self.port)
+        self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
         self.active = True
-        logger.info(f"Connected to {self.port}")
+        logger.info(f"Connected to {self.host}:{self.port}")
 
     async def disconnect(self):
         self.writer.close()
         await self.writer.wait_closed()
         self.active = False
-        logger.info(f"Disconnected from {self.port}")
+        logger.info(f"Disconnected from {self.host}:{self.port}")
 
     async def read(self) -> bytes:
         header = await self.reader.read(ACKNOWLEDGEMENT_LENGTH)
@@ -82,10 +83,10 @@ class Connection:
 
 
 class Connections:
-    command = Connection(port=COMMAND_PORT)
-    peaks = Connection(port=STREAM_PEAKS_PORT)
-    spectra = Connection(port=STREAM_SPECTRA_PORT)
-    sensors = Connection(port=STREAM_SENSORS_PORT)
+    command = Connection(host=HOST, port=COMMAND_PORT)
+    peaks = Connection(host=HOST, port=STREAM_PEAKS_PORT)
+    spectra = Connection(host=HOST, port=STREAM_SPECTRA_PORT)
+    sensors = Connection(host=HOST, port=STREAM_SENSORS_PORT)
 
 
 class x55Client:
@@ -97,9 +98,10 @@ class x55Client:
     _count = count(1)
 
     def __init__(self):
-        self.name = next(self._count)
+        self.name = f"x55 Client {next(self._count)}"
 
         # Connections
+        self.host = HOST
         self.conn = Connections()
 
         # Status information
