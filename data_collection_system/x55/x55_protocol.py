@@ -36,6 +36,22 @@ class Request(BaseModel):
         )
 
 
+class GetFirmwareVersion(Request):
+    pass
+
+
+class GetInstrumentName(Request):
+    pass
+
+
+class IsReady(Request):
+    pass
+
+
+class GetDutChannelCount(Request):
+    pass
+
+
 class GetPeaks(Request):
     pass
 
@@ -52,13 +68,60 @@ class GetPeakDataStreamingStatus(Request):
     pass
 
 
+class GetPeakDataStreamingDivider(Request):
+    pass
+
+
+class GetPeakDataStreamingAvailableBuffer(Request):
+    pass
+
+
 # Responses
 class Response(BaseModel):
-    def __init__(self, content: bytes):
+    status: bool
+    message: str
+
+    def __init__(self, status: bool, message: bytes, content: bytes):
         try:
-            super().__init__(**self.parse(content))
+            super().__init__(status=status, message=message, **self.parse(content))
         except:
             raise ValueError("Could not parse response")
+
+
+class FirmwareVersion(Response):
+    content: str
+
+    def parse(self, content: bytes):
+        version = bytes.fromhex(content).decode("ascii")
+
+        return {"content": version}
+
+
+class InstrumentName(Response):
+    content: str
+
+    def parse(self, content: bytes):
+        name = bytes.fromhex(content).decode("ascii")
+
+        return {"content": name}
+
+
+class Ready(Response):
+    content: bool
+
+    def parse(self, content: bytes):
+        ready = unpack("<?", content)[0]
+
+        return {"content": ready}
+
+
+class DutChannelCount(Response):
+    content: int
+
+    def parse(self, content: bytes):
+        count = unpack("<I", content)[0]
+
+        return {"content": count}
 
 
 class Peaks(Response):
@@ -88,3 +151,29 @@ class Peaks(Response):
             "peaks": peaks,
         }
 
+
+class PeakDataStreamingStatus(Response):
+    content: bool
+
+    def parse(self, content: bytes):
+        status = bool(unpack("<I", content)[0])
+
+        return {"content": status}
+
+
+class PeakDataStreamingDivider(Response):
+    content: int
+
+    def parse(self, content: bytes):
+        divider = unpack("<I", content)[0]
+
+        return {"content": divider}
+
+
+class PeakDataStreamingAvailableBuffer(Response):
+    content: int
+
+    def parse(self, content: bytes):
+        availability = unpack("<I", content)[0]
+
+        return {"content": availability}

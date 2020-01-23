@@ -7,9 +7,27 @@ from enum import Enum
 
 from .. import Session
 from ..schema import Basement, StrongFloor, SteelFrame
-from ..mappings import Mappings
-
-from .x55_protocol import Request, Response, EnablePeakDataStreaming, Peaks
+from .x55_protocol import (
+    Request,
+    GetFirmwareVersion,
+    GetInstrumentName,
+    IsReady,
+    GetDutChannelCount,
+    EnablePeakDataStreaming,
+    DisablePeakDataStreaming,
+    GetPeakDataStreamingStatus,
+    GetPeakDataStreamingDivider,
+    GetPeakDataStreamingAvailableBuffer,
+    Response,
+    FirmwareVersion,
+    InstrumentName,
+    Ready,
+    DutChannelCount,
+    Peaks,
+    PeakDataStreamingStatus,
+    PeakDataStreamingDivider,
+    PeakDataStreamingAvailableBuffer,
+)
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(stream=sys.stdout))
@@ -48,7 +66,7 @@ class Connection:
 
     async def read(self) -> bytes:
         header = await self.reader.read(ACKNOWLEDGEMENT_LENGTH)
-        status = unpack("<B", header[0])[0]
+        status = unpack("<?", header[0])[0]
         message_size = unpack("<H", header[2:4])[0]
         content_size = unpack("<I", header[4:8])[0]
 
@@ -85,7 +103,13 @@ class x55Client:
         self.conn = Connections()
 
         # Status information
-        # ...
+        self.instrument_name = None
+        self.firmware_version = None
+        self.is_ready = None
+        self.dut_channel_count = None
+        self.peak_data_streaming_status = None
+        self.peak_data_streaming_divider = None
+        self.peak_data_streaming_available_buffer = None
 
         # Recording and streaming toggles
         self.recording = False
@@ -97,17 +121,40 @@ class x55Client:
         )  # Set to basement and frame by default
 
     async def update_status(self):
-        pass
+        self.instrument_name = InstrumentName(
+            *await self.conn.command.execute(GetInstrumentName)
+        ).content
+
+        self.firmware_version = FirmwareVersion(
+            *await self.conn.command.execute(GetFirmwareVersion)
+        ).content
+
+        self.is_ready = Ready(*await self.conn.command.execute(IsReady)).content
+
+        self.dut_channel_count = DutChannelCount(
+            *await self.conn.command.execute(GetDutChannelCount)
+        ).content
+
+        self.peak_data_streaming_status = PeakDataStreamingStatus(
+            *await self.conn.command.execute(GetPeakDataStreamingStatus)
+        ).content
+
+        self.peak_data_streaming_divider = PeakDataStreamingDivider(
+            *await self.conn.command.execute(GetPeakDataStreamingDivider)
+        ).content
+
+        self.peak_data_streaming_available_buffer = PeakDataStreamingAvailableBuffer(
+            *await self.conn.command.execute(GetPeakDataStreamingAvailableBuffer)
+        ).content
 
     async def stream(self):
         self.conn.peaks.connect()
         status, _, _ = await self.conn.command.execute(EnablePeakDataStreaming)
-        self.streaming = status == 0
+        self.streaming = status
         logger.info(f"{self.name} started streaming")
 
         while self.streaming:
-            _, _, content = await self.conn.peaks.read()
-            yield Peaks(content)
+            yield Peaks(*await self.conn.peaks.read())
 
         # Clear out the remaining data and disconnect
         buffer = []
@@ -116,6 +163,8 @@ class x55Client:
             if not data:
                 break
             buffer += data
+
+        status, _, _ = await self.conn.command.execute(DisablePeakDataStreaming)
 
         self.conn.peaks.disconnect()
 
