@@ -48,9 +48,9 @@ class Connection:
 
     async def read(self) -> bytes:
         header = await self.reader.read(ACKNOWLEDGEMENT_LENGTH)
-        status = unpack("<B", header[0])
-        message_size = unpack("<H", header[2:4])
-        content_size = unpack("<I", header[4:8])
+        status = unpack("<B", header[0])[0]
+        message_size = unpack("<H", header[2:4])[0]
+        content_size = unpack("<I", header[4:8])[0]
 
         response = await self.reader.read(message_size + content_size)
         message = response[:message_size]

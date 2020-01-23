@@ -66,8 +66,8 @@ class Peaks(Response):
     peaks: List[List[float]]
 
     def parse(self, content: bytes):
-        timestamp_seconds = unpack("<I", content[16:20])
-        timestamp_nanoseconds = unpack("<I", content[20:24])
+        timestamp_seconds = unpack("<I", content[16:20])[0]
+        timestamp_nanoseconds = unpack("<I", content[20:24])[0]
         num_peaks_per_channel = unpack("<" + 16 * "H", content[24:56])
 
         cumulative_num_peaks = [0] + list(accumulate(num_peaks_per_channel))
