@@ -18,6 +18,7 @@ from .x55_protocol import (
     GetPeakDataStreamingStatus,
     GetPeakDataStreamingDivider,
     GetPeakDataStreamingAvailableBuffer,
+    GetLaserScanSpeed,
     Response,
     FirmwareVersion,
     InstrumentName,
@@ -27,6 +28,7 @@ from .x55_protocol import (
     PeakDataStreamingStatus,
     PeakDataStreamingDivider,
     PeakDataStreamingAvailableBuffer,
+    LaserScanSpeed,
 )
 
 logger = logging.getLogger(__name__)
@@ -112,6 +114,7 @@ class x55Client:
         self.peak_data_streaming_status = None
         self.peak_data_streaming_divider = None
         self.peak_data_streaming_available_buffer = None
+        self.laser_scan_speed = None
 
         # Recording and streaming toggles
         self.recording = False
@@ -124,39 +127,44 @@ class x55Client:
 
     async def update_status(self):
         self.instrument_name = InstrumentName(
-            *await self.conn.command.execute(GetInstrumentName)
+            await self.conn.command.execute(GetInstrumentName)
         ).content
 
         self.firmware_version = FirmwareVersion(
-            *await self.conn.command.execute(GetFirmwareVersion)
+            await self.conn.command.execute(GetFirmwareVersion)
         ).content
 
-        self.is_ready = Ready(*await self.conn.command.execute(IsReady)).content
+        self.is_ready = Ready(await self.conn.command.execute(IsReady)).content
 
         self.dut_channel_count = DutChannelCount(
-            *await self.conn.command.execute(GetDutChannelCount)
+            await self.conn.command.execute(GetDutChannelCount)
         ).content
 
         self.peak_data_streaming_status = PeakDataStreamingStatus(
-            *await self.conn.command.execute(GetPeakDataStreamingStatus)
+            await self.conn.command.execute(GetPeakDataStreamingStatus)
         ).content
 
         self.peak_data_streaming_divider = PeakDataStreamingDivider(
-            *await self.conn.command.execute(GetPeakDataStreamingDivider)
+            await self.conn.command.execute(GetPeakDataStreamingDivider)
         ).content
 
         self.peak_data_streaming_available_buffer = PeakDataStreamingAvailableBuffer(
-            *await self.conn.command.execute(GetPeakDataStreamingAvailableBuffer)
+            await self.conn.command.execute(GetPeakDataStreamingAvailableBuffer)
+        ).content
+
+        self.laser_scan_speed = LaserScanSpeed(
+            await self.conn.command.execute(GetLaserScanSpeed)
         ).content
 
     async def stream(self):
         self.conn.peaks.connect()
-        status, _, _ = await self.conn.command.execute(EnablePeakDataStreaming)
-        self.streaming = status
+        self.streaming = Response(
+            await self.conn.command.execute(EnablePeakDataStreaming)
+        ).status
         logger.info(f"{self.name} started streaming")
 
         while self.streaming:
-            yield Peaks(*await self.conn.peaks.read())
+            yield Peaks(await self.conn.peaks.read())
 
         # Clear out the remaining data and disconnect
         buffer = []
@@ -166,7 +174,7 @@ class x55Client:
                 break
             buffer += data
 
-        status, _, _ = await self.conn.command.execute(DisablePeakDataStreaming)
+        await self.conn.command.execute(DisablePeakDataStreaming)
 
         self.conn.peaks.disconnect()
 

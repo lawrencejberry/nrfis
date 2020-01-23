@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import List
+from typing import List, Tuple
 from itertools import accumulate
 from struct import pack, unpack
 
@@ -76,16 +76,28 @@ class GetPeakDataStreamingAvailableBuffer(Request):
     pass
 
 
+class GetLaserScanSpeed(Request):
+    pass
+
+
+class SetLaserScanSpeed(Request):
+    speed: int
+
+
 # Responses
 class Response(BaseModel):
     status: bool
     message: str
+    content: bytes
 
-    def __init__(self, status: bool, message: bytes, content: bytes):
+    def __init__(self, response: Tuple[bool, bytes, bytes]):
         try:
             super().__init__(status=status, message=message, **self.parse(content))
         except:
             raise ValueError("Could not parse response")
+
+    def parse(self, content: bytes):
+        return {"content": content}
 
 
 class FirmwareVersion(Response):
@@ -177,3 +189,12 @@ class PeakDataStreamingAvailableBuffer(Response):
         availability = unpack("<I", content)[0]
 
         return {"content": availability}
+
+
+class LaserScanSpeed(Response):
+    content: int
+
+    def parse(self, content: bytes):
+        speed = unpack("<I", content)[0]
+
+        return {"content": speed}

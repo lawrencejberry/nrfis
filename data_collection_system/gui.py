@@ -45,6 +45,7 @@ class Gui(wx.Frame):
             "peak_data_streaming_status": "Streaming status",
             "peak_data_streaming_divider": "Streaming divider",
             "peak_data_streaming_available_buffer": "Available streaming buffer",
+            "laser_scan_speed": "Laser scan speed",
         }
         self.instrument_name = wx.StaticText(self, wx.ID_ANY, "Not acquired")
         self.firmware_version = wx.StaticText(self, wx.ID_ANY, "Not acquired")
@@ -57,6 +58,7 @@ class Gui(wx.Frame):
         self.peak_data_streaming_available_buffer = wx.StaticText(
             self, wx.ID_ANY, "Not acquired"
         )
+        self.laser_scan_speed = wx.StaticText(self, wx.ID_ANY, "Not acquired")
 
         # Bind events to widgets
         self.Bind(wx.EVT_MENU, self.on_menu)
