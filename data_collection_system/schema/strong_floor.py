@@ -1,7 +1,7 @@
 from typing import List
 from datetime import datetime
 
-from sqlalchemy import Column, String
+from sqlalchemy import Column
 from sqlalchemy.types import Time
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 
