@@ -84,6 +84,10 @@ class SetLaserScanSpeed(Request):
     speed: int
 
 
+class GetInstrumentUtcDateTime(Request):
+    pass
+
+
 # Responses
 class Response(BaseModel):
     status: bool
@@ -200,3 +204,18 @@ class LaserScanSpeed(Response):
         speed = unpack("<I", content)[0]
 
         return {"content": speed}
+
+
+class InstrumentUtcDateTime(Response):
+    content: datetime
+
+    def parse(self, content: bytes):
+        year = unpack("<H", content[:2])
+        month = unpack("<H", content[2:4])
+        day = unpack("<H", content[4:6])
+        hour = unpack("<H", content[6:8])
+        minute = unpack("<H", content[8:10])
+        second = unpack("<H", content[10:12])
+
+        return {"content": datetime(year, month, day, hour, minute, second)}
+
