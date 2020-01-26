@@ -92,7 +92,9 @@ class Response(BaseModel):
 
     def __init__(self, response: Tuple[bool, bytes, bytes]):
         try:
-            super().__init__(status=status, message=message, **self.parse(content))
+            super().__init__(
+                status=response[0], message=response[1], **self.parse(response[2])
+            )
         except:
             raise ValueError("Could not parse response")
 

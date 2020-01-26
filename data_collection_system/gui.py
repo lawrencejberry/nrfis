@@ -3,6 +3,8 @@ from wxasync import AsyncBind
 
 from .x55.x55_client import x55Client
 
+SAMPLING_RATE_CHOICES = ["1", "10", "100", "1000"]
+
 
 class Gui(wx.Frame):
     """
@@ -30,11 +32,15 @@ class Gui(wx.Frame):
 
         # Configure the widgets
         self.title = wx.StaticText(self, wx.ID_ANY, self.client.name)
-        self.host_label = wx.StaticText(self, wx.ID_ANY, "Host:")
         self.host = wx.TextCtrl(self, wx.ID_ANY, self.client.host)
         self.connect = wx.Button(self, wx.ID_ANY, "Connect")
         self.stream = wx.Button(self, wx.ID_ANY, "Start streaming")
         self.stream.Disable()  # Streaming button disabled until client has connected
+        self.sampling_rate = wx.Choice(self, wx.ID_ANY, choices=SAMPLING_RATE_CHOICES)
+        self.sampling_rate.SetSelection(
+            self.sampling_rate.FindString(str(self.client.sampling_rate))
+        )
+        self.sampling_rate.Disable()
 
         # Status information
         self.status_labels = {
@@ -64,20 +70,34 @@ class Gui(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_menu)
         AsyncBind(wx.EVT_BUTTON, self.on_connect, self.connect)
         AsyncBind(wx.EVT_BUTTON, self.on_stream, self.stream)
+        AsyncBind(wx.EVT_CHOICE, self.on_change_sampling_rate, self.sampling_rate)
 
         # Configure sizers for layout
         main_sizer = wx.BoxSizer(wx.HORIZONTAL)
         client_sizer = wx.BoxSizer(wx.VERTICAL)
-        status_sizer = wx.GridSizer(16, 2, 0, 10)
+        control_sizer = wx.GridSizer(2, 2, 0, 10)
+        status_sizer = wx.GridSizer(len(self.status_labels), 2, 0, 10)
 
         main_sizer.Add(client_sizer)
 
         client_sizer.Add(self.title, 0, wx.ALL, 5)
-        client_sizer.Add(self.host_label, 0, wx.ALL, 5)
-        client_sizer.Add(self.host, 0, wx.ALL | wx.EXPAND, 5)
         client_sizer.Add(self.connect, 0, wx.ALL | wx.EXPAND, 5)
         client_sizer.Add(self.stream, 0, wx.ALL | wx.EXPAND, 5)
+        client_sizer.Add(control_sizer, 0, wx.ALL | wx.EXPAND, 5)
         client_sizer.Add(status_sizer, 0, wx.ALL | wx.EXPAND, 5)
+
+        control_sizer.Add(
+            wx.StaticText(self, wx.ID_ANY, "Host:"), 0, wx.ALL | wx.EXPAND, 5,
+        )
+        control_sizer.Add(
+            self.host, 0, wx.ALL | wx.EXPAND, 5,
+        )
+        control_sizer.Add(
+            wx.StaticText(self, wx.ID_ANY, "Sampling rate:"), 0, wx.ALL | wx.EXPAND, 5,
+        )
+        control_sizer.Add(
+            self.sampling_rate, 0, wx.ALL | wx.EXPAND, 5,
+        )
 
         for status in self.status_labels:
             status_sizer.Add(
@@ -113,11 +133,13 @@ class Gui(wx.Frame):
             await self.client.conn.command.disconnect()
             self.connect.SetLabel("Connect")
             self.stream.Disable()
+            self.sampling_rate.Disable()
         else:
             await self.client.conn.command.connect()
             self.connect.SetLabel("Disconnect")
             await self.update_status()
             self.stream.Enable()
+            self.sampling_rate.Enable()
 
     async def on_stream(self, event):
         """Handle the event when the user clicks the start/stop streaming button."""
@@ -128,7 +150,20 @@ class Gui(wx.Frame):
             self.stream.SetLabel("Stop streaming")
             await self.client.record()
 
+    async def on_change_sampling_rate(self, event):
+        """Handle the event when the user changes the sampling rate control
+        value. """
+        sampling_rate = int(
+            self.sampling_rate.GetString(self.sampling_rate.GetSelection())
+        )
+        status = await self.client.update_sampling_rate(sampling_rate)
+        if not status:  # If unsuccessful, revert to original selection
+            self.sampling_rate.SetSelection(
+                self.sampling_rate.FindString(str(self.client.sampling_rate))
+            )
+
     async def update_status(self):
         await self.client.update_status()
         for status in self.status_labels:
             getattr(self, status).SetLabel(f"{str(getattr(self.client, status))} ")
+

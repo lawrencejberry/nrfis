@@ -19,6 +19,7 @@ from .x55_protocol import (
     GetPeakDataStreamingDivider,
     GetPeakDataStreamingAvailableBuffer,
     GetLaserScanSpeed,
+    SetLaserScanSpeed,
     Response,
     FirmwareVersion,
     InstrumentName,
@@ -69,7 +70,7 @@ class Connection:
 
     async def read(self) -> bytes:
         header = await self.reader.read(ACKNOWLEDGEMENT_LENGTH)
-        status = unpack("<?", header[0])[0]
+        status = not unpack("<?", header[0])[0]  # True if successful
         message_size = unpack("<H", header[2:4])[0]
         content_size = unpack("<I", header[4:8])[0]
 
@@ -124,6 +125,7 @@ class x55Client:
         self.configuration = (
             Configuration.BASEMENT_AND_FRAME
         )  # Set to basement and frame by default
+        self.sampling_rate = 1000  # Hz
 
     async def update_status(self):
         self.instrument_name = InstrumentName(
@@ -155,6 +157,14 @@ class x55Client:
         self.laser_scan_speed = LaserScanSpeed(
             await self.conn.command.execute(GetLaserScanSpeed)
         ).content
+
+    async def update_sampling_rate(self, sampling_rate: int) -> bool:
+        status = Response(
+            await self.conn.command.execute(SetLaserScanSpeed(speed=sampling_rate))
+        ).status
+        if status:  # If successful
+            self.sampling_rate = sampling_rate
+        return status
 
     async def stream(self):
         self.conn.peaks.connect()
