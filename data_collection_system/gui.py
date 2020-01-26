@@ -46,7 +46,7 @@ class Gui(wx.Frame):
         self.sampling_rate.Disable()
 
         # Status information
-        self.status_labels = {
+        self.statuses = {
             "instrument_name": "Instrument name",
             "firmware_version": "Firmware version",
             "is_ready": "Ready",
@@ -58,20 +58,8 @@ class Gui(wx.Frame):
             "instrument_time": "Instrument time",
             "ntp_enabled": "NTP server enabled",
         }
-        self.instrument_name = wx.StaticText(self, wx.ID_ANY, "Not acquired")
-        self.firmware_version = wx.StaticText(self, wx.ID_ANY, "Not acquired")
-        self.is_ready = wx.StaticText(self, wx.ID_ANY, "Not acquired")
-        self.dut_channel_count = wx.StaticText(self, wx.ID_ANY, "Not acquired")
-        self.peak_data_streaming_status = wx.StaticText(self, wx.ID_ANY, "Not acquired")
-        self.peak_data_streaming_divider = wx.StaticText(
-            self, wx.ID_ANY, "Not acquired"
-        )
-        self.peak_data_streaming_available_buffer = wx.StaticText(
-            self, wx.ID_ANY, "Not acquired"
-        )
-        self.laser_scan_speed = wx.StaticText(self, wx.ID_ANY, "Not acquired")
-        self.instrument_time = wx.StaticText(self, wx.ID_ANY, "Not acquired")
-        self.ntp_enabled = wx.StaticText(self, wx.ID_ANY, "Not acquired")
+        for status in self.statuses:
+            setattr(self, status, wx.StaticText(self, wx.ID_ANY, "Not acquired"))
 
         # Bind events to widgets
         self.Bind(wx.EVT_MENU, self.on_menu)
@@ -84,7 +72,7 @@ class Gui(wx.Frame):
         main_sizer = wx.BoxSizer(wx.HORIZONTAL)
         client_sizer = wx.BoxSizer(wx.VERTICAL)
         control_sizer = wx.GridSizer(3, 2, 0, 10)
-        status_sizer = wx.GridSizer(len(self.status_labels), 2, 0, 10)
+        status_sizer = wx.GridSizer(len(self.statuses), 2, 0, 10)
 
         main_sizer.Add(client_sizer)
 
@@ -113,9 +101,9 @@ class Gui(wx.Frame):
             self.sampling_rate, 0, wx.ALL | wx.EXPAND, 5,
         )
 
-        for status in self.status_labels:
+        for status in self.statuses:
             status_sizer.Add(
-                wx.StaticText(self, wx.ID_ANY, self.status_labels[status]),
+                wx.StaticText(self, wx.ID_ANY, self.statuses[status]),
                 0,
                 wx.ALL | wx.EXPAND,
                 5,
@@ -189,6 +177,6 @@ class Gui(wx.Frame):
 
     async def update_status(self):
         await self.client.update_status()
-        for status in self.status_labels:
+        for status in self.statuses:
             getattr(self, status).SetLabel(f"{str(getattr(self.client, status))} ")
 
