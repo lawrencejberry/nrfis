@@ -1,3 +1,5 @@
+from asyncio import sleep
+
 import wx
 from wxasync import AsyncBind
 
@@ -59,7 +61,7 @@ class Gui(wx.Frame):
             "ntp_enabled": "NTP server enabled",
         }
         for status in self.statuses:
-            setattr(self, status, wx.StaticText(self, wx.ID_ANY, "Not acquired"))
+            setattr(self, status, wx.StaticText(self, wx.ID_ANY, "None"))
 
         # Bind events to widgets
         self.Bind(wx.EVT_MENU, self.on_menu)
@@ -139,9 +141,9 @@ class Gui(wx.Frame):
         else:
             await self.client.conn.command.connect()
             self.connect.SetLabel("Disconnect")
-            await self.update_status()
             self.stream.Enable()
             self.sampling_rate.Enable()
+            await self.update_status()
 
     async def on_stream(self, event):
         """Handle the event when the user clicks the start/stop streaming button."""
@@ -176,7 +178,8 @@ class Gui(wx.Frame):
             )
 
     async def update_status(self):
-        await self.client.update_status()
-        for status in self.statuses:
-            getattr(self, status).SetLabel(f"{str(getattr(self.client, status))} ")
-
+        while self.client.conn.command.active:
+            await self.client.update_status()
+            for status in self.statuses:
+                getattr(self, status).SetLabel(f"{str(getattr(self.client, status))} ")
+            await sleep(1)
