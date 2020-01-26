@@ -3,7 +3,7 @@ import logging
 import sys
 from itertools import count
 from struct import pack, unpack
-from enum import Enum
+from enum import IntEnum
 
 from .. import Session
 from ..schema import Basement, StrongFloor, SteelFrame
@@ -44,7 +44,7 @@ STREAM_SENSORS_PORT = 51974
 ACKNOWLEDGEMENT_LENGTH = 8
 
 
-class Configuration(Enum):
+class Configuration(IntEnum):
     BASEMENT_AND_FRAME = 0
     STRONG_FLOOR = 1
 
@@ -165,6 +165,10 @@ class x55Client:
         if status:  # If successful
             self.sampling_rate = sampling_rate
         return status
+
+    async def update_configuration(self, configuration: Configuration) -> bool:
+        self.configuration = configuration
+        return True
 
     async def stream(self):
         self.conn.peaks.connect()

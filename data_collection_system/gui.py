@@ -4,6 +4,7 @@ from wxasync import AsyncBind
 from .x55.x55_client import x55Client
 
 SAMPLING_RATE_CHOICES = ["1", "10", "100", "1000"]
+CONFIGURATION_CHOICES = ["Basement and Frame", "Strong Floor"]
 
 
 class Gui(wx.Frame):
@@ -32,10 +33,12 @@ class Gui(wx.Frame):
 
         # Configure the widgets
         self.title = wx.StaticText(self, wx.ID_ANY, self.client.name)
-        self.host = wx.TextCtrl(self, wx.ID_ANY, self.client.host)
         self.connect = wx.Button(self, wx.ID_ANY, "Connect")
         self.stream = wx.Button(self, wx.ID_ANY, "Start streaming")
         self.stream.Disable()  # Streaming button disabled until client has connected
+        self.host = wx.TextCtrl(self, wx.ID_ANY, self.client.host)
+        self.configuration = wx.Choice(self, wx.ID_ANY, choices=CONFIGURATION_CHOICES)
+        self.configuration.SetSelection(self.client.configuration)
         self.sampling_rate = wx.Choice(self, wx.ID_ANY, choices=SAMPLING_RATE_CHOICES)
         self.sampling_rate.SetSelection(
             self.sampling_rate.FindString(str(self.client.sampling_rate))
@@ -71,11 +74,12 @@ class Gui(wx.Frame):
         AsyncBind(wx.EVT_BUTTON, self.on_connect, self.connect)
         AsyncBind(wx.EVT_BUTTON, self.on_stream, self.stream)
         AsyncBind(wx.EVT_CHOICE, self.on_change_sampling_rate, self.sampling_rate)
+        AsyncBind(wx.EVT_CHOICE, self.on_change_configuration, self.configuration)
 
         # Configure sizers for layout
         main_sizer = wx.BoxSizer(wx.HORIZONTAL)
         client_sizer = wx.BoxSizer(wx.VERTICAL)
-        control_sizer = wx.GridSizer(2, 2, 0, 10)
+        control_sizer = wx.GridSizer(3, 2, 0, 10)
         status_sizer = wx.GridSizer(len(self.status_labels), 2, 0, 10)
 
         main_sizer.Add(client_sizer)
@@ -91,6 +95,12 @@ class Gui(wx.Frame):
         )
         control_sizer.Add(
             self.host, 0, wx.ALL | wx.EXPAND, 5,
+        )
+        control_sizer.Add(
+            wx.StaticText(self, wx.ID_ANY, "Configuration:"), 0, wx.ALL | wx.EXPAND, 5,
+        )
+        control_sizer.Add(
+            self.configuration, 0, wx.ALL | wx.EXPAND, 5,
         )
         control_sizer.Add(
             wx.StaticText(self, wx.ID_ANY, "Sampling rate:"), 0, wx.ALL | wx.EXPAND, 5,
@@ -159,6 +169,17 @@ class Gui(wx.Frame):
         status = await self.client.update_sampling_rate(sampling_rate)
         if not status:  # If unsuccessful, revert to original selection
             self.sampling_rate.SetSelection(
+                self.sampling_rate.FindString(str(self.client.sampling_rate))
+            )
+
+    async def on_change_configuration(self, event):
+        """Handle the event when the user changes the configuration control
+        value. """
+        status = await self.client.update_configuration(
+            self.configuration.GetSelection()
+        )
+        if not status:  # If unsuccessful, revert to original selection
+            self.configuration.SetSelection(
                 self.sampling_rate.FindString(str(self.client.sampling_rate))
             )
 
