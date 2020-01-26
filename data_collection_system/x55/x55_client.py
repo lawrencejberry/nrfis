@@ -21,6 +21,7 @@ from .x55_protocol import (
     GetLaserScanSpeed,
     SetLaserScanSpeed,
     GetInstrumentUtcDateTime,
+    GetNtpEnabled,
     Response,
     FirmwareVersion,
     InstrumentName,
@@ -32,6 +33,7 @@ from .x55_protocol import (
     PeakDataStreamingAvailableBuffer,
     LaserScanSpeed,
     InstrumentUtcDateTime,
+    NtpEnabled,
 )
 
 logger = logging.getLogger(__name__)
@@ -119,6 +121,7 @@ class x55Client:
         self.peak_data_streaming_available_buffer = None
         self.laser_scan_speed = None
         self.instrument_time = None
+        self.ntp_enabled = None
 
         # Recording and streaming toggles
         self.recording = False
@@ -163,6 +166,10 @@ class x55Client:
 
         self.instrument_time = InstrumentUtcDateTime(
             await self.conn.command.execute(GetInstrumentUtcDateTime)
+        ).content
+
+        self.ntp_enabled = NtpEnabled(
+            await self.conn.command.execute(GetNtpEnabled)
         ).content
 
     async def update_sampling_rate(self, sampling_rate: int) -> bool:

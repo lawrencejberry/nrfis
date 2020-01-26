@@ -88,6 +88,10 @@ class GetInstrumentUtcDateTime(Request):
     pass
 
 
+class GetNtpEnabled(Request):
+    pass
+
+
 # Responses
 class Response(BaseModel):
     status: bool
@@ -219,3 +223,11 @@ class InstrumentUtcDateTime(Response):
 
         return {"content": datetime(year, month, day, hour, minute, second)}
 
+
+class NtpEnabled(Response):
+    content: bool
+
+    def parse(self, content: bytes):
+        enabled = unpack("<?", content)
+
+        return {"content": enabled}
