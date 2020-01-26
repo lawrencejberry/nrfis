@@ -9,6 +9,8 @@ class BasementMetadata(Base):
 
     id = Column(TEXT, primary_key=True)
     name = Column(TEXT)
+    measurement_type = Column(TEXT)
+    corresponding_sensor = Column(TEXT)
     initial_wavelength = Column(DOUBLE_PRECISION)
     gauge_factor = Column(DOUBLE_PRECISION)
     thermo_optic_coefficient = Column(DOUBLE_PRECISION)
@@ -20,6 +22,8 @@ class StrongFloorMetadata(Base):
 
     id = Column(TEXT, primary_key=True)
     name = Column(TEXT)
+    measurement_type = Column(TEXT)
+    corresponding_sensor = Column(TEXT)
     initial_wavelength = Column(DOUBLE_PRECISION)
     gauge_factor = Column(DOUBLE_PRECISION)
     thermo_optic_coefficient = Column(DOUBLE_PRECISION)
@@ -31,6 +35,8 @@ class SteelFrameMetadata(Base):
 
     id = Column(TEXT, primary_key=True)
     name = Column(TEXT)
+    measurement_type = Column(TEXT)
+    corresponding_sensor = Column(TEXT)
     initial_wavelength = Column(DOUBLE_PRECISION)
     gauge_factor = Column(DOUBLE_PRECISION)
     thermo_optic_coefficient = Column(DOUBLE_PRECISION)
