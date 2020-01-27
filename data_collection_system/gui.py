@@ -133,13 +133,13 @@ class Gui(wx.Frame):
 
     async def on_connect(self, event):
         """Handle the event when the user clicks the connect/disconnect button."""
-        if self.client.conn.command.active:
-            await self.client.conn.command.disconnect()
+        if self.client.connected:
+            await self.client.disconnect()
             self.connect.SetLabel("Connect")
             self.stream.Disable()
             self.sampling_rate.Disable()
         else:
-            await self.client.conn.command.connect()
+            await self.client.connect()
             self.connect.SetLabel("Disconnect")
             self.stream.Enable()
             self.sampling_rate.Enable()
@@ -178,7 +178,7 @@ class Gui(wx.Frame):
             )
 
     async def update_status(self):
-        while self.client.conn.command.active:
+        while self.client.connected:
             await self.client.update_status()
             for status in self.statuses:
                 getattr(self, status).SetLabel(f"{str(getattr(self.client, status))} ")

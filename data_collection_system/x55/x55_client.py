@@ -2,7 +2,7 @@ import asyncio
 import logging
 import sys
 from itertools import count
-from struct import pack, unpack
+from struct import unpack
 from enum import IntEnum
 
 from .. import Session
@@ -41,11 +41,8 @@ logger.addHandler(logging.StreamHandler(stream=sys.stdout))
 
 HOST = "10.0.0.55"
 COMMAND_PORT = 51971
-STREAM_PEAKS_PORT = 51972
-STREAM_SPECTRA_PORT = 51973
-STREAM_SENSORS_PORT = 51974
-
-ACKNOWLEDGEMENT_LENGTH = 8
+PEAK_STREAMING_PORT = 51972
+HEADER_LENGTH = 8
 
 
 class Configuration(IntEnum):
@@ -54,7 +51,8 @@ class Configuration(IntEnum):
 
 
 class Connection:
-    def __init__(self, host: str, port: int):
+    def __init__(self, name: str, host: str, port: int):
+        self.name = name
         self.host = host
         self.port = port
         self.active = False
@@ -62,18 +60,22 @@ class Connection:
         self.writer = None
 
     async def connect(self):
-        self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
-        self.active = True
-        logger.info(f"Connected to {self.host}:{self.port}")
+        if not self.active:
+            self.reader, self.writer = await asyncio.open_connection(
+                self.host, self.port
+            )
+            self.active = True
+            logger.info(f"{self.name} connected to {self.host}:{self.port}")
 
     async def disconnect(self):
-        self.writer.close()
-        await self.writer.wait_closed()
-        self.active = False
-        logger.info(f"Disconnected from {self.host}:{self.port}")
+        if self.active:
+            self.writer.close()
+            await self.writer.wait_closed()
+            self.active = False
+            logger.info(f"{self.name} disconnected from {self.host}:{self.port}")
 
     async def read(self) -> bytes:
-        header = await self.reader.read(ACKNOWLEDGEMENT_LENGTH)
+        header = await self.reader.read(HEADER_LENGTH)
         status = not unpack("<?", header[0])[0]  # True if successful
         message_size = unpack("<H", header[2:4])[0]
         content_size = unpack("<I", header[4:8])[0]
@@ -89,13 +91,6 @@ class Connection:
         return await self.read()
 
 
-class Connections:
-    command = Connection(host=HOST, port=COMMAND_PORT)
-    peaks = Connection(host=HOST, port=STREAM_PEAKS_PORT)
-    spectra = Connection(host=HOST, port=STREAM_SPECTRA_PORT)
-    sensors = Connection(host=HOST, port=STREAM_SENSORS_PORT)
-
-
 class x55Client:
     """
     Client to interact with an si255 fibre optic analyser box. Reflects the TCP protocol as far as possible.
@@ -107,9 +102,11 @@ class x55Client:
     def __init__(self):
         self.name = f"x55 Client {next(self._count)}"
 
-        # Connections
+        # Connection information
         self.host = HOST
-        self.conn = Connections()
+        self.command = None
+        self.peaks = None
+        self.connected = False
 
         # Status information
         self.instrument_name = None
@@ -128,53 +125,60 @@ class x55Client:
         self.streaming = False
 
         # Configuration setting
-        self.configuration = (
-            Configuration.BASEMENT_AND_FRAME
-        )  # Set to basement and frame by default
+        self.configuration = Configuration.BASEMENT_AND_FRAME
         self.sampling_rate = 1000  # Hz
+
+    async def connect(self):
+        self.command = Connection(self.name, self.host, COMMAND_PORT)
+        self.peaks = Connection(self.name, self.host, PEAK_STREAMING_PORT)
+        await self.command.connect()
+        self.connected = True
+
+    async def disconnect(self):
+        await self.command.disconnect()
+        await self.peaks.disconnect()
+        self.connected = False
 
     async def update_status(self):
         self.instrument_name = InstrumentName(
-            await self.conn.command.execute(GetInstrumentName)
+            await self.command.execute(GetInstrumentName)
         ).content
 
         self.firmware_version = FirmwareVersion(
-            await self.conn.command.execute(GetFirmwareVersion)
+            await self.command.execute(GetFirmwareVersion)
         ).content
 
-        self.is_ready = Ready(await self.conn.command.execute(IsReady)).content
+        self.is_ready = Ready(await self.command.execute(IsReady)).content
 
         self.dut_channel_count = DutChannelCount(
-            await self.conn.command.execute(GetDutChannelCount)
+            await self.command.execute(GetDutChannelCount)
         ).content
 
         self.peak_data_streaming_status = PeakDataStreamingStatus(
-            await self.conn.command.execute(GetPeakDataStreamingStatus)
+            await self.command.execute(GetPeakDataStreamingStatus)
         ).content
 
         self.peak_data_streaming_divider = PeakDataStreamingDivider(
-            await self.conn.command.execute(GetPeakDataStreamingDivider)
+            await self.command.execute(GetPeakDataStreamingDivider)
         ).content
 
         self.peak_data_streaming_available_buffer = PeakDataStreamingAvailableBuffer(
-            await self.conn.command.execute(GetPeakDataStreamingAvailableBuffer)
+            await self.command.execute(GetPeakDataStreamingAvailableBuffer)
         ).content
 
         self.laser_scan_speed = LaserScanSpeed(
-            await self.conn.command.execute(GetLaserScanSpeed)
+            await self.command.execute(GetLaserScanSpeed)
         ).content
 
         self.instrument_time = InstrumentUtcDateTime(
-            await self.conn.command.execute(GetInstrumentUtcDateTime)
+            await self.command.execute(GetInstrumentUtcDateTime)
         ).content
 
-        self.ntp_enabled = NtpEnabled(
-            await self.conn.command.execute(GetNtpEnabled)
-        ).content
+        self.ntp_enabled = NtpEnabled(await self.command.execute(GetNtpEnabled)).content
 
     async def update_sampling_rate(self, sampling_rate: int) -> bool:
         status = Response(
-            await self.conn.command.execute(SetLaserScanSpeed(speed=sampling_rate))
+            await self.command.execute(SetLaserScanSpeed(speed=sampling_rate))
         ).status
         if status:  # If successful
             self.sampling_rate = sampling_rate
@@ -185,26 +189,26 @@ class x55Client:
         return True
 
     async def stream(self):
-        self.conn.peaks.connect()
+        await self.peaks.connect()
         self.streaming = Response(
-            await self.conn.command.execute(EnablePeakDataStreaming)
+            await self.command.execute(EnablePeakDataStreaming)
         ).status
         logger.info(f"{self.name} started streaming")
 
         while self.streaming:
-            yield Peaks(await self.conn.peaks.read())
+            yield Peaks(await self.peaks.read())
 
         # Clear out the remaining data and disconnect
         buffer = []
         while True:
-            data = self.conn.peaks.reader.read(4096)
+            data = await self.peaks.reader.read(4096)
             if not data:
                 break
             buffer += data
 
-        await self.conn.command.execute(DisablePeakDataStreaming)
+        await self.command.execute(DisablePeakDataStreaming)
 
-        self.conn.peaks.disconnect()
+        await self.peaks.disconnect()
 
         # Log the size of the unprocessed buffer
         logger.info(
@@ -217,14 +221,11 @@ class x55Client:
 
         async for peaks in self.stream():
             if self.configuration == Configuration.BASEMENT_AND_FRAME:
-                basement_sample = Basement(peaks.timestamp, peaks.peaks)
-                steel_frame_sample = SteelFrame(peaks.timestamp, peaks.peaks)
-                session.add(basement_sample)
-                session.add(steel_frame_sample)
+                session.add(Basement(peaks.timestamp, peaks.content))
+                session.add(SteelFrame(peaks.timestamp, peaks.content))
 
             elif self.configuration == Configuration.STRONG_FLOOR:
-                strong_floor_sample = StrongFloor(peaks.timestamp, peaks.peaks)
-                session.add(strong_floor_sample)
+                session.add(StrongFloor(peaks.timestamp, peaks.content))
 
             # Commit after every 2000 samples
             sample_count += 1

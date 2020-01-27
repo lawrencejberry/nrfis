@@ -148,7 +148,7 @@ class DutChannelCount(Response):
 
 class Peaks(Response):
     timestamp: datetime
-    peaks: List[List[float]]
+    content: List[List[float]]
 
     def parse(self, content: bytes):
         timestamp_seconds = unpack("<I", content[16:20])[0]
@@ -170,7 +170,7 @@ class Peaks(Response):
 
         return {
             "timestamp": timestamp,
-            "peaks": peaks,
+            "content": peaks,
         }
 
 
