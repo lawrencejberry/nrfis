@@ -55,28 +55,24 @@ class Connection:
         self.name = name
         self.host = host
         self.port = port
-        self.active = False
         self.reader = None
         self.writer = None
 
     async def connect(self):
-        if not self.active:
-            self.reader, self.writer = await asyncio.open_connection(
-                self.host, self.port
-            )
-            self.active = True
-            logger.info(f"{self.name} connected to {self.host}:{self.port}")
+        self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
+        self.active = True
+        logger.info("%s connected to %s:%d", self.name, self.host, self.port)
 
     async def disconnect(self):
-        if self.active:
+        if self.writer is not None:
             self.writer.close()
             await self.writer.wait_closed()
             self.active = False
-            logger.info(f"{self.name} disconnected from {self.host}:{self.port}")
+            logger.info("%s disconnected from %s:%d", self.name, self.host, self.port)
 
     async def read(self) -> bytes:
         header = await self.reader.read(HEADER_LENGTH)
-        status = not unpack("<?", header[0])[0]  # True if successful
+        status = not unpack("<?", header[0:1])[0]  # True if successful
         message_size = unpack("<H", header[2:4])[0]
         content_size = unpack("<I", header[4:8])[0]
 
@@ -141,40 +137,42 @@ class x55Client:
 
     async def update_status(self):
         self.instrument_name = InstrumentName(
-            await self.command.execute(GetInstrumentName)
+            await self.command.execute(GetInstrumentName())
         ).content
 
         self.firmware_version = FirmwareVersion(
-            await self.command.execute(GetFirmwareVersion)
+            await self.command.execute(GetFirmwareVersion())
         ).content
 
-        self.is_ready = Ready(await self.command.execute(IsReady)).content
+        self.is_ready = Ready(await self.command.execute(IsReady())).content
 
         self.dut_channel_count = DutChannelCount(
-            await self.command.execute(GetDutChannelCount)
+            await self.command.execute(GetDutChannelCount())
         ).content
 
         self.peak_data_streaming_status = PeakDataStreamingStatus(
-            await self.command.execute(GetPeakDataStreamingStatus)
+            await self.command.execute(GetPeakDataStreamingStatus())
         ).content
 
         self.peak_data_streaming_divider = PeakDataStreamingDivider(
-            await self.command.execute(GetPeakDataStreamingDivider)
+            await self.command.execute(GetPeakDataStreamingDivider())
         ).content
 
         self.peak_data_streaming_available_buffer = PeakDataStreamingAvailableBuffer(
-            await self.command.execute(GetPeakDataStreamingAvailableBuffer)
+            await self.command.execute(GetPeakDataStreamingAvailableBuffer())
         ).content
 
         self.laser_scan_speed = LaserScanSpeed(
-            await self.command.execute(GetLaserScanSpeed)
+            await self.command.execute(GetLaserScanSpeed())
         ).content
 
         self.instrument_time = InstrumentUtcDateTime(
-            await self.command.execute(GetInstrumentUtcDateTime)
+            await self.command.execute(GetInstrumentUtcDateTime())
         ).content
 
-        self.ntp_enabled = NtpEnabled(await self.command.execute(GetNtpEnabled)).content
+        self.ntp_enabled = NtpEnabled(
+            await self.command.execute(GetNtpEnabled())
+        ).content
 
     async def update_sampling_rate(self, sampling_rate: int) -> bool:
         status = Response(
@@ -191,28 +189,31 @@ class x55Client:
     async def stream(self):
         await self.peaks.connect()
         self.streaming = Response(
-            await self.command.execute(EnablePeakDataStreaming)
+            await self.command.execute(EnablePeakDataStreaming())
         ).status
-        logger.info(f"{self.name} started streaming")
+        logger.info("%s started streaming", self.name)
 
         while self.streaming:
             yield Peaks(await self.peaks.read())
 
-        # Clear out the remaining data and disconnect
-        buffer = []
+        # Disconnect and clear out the remaining data from the buffer
+        await self.command.execute(DisablePeakDataStreaming())
+
+        buffer = bytes()
         while True:
-            data = await self.peaks.reader.read(4096)
-            if not data:
+            try:
+                data = await asyncio.wait_for(self.peaks.reader.read(), timeout=0.1)
+            except asyncio.TimeoutError:
                 break
             buffer += data
-
-        await self.command.execute(DisablePeakDataStreaming)
 
         await self.peaks.disconnect()
 
         # Log the size of the unprocessed buffer
         logger.info(
-            f"{self.name} finished streaming with {len(buffer)} unproccessed bytes in the streaming buffer"
+            "%s finished streaming with %d unproccessed bytes in the TCP buffer",
+            self.name,
+            len(buffer),
         )
 
     async def record(self):

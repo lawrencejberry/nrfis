@@ -1,7 +1,7 @@
 import socket
 import re
 from struct import pack, unpack
-from time import sleep
+import asyncio
 
 
 class Mockx30Instrument:
@@ -64,49 +64,48 @@ class Mockx30Instrument:
 
 class Mockx55Instrument:
     def __init__(self):
-        self.command_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.command_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-
-        self.peak_streaming_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.peak_streaming_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-
+        self.command = None
+        self.peaks = None
         self.streaming = False
 
-    def __enter__(self):
-        self.command_socket.bind(("127.0.0.1", 51971))
-        self.peak_streaming_socket.bind(("127.0.0.1", 51972))
+    async def __aenter__(self):
+        self.command = await asyncio.start_server(
+            self.start_command, host="127.0.0.1", port=51971
+        )
+        self.peaks = await asyncio.start_server(
+            self.start_peaks, host="127.0.0.1", port=51972
+        )
         return self
 
-    def __exit__(self, exception_type, value, traceback):
-        self.command_socket.close()
-        self.peak_streaming_socket.close()
+    async def __aexit__(self, exception_type, value, traceback):
+        self.command.close()
+        self.peaks.close()
 
-    def start(self):
-        self.command_socket.listen()
-        conn, _ = self.command_socket.accept()
-        conn.settimeout(1)
+    async def start_command(self, reader, writer):
         while True:
-            data = conn.recv(8)
-            command_size = unpack("<H", data[2:4])
-            arguments_size = unpack("<I", data[4:8])
-            command = (conn.recv(command_size)).decode("ascii")
-            _ = conn.recv(arguments_size)
+            data = await reader.read(8)
+            command_size = unpack("<H", data[2:4])[0]
+            arguments_size = unpack("<I", data[4:8])[0]
+            command = (await reader.read(command_size)).decode("ascii")
+            arguments = await reader.read(arguments_size)
 
-            print("Command received:", command)
-            response = self.respond(command)
-            print("Replying with:", response)
-            conn.sendall(response)
+            if command == "#EnablePeakDataStreaming":
+                self.streaming = True
 
-    def peak_streaming(self):
-        self.peak_streaming_socket.listen()
-        conn, _ = self.peak_streaming_socket.accept()
-        conn.settimeout(1)
+            if command == "#DisablePeakDataStreaming":
+                self.streaming = False
+
+            response = self.respond(command, arguments)
+            writer.write(response)
+
+    async def start_peaks(self, _, writer):
+        response = self.respond("#GetPeaks")
         while True:
             if self.streaming:
-                conn.sendall(self.respond("#GetPeaks"))
-                sleep(1)
+                writer.write(response)
+            await asyncio.sleep(0.1)
 
-    def respond(self, command):
+    def respond(self, command, arguments=None):
         status = pack("<B", 0)
         option = pack("<B", 0)
 
@@ -178,7 +177,7 @@ class Mockx55Instrument:
             content = pack("<I", 10)
 
         elif command == "#SetLaserScanSpeed":
-            message = b"Laser scan speed set to 10 Hz."
+            message = b"Laser scan speed set to %b Hz." % arguments
             content = b""
 
         elif command == "#GetInstrumentUtcDateTime":

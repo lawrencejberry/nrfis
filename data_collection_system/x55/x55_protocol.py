@@ -12,7 +12,7 @@ class Request(BaseModel):
         datetime: lambda x: x.strftime(f"%m.%d.%H.%M.%y").encode("ascii"),
         bool: lambda x: str(int(x)).encode("ascii"),
     }
-    _default_serializer = lambda x: str(x).encode("ascii")
+    _default_serializer = lambda self, x: str(x).encode("ascii")
 
     def serialize(self):
         request_option = pack("<B", 0)
@@ -31,9 +31,10 @@ class Request(BaseModel):
         command_size = pack("<H", len(command))
         arguments_size = pack("<I", len(arguments))
 
-        return b" ".join(
+        request = b"".join(
             (request_option, pad_byte, command_size, arguments_size, command, arguments)
         )
+        return request
 
 
 class GetFirmwareVersion(Request):
@@ -114,7 +115,7 @@ class FirmwareVersion(Response):
     content: str
 
     def parse(self, content: bytes):
-        version = bytes.fromhex(content).decode("ascii")
+        version = content.decode("ascii")
 
         return {"content": version}
 
@@ -123,7 +124,7 @@ class InstrumentName(Response):
     content: str
 
     def parse(self, content: bytes):
-        name = bytes.fromhex(content).decode("ascii")
+        name = content.decode("ascii")
 
         return {"content": name}
 
@@ -214,12 +215,12 @@ class InstrumentUtcDateTime(Response):
     content: datetime
 
     def parse(self, content: bytes):
-        year = unpack("<H", content[:2])
-        month = unpack("<H", content[2:4])
-        day = unpack("<H", content[4:6])
-        hour = unpack("<H", content[6:8])
-        minute = unpack("<H", content[8:10])
-        second = unpack("<H", content[10:12])
+        year = unpack("<H", content[:2])[0]
+        month = unpack("<H", content[2:4])[0]
+        day = unpack("<H", content[4:6])[0]
+        hour = unpack("<H", content[6:8])[0]
+        minute = unpack("<H", content[8:10])[0]
+        second = unpack("<H", content[10:12])[0]
 
         return {"content": datetime(year, month, day, hour, minute, second)}
 
@@ -228,6 +229,6 @@ class NtpEnabled(Response):
     content: bool
 
     def parse(self, content: bytes):
-        enabled = unpack("<?", content)
+        enabled = bool(unpack("<I", content)[0])
 
         return {"content": enabled}
