@@ -1,11 +1,9 @@
 import asyncio
-import logging
-import sys
 from itertools import count
 from struct import unpack
 from enum import IntEnum
 
-from .. import Session
+from .. import Session, logger
 from ..schema import Basement, StrongFloor, SteelFrame
 from .x55_protocol import (
     Request,
@@ -35,9 +33,6 @@ from .x55_protocol import (
     InstrumentUtcDateTime,
     NtpEnabled,
 )
-
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.StreamHandler(stream=sys.stdout))
 
 HOST = "10.0.0.55"
 COMMAND_PORT = 51971
