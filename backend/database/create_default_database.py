@@ -1,8 +1,8 @@
 import csv
 
-from data_collection_system import db, Session
-from data_collection_system.schema import Base
-from data_collection_system.schema.metadata import (
+from . import db, Session
+from . import Base
+from .metadata import (
     BasementMetadata,
     StrongFloorMetadata,
     SteelFrameMetadata,

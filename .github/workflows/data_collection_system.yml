@@ -16,9 +16,10 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get install libpq-dev
-        pip install -r requirements.txt -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04
+        pip install -r backend/requirements.txt -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04
     - name: Test with pytest
       run: |
+        cd backend
         export PYTHONPATH=`pwd`/data_collection_system
         pytest data_collection_system --cov=./data_collection_system/ --cov-report=xml
     - name: Upload coverage to Codecov  

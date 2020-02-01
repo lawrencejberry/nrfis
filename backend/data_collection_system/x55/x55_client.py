@@ -3,8 +3,7 @@ from itertools import count
 from struct import unpack
 from enum import IntEnum
 
-from .. import Session, logger
-from ..schema import Basement, StrongFloor, SteelFrame
+from .. import logger, Session, Basement, StrongFloor, SteelFrame
 from .x55_protocol import (
     Request,
     GetFirmwareVersion,
