@@ -4,10 +4,14 @@ from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
 
-from .basement import Basement
-from .strong_floor import StrongFloor
-from .steel_frame import SteelFrame
-
+from .basement import BasementSample
+from .strong_floor import StrongFloorSample
+from .steel_frame import SteelFrameSample
+from .metadata import (
+    BasementSensorMetadata,
+    StrongFloorSensorMetadata,
+    SteelFrameSensorMetadata,
+)
 
 # Create database engine
 db = create_engine(

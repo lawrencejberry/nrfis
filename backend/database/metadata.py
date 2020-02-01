@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION, TEXT
 from . import Base
 
 
-class BasementMetadata(Base):
+class BasementSensorMetadata(Base):
     __tablename__ = "basement_fbg_metadata"
 
     id = Column(TEXT, primary_key=True)
@@ -17,7 +17,7 @@ class BasementMetadata(Base):
     location = Column(TEXT)
 
 
-class StrongFloorMetadata(Base):
+class StrongFloorSensorMetadata(Base):
     __tablename__ = "strong_floor_fbg_metadata"
 
     id = Column(TEXT, primary_key=True)
@@ -30,7 +30,7 @@ class StrongFloorMetadata(Base):
     location = Column(TEXT)
 
 
-class SteelFrameMetadata(Base):
+class SteelFrameSensorMetadata(Base):
     __tablename__ = "steel_frame_fbg_metadata"
 
     id = Column(TEXT, primary_key=True)
