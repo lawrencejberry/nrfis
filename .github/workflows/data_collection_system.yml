@@ -16,7 +16,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get install libpq-dev
-        pip install -r data_collection_system/requirements.txt -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04
+        pip install -r requirements.txt -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04
     - name: Test with pytest
       run: |
         export PYTHONPATH=`pwd`/data_collection_system
