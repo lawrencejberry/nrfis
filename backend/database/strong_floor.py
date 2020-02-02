@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 from . import Base
 
 # Package C - Strong floor
-class StrongFloorSample(Base):
+class StrongFloor(Base):
     __tablename__ = "strong_floor_fbg"
 
     timestamp = Column(Time, primary_key=True)

@@ -3,7 +3,7 @@ import os
 import logging
 import logging.handlers
 
-from database import Session, BasementSample, StrongFloorSample, SteelFrameSample
+from database import Session, Basement, StrongFloor, SteelFrame
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 

@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 from . import Base
 
 # Package D - Steel frame
-class SteelFrameSample(Base):
+class SteelFrame(Base):
     __tablename__ = "steel_frame_fbg"
 
     timestamp = Column(Time, primary_key=True)

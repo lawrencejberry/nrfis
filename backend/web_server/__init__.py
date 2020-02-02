@@ -1,1 +1,1 @@
-from database import Session, BasementSample, StrongFloorSample, SteelFrameSample
+from database import Session, Basement, StrongFloor, SteelFrame

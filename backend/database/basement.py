@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 from . import Base
 
 # Package B - Basement raft and perimeter walls
-class BasementSample(Base):
+class Basement(Base):
     __tablename__ = "basement_fbg"
 
     timestamp = Column(Time, primary_key=True)

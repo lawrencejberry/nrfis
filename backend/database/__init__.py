@@ -4,9 +4,9 @@ from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
 
-from .basement import BasementSample
-from .strong_floor import StrongFloorSample
-from .steel_frame import SteelFrameSample
+from .basement import Basement
+from .strong_floor import StrongFloor
+from .steel_frame import SteelFrame
 from .metadata import (
     BasementSensorMetadata,
     StrongFloorSensorMetadata,

@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 
 from .. import Session as SessionLocal
-from .. import BasementSample, StrongFloorSample, SteelFrameSample
+from .. import Basement, StrongFloor, SteelFrame
 from ..schemas import BasementResponse, StrongFloorResponse, SteelFrameResponse
 
 
@@ -56,9 +56,9 @@ def get_basement_data(
         )
     if data_type == DataType.raw_wavelength:
         return (
-            session.query(BasementSample)
-            .filter(BasementSample.timestamp > start_time)
-            .filter(BasementSample.timestamp < end_time)
+            session.query(Basement)
+            .filter(Basement.timestamp > start_time)
+            .filter(Basement.timestamp < end_time)
         ).all()
     else:
         return []
@@ -89,9 +89,9 @@ def get_strong_floor_data(
         )
     if data_type == DataType.raw_wavelength:
         return (
-            session.query(StrongFloorSample)
-            .filter(StrongFloorSample.timestamp > start_time)
-            .filter(StrongFloorSample.timestamp < end_time)
+            session.query(StrongFloor)
+            .filter(StrongFloor.timestamp > start_time)
+            .filter(StrongFloor.timestamp < end_time)
         ).all()
     else:
         return []
@@ -122,9 +122,9 @@ def get_steel_frame_data(
         )
     if data_type == DataType.raw_wavelength:
         return (
-            session.query(SteelFrameSample)
-            .filter(SteelFrameSample.timestamp > start_time)
-            .filter(SteelFrameSample.timestamp < end_time)
+            session.query(SteelFrame)
+            .filter(SteelFrame.timestamp > start_time)
+            .filter(SteelFrame.timestamp < end_time)
         ).all()
     else:
         return []
