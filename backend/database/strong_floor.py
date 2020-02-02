@@ -154,8 +154,6 @@ class StrongFloor(Base):
     G7 = Column(DOUBLE_PRECISION)
     G8 = Column(DOUBLE_PRECISION)
     G9 = Column(DOUBLE_PRECISION)
-    G10 = Column(DOUBLE_PRECISION)
-    G11 = Column(DOUBLE_PRECISION)
     G12 = Column(DOUBLE_PRECISION)
     G13 = Column(DOUBLE_PRECISION)
     G14 = Column(DOUBLE_PRECISION)
@@ -176,8 +174,6 @@ class StrongFloor(Base):
     H7 = Column(DOUBLE_PRECISION)
     H8 = Column(DOUBLE_PRECISION)
     H9 = Column(DOUBLE_PRECISION)
-    H10 = Column(DOUBLE_PRECISION)
-    H11 = Column(DOUBLE_PRECISION)
     H12 = Column(DOUBLE_PRECISION)
     H13 = Column(DOUBLE_PRECISION)
     H14 = Column(DOUBLE_PRECISION)
@@ -198,8 +194,6 @@ class StrongFloor(Base):
     I7 = Column(DOUBLE_PRECISION)
     I8 = Column(DOUBLE_PRECISION)
     I9 = Column(DOUBLE_PRECISION)
-    I10 = Column(DOUBLE_PRECISION)
-    I11 = Column(DOUBLE_PRECISION)
     I12 = Column(DOUBLE_PRECISION)
     I13 = Column(DOUBLE_PRECISION)
     I14 = Column(DOUBLE_PRECISION)
@@ -208,7 +202,6 @@ class StrongFloor(Base):
     I17 = Column(DOUBLE_PRECISION)
     I18 = Column(DOUBLE_PRECISION)
     I19 = Column(DOUBLE_PRECISION)
-    I20 = Column(DOUBLE_PRECISION)
 
     # SF-FBG-NS04bot/top-Str
     J1 = Column(DOUBLE_PRECISION)
@@ -220,8 +213,6 @@ class StrongFloor(Base):
     J7 = Column(DOUBLE_PRECISION)
     J8 = Column(DOUBLE_PRECISION)
     J9 = Column(DOUBLE_PRECISION)
-    J10 = Column(DOUBLE_PRECISION)
-    J11 = Column(DOUBLE_PRECISION)
     J12 = Column(DOUBLE_PRECISION)
     J13 = Column(DOUBLE_PRECISION)
     J14 = Column(DOUBLE_PRECISION)
@@ -242,8 +233,6 @@ class StrongFloor(Base):
     K7 = Column(DOUBLE_PRECISION)
     K8 = Column(DOUBLE_PRECISION)
     K9 = Column(DOUBLE_PRECISION)
-    K10 = Column(DOUBLE_PRECISION)
-    K11 = Column(DOUBLE_PRECISION)
     K12 = Column(DOUBLE_PRECISION)
     K13 = Column(DOUBLE_PRECISION)
     K14 = Column(DOUBLE_PRECISION)
@@ -264,8 +253,6 @@ class StrongFloor(Base):
     L7 = Column(DOUBLE_PRECISION)
     L8 = Column(DOUBLE_PRECISION)
     L9 = Column(DOUBLE_PRECISION)
-    L10 = Column(DOUBLE_PRECISION)
-    L11 = Column(DOUBLE_PRECISION)
     L12 = Column(DOUBLE_PRECISION)
     L13 = Column(DOUBLE_PRECISION)
     L14 = Column(DOUBLE_PRECISION)
@@ -286,8 +273,6 @@ class StrongFloor(Base):
     M7 = Column(DOUBLE_PRECISION)
     M8 = Column(DOUBLE_PRECISION)
     M9 = Column(DOUBLE_PRECISION)
-    M10 = Column(DOUBLE_PRECISION)
-    M11 = Column(DOUBLE_PRECISION)
     M12 = Column(DOUBLE_PRECISION)
     M13 = Column(DOUBLE_PRECISION)
     M14 = Column(DOUBLE_PRECISION)
@@ -308,8 +293,6 @@ class StrongFloor(Base):
     N7 = Column(DOUBLE_PRECISION)
     N8 = Column(DOUBLE_PRECISION)
     N9 = Column(DOUBLE_PRECISION)
-    N10 = Column(DOUBLE_PRECISION)
-    N11 = Column(DOUBLE_PRECISION)
     N12 = Column(DOUBLE_PRECISION)
     N13 = Column(DOUBLE_PRECISION)
     N14 = Column(DOUBLE_PRECISION)
@@ -330,8 +313,6 @@ class StrongFloor(Base):
     O7 = Column(DOUBLE_PRECISION)
     O8 = Column(DOUBLE_PRECISION)
     O9 = Column(DOUBLE_PRECISION)
-    O10 = Column(DOUBLE_PRECISION)
-    O11 = Column(DOUBLE_PRECISION)
     O12 = Column(DOUBLE_PRECISION)
     O13 = Column(DOUBLE_PRECISION)
     O14 = Column(DOUBLE_PRECISION)
@@ -352,8 +333,6 @@ class StrongFloor(Base):
     P7 = Column(DOUBLE_PRECISION)
     P8 = Column(DOUBLE_PRECISION)
     P9 = Column(DOUBLE_PRECISION)
-    P10 = Column(DOUBLE_PRECISION)
-    P11 = Column(DOUBLE_PRECISION)
     P12 = Column(DOUBLE_PRECISION)
     P13 = Column(DOUBLE_PRECISION)
     P14 = Column(DOUBLE_PRECISION)
@@ -515,8 +494,6 @@ class StrongFloor(Base):
             self.G7 = peaks[6][6]
             self.G8 = peaks[6][7]
             self.G9 = peaks[6][8]
-            self.G10 = peaks[6][9]
-            self.G11 = peaks[6][10]
             self.G12 = peaks[6][11]
             self.G13 = peaks[6][12]
             self.G14 = peaks[6][13]
@@ -537,8 +514,6 @@ class StrongFloor(Base):
             self.H7 = peaks[7][6]
             self.H8 = peaks[7][7]
             self.H9 = peaks[7][8]
-            self.H10 = peaks[7][9]
-            self.H11 = peaks[7][10]
             self.H12 = peaks[7][11]
             self.H13 = peaks[7][12]
             self.H14 = peaks[7][13]
@@ -559,8 +534,6 @@ class StrongFloor(Base):
             self.I7 = peaks[8][6]
             self.I8 = peaks[8][7]
             self.I9 = peaks[8][8]
-            self.I10 = peaks[8][9]
-            self.I11 = peaks[8][10]
             self.I12 = peaks[8][11]
             self.I13 = peaks[8][12]
             self.I14 = peaks[8][13]
@@ -569,7 +542,6 @@ class StrongFloor(Base):
             self.I17 = peaks[8][16]
             self.I18 = peaks[8][17]
             self.I19 = peaks[8][18]
-            self.I20 = peaks[8][19]
 
             # SF-FBG-NS04bot/top-Str
             self.J1 = peaks[9][0]
@@ -581,8 +553,6 @@ class StrongFloor(Base):
             self.J7 = peaks[9][6]
             self.J8 = peaks[9][7]
             self.J9 = peaks[9][8]
-            self.J10 = peaks[9][9]
-            self.J11 = peaks[9][10]
             self.J12 = peaks[9][11]
             self.J13 = peaks[9][12]
             self.J14 = peaks[9][13]
@@ -603,8 +573,6 @@ class StrongFloor(Base):
             self.K7 = peaks[10][6]
             self.K8 = peaks[10][7]
             self.K9 = peaks[10][8]
-            self.K10 = peaks[10][9]
-            self.K11 = peaks[10][10]
             self.K12 = peaks[10][11]
             self.K13 = peaks[10][12]
             self.K14 = peaks[10][13]
@@ -625,8 +593,6 @@ class StrongFloor(Base):
             self.L7 = peaks[11][6]
             self.L8 = peaks[11][7]
             self.L9 = peaks[11][8]
-            self.L10 = peaks[11][9]
-            self.L11 = peaks[11][10]
             self.L12 = peaks[11][11]
             self.L13 = peaks[11][12]
             self.L14 = peaks[11][13]
@@ -647,8 +613,6 @@ class StrongFloor(Base):
             self.M7 = peaks[12][6]
             self.M8 = peaks[12][7]
             self.M9 = peaks[12][8]
-            self.M10 = peaks[12][9]
-            self.M11 = peaks[12][10]
             self.M12 = peaks[12][11]
             self.M13 = peaks[12][12]
             self.M14 = peaks[12][13]
@@ -669,8 +633,6 @@ class StrongFloor(Base):
             self.N7 = peaks[13][6]
             self.N8 = peaks[13][7]
             self.N9 = peaks[13][8]
-            self.N10 = peaks[13][9]
-            self.N11 = peaks[13][10]
             self.N12 = peaks[13][11]
             self.N13 = peaks[13][12]
             self.N14 = peaks[13][13]
@@ -691,8 +653,6 @@ class StrongFloor(Base):
             self.O7 = peaks[14][6]
             self.O8 = peaks[14][7]
             self.O9 = peaks[14][8]
-            self.O10 = peaks[14][9]
-            self.O11 = peaks[14][10]
             self.O12 = peaks[14][11]
             self.O13 = peaks[14][12]
             self.O14 = peaks[14][13]
@@ -713,8 +673,6 @@ class StrongFloor(Base):
             self.P7 = peaks[15][6]
             self.P8 = peaks[15][7]
             self.P9 = peaks[15][8]
-            self.P10 = peaks[15][9]
-            self.P11 = peaks[15][10]
             self.P12 = peaks[15][11]
             self.P13 = peaks[15][12]
             self.P14 = peaks[15][13]
