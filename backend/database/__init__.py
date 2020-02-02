@@ -8,9 +8,9 @@ from .basement import Basement
 from .strong_floor import StrongFloor
 from .steel_frame import SteelFrame
 from .metadata import (
-    BasementSensorMetadata,
-    StrongFloorSensorMetadata,
-    SteelFrameSensorMetadata,
+    BasementMetadata,
+    StrongFloorMetadata,
+    SteelFrameMetadata,
 )
 
 # Create database engine
