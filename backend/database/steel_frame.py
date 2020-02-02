@@ -11,7 +11,7 @@ from . import Base
 class SteelFrameSample(Base):
     __tablename__ = "steel_frame_fbg"
 
-    time = Column(Time, primary_key=True)
+    timestamp = Column(Time, primary_key=True)
 
     # Section 1  N.B. measurements stored seperately to avoid ARRAY memory overhead
     L1 = Column(DOUBLE_PRECISION)

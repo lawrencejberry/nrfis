@@ -11,7 +11,7 @@ from . import Base
 class BasementSample(Base):
     __tablename__ = "basement_fbg"
 
-    time = Column(Time, primary_key=True)
+    timestamp = Column(Time, primary_key=True)
 
     # BA-FBG-EW01bot-Str  N.B. measurements stored seperately to avoid ARRAY memory overhead
     A1 = Column(DOUBLE_PRECISION)
