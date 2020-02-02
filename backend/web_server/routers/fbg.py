@@ -6,8 +6,8 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from .. import Session as SessionLocal
 from .. import Basement, StrongFloor, SteelFrame
+from ..dependencies import get_db
 
 
 class DataType(str, Enum):
@@ -24,12 +24,6 @@ class DataResponse(BaseModel):
 router = APIRouter()
 
 # Dependencies
-def get_db():
-    session = SessionLocal()
-    try:
-        yield session
-    finally:
-        session.close()
 
 
 # Path operation functions

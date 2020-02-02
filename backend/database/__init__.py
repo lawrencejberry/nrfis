@@ -27,7 +27,6 @@ from .metadata import (
 )
 
 # Create database engine
-db = create_engine(
-    "postgresql+psycopg2://postgres:@localhost/timescaletest", echo=False
-)
+DATABASE_URL = "postgresql+psycopg2://postgres:@localhost/timescaletest"
+db = create_engine(DATABASE_URL, echo=False)
 Session = sessionmaker(db)

@@ -1,11 +1,7 @@
-from starlette.testclient import TestClient
-
-from ..main import app
-
-client = TestClient(app)
+import pytest
 
 
-def test_get_basement_data():
+def test_get_basement_data(client):
     response = client.get(
         "/fbg/basement/?data-type=raw-wavelength&start-time=2020-01-01T17%3A28%3A14.723333&end-time=2020-01-02T17%3A28%3A14.723333"
     )

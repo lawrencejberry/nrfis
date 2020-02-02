@@ -1,5 +1,4 @@
-from sqlalchemy import Column
-from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION, TEXT
+from sqlalchemy import Column, String, Float
 
 from . import Base
 
@@ -7,37 +6,37 @@ from . import Base
 class BasementMetadata(Base):
     __tablename__ = "basement_fbg_metadata"
 
-    id = Column(TEXT, primary_key=True)
-    name = Column(TEXT)
-    measurement_type = Column(TEXT)
-    corresponding_sensor = Column(TEXT)
-    initial_wavelength = Column(DOUBLE_PRECISION)
-    gauge_factor = Column(DOUBLE_PRECISION)
-    thermo_optic_coefficient = Column(DOUBLE_PRECISION)
-    location = Column(TEXT)
+    id = Column(String, primary_key=True)
+    name = Column(String)
+    measurement_type = Column(String)
+    corresponding_sensor = Column(String)
+    initial_wavelength = Column(Float)
+    gauge_factor = Column(Float)
+    thermo_optic_coefficient = Column(Float)
+    location = Column(String)
 
 
 class StrongFloorMetadata(Base):
     __tablename__ = "strong_floor_fbg_metadata"
 
-    id = Column(TEXT, primary_key=True)
-    name = Column(TEXT)
-    measurement_type = Column(TEXT)
-    corresponding_sensor = Column(TEXT)
-    initial_wavelength = Column(DOUBLE_PRECISION)
-    gauge_factor = Column(DOUBLE_PRECISION)
-    thermo_optic_coefficient = Column(DOUBLE_PRECISION)
-    location = Column(TEXT)
+    id = Column(String, primary_key=True)
+    name = Column(String)
+    measurement_type = Column(String)
+    corresponding_sensor = Column(String)
+    initial_wavelength = Column(Float)
+    gauge_factor = Column(Float)
+    thermo_optic_coefficient = Column(Float)
+    location = Column(String)
 
 
 class SteelFrameMetadata(Base):
     __tablename__ = "steel_frame_fbg_metadata"
 
-    id = Column(TEXT, primary_key=True)
-    name = Column(TEXT)
-    measurement_type = Column(TEXT)
-    corresponding_sensor = Column(TEXT)
-    initial_wavelength = Column(DOUBLE_PRECISION)
-    gauge_factor = Column(DOUBLE_PRECISION)
-    thermo_optic_coefficient = Column(DOUBLE_PRECISION)
-    location = Column(TEXT)
+    id = Column(String, primary_key=True)
+    name = Column(String)
+    measurement_type = Column(String)
+    corresponding_sensor = Column(String)
+    initial_wavelength = Column(Float)
+    gauge_factor = Column(Float)
+    thermo_optic_coefficient = Column(Float)
+    location = Column(String)
