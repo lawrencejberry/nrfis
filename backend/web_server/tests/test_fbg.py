@@ -1,11 +1,11 @@
 def test_get_basement_data(client):
     response = client.get(
-        "/fbg/basement/?data-type=raw-wavelength&start-time=2020-01-01T17%3A28%3A14.723333&end-time=2020-01-02T17%3A28%3A14.723333"
+        "/fbg/basement/?data-type=raw-wavelength&start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000"
     )
     assert response.status_code == 200
     assert response.json() == [
         {
-            "timestamp": "2020-01-02T10:00:00",
+            "timestamp": "2020-02-01T12:00:00",
             "data": {
                 "A1": 125.5,
                 "A2": 125.5,
@@ -128,12 +128,12 @@ def test_get_basement_data(client):
 
 def test_get_strong_floor_data(client):
     response = client.get(
-        "/fbg/strong-floor/?data-type=raw-wavelength&start-time=2020-01-01T17%3A28%3A14.723333&end-time=2020-01-02T17%3A28%3A14.723333"
+        "/fbg/strong-floor/?data-type=raw-wavelength&start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000"
     )
     assert response.status_code == 200
     assert response.json() == [
         {
-            "timestamp": "2020-01-02T10:00:00",
+            "timestamp": "2020-02-01T12:00:00",
             "data": {
                 "A1": 125.5,
                 "A2": 125.5,
@@ -441,12 +441,12 @@ def test_get_strong_floor_data(client):
 
 def test_get_steel_frame_data(client):
     response = client.get(
-        "/fbg/steel-frame/?data-type=raw-wavelength&start-time=2020-01-01T17%3A28%3A14.723333&end-time=2020-01-02T17%3A28%3A14.723333"
+        "/fbg/steel-frame/?data-type=raw-wavelength&start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000"
     )
     assert response.status_code == 200
     assert response.json() == [
         {
-            "timestamp": "2020-01-02T10:00:00",
+            "timestamp": "2020-02-01T12:00:00",
             "data": {
                 "L1": 125.5,
                 "L2": 125.5,
