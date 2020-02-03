@@ -1,4 +1,4 @@
-name: Data Collection System
+name: Web Server
 
 on: [push]
 
@@ -17,13 +17,12 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt-get install libpq-dev
         pip install -r backend/requirements.txt -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04
 
     - name: Test with pytest
       run: |
         export PYTHONPATH=`pwd`
-        pytest backend/data_collection_system --cov=./ --cov-report=xml
+        pytest backend/web_server --cov=./ --cov-report=xml
 
     - name: Upload coverage to Codecov  
       uses: codecov/codecov-action@v1
