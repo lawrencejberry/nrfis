@@ -1,6 +1,4 @@
 from sqlalchemy.ext.declarative import as_declarative
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.inspection import inspect
 
 
@@ -25,8 +23,3 @@ from .metadata import (
     StrongFloorMetadata,
     SteelFrameMetadata,
 )
-
-# Create database engine
-DATABASE_URL = "postgresql+psycopg2://postgres:@localhost/timescaletest"
-db = create_engine(DATABASE_URL, echo=False)
-Session = sessionmaker(db)

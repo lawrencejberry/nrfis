@@ -9,3 +9,5 @@ app = FastAPI(
 )
 
 app.include_router(fbg.router, prefix="/fbg", tags=["FBG"])
+
+print("HELLO THERE!")
