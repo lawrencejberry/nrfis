@@ -38,10 +38,33 @@ COMMAND_PORT = 51971
 PEAK_STREAMING_PORT = 51972
 HEADER_LENGTH = 8
 
+SAMPLING_RATE_CHOICES = ["1", "10", "100", "1000"]
+SETUP_OPTIONS = ["Basement and Frame", "Strong Floor", "Basement", "Frame"]
 
-class Configuration(IntEnum):
+
+class SetupOptions(IntEnum):
     BASEMENT_AND_FRAME = 0
     STRONG_FLOOR = 1
+    BASEMENT = 2
+    FRAME = 3
+
+
+class Configuration:
+    def __init__(self):
+        self.setup = SetupOptions.BASEMENT_AND_FRAME
+        self.mapping = None
+
+    def load(self):
+        """
+        Load a new configuration from database metadata tables.
+        """
+        pass
+
+    def save(self):
+        """
+        Save a configuration to the database metadata tables.
+        """
+        pass
 
 
 class Connection:
@@ -115,7 +138,7 @@ class x55Client:
         self.streaming = False
 
         # Configuration setting
-        self.configuration = Configuration.BASEMENT_AND_FRAME
+        self.configuration = Configuration()
         self.sampling_rate = 1000  # Hz
 
     async def connect(self):
@@ -176,8 +199,8 @@ class x55Client:
             self.sampling_rate = sampling_rate
         return status
 
-    async def update_configuration(self, configuration: Configuration) -> bool:
-        self.configuration = configuration
+    async def update_setup(self, setup: SetupOptions) -> bool:
+        self.configuration.load_setup(setup)
         return True
 
     async def stream(self):
@@ -214,19 +237,19 @@ class x55Client:
         session = Session()
         sample_count = 0
 
-        async for peaks in self.stream():
-            if self.configuration == Configuration.BASEMENT_AND_FRAME:
-                session.add(Basement(peaks.timestamp, peaks.content))
-                session.add(SteelFrame(peaks.timestamp, peaks.content))
+        # async for peaks in self.stream():
+        #     if self.configuration.setup == Configuration.BASEMENT_AND_FRAME:
+        #         session.add(Basement(peaks.timestamp, peaks.content))
+        #         session.add(SteelFrame(peaks.timestamp, peaks.content))
 
-            elif self.configuration == Configuration.STRONG_FLOOR:
-                session.add(StrongFloor(peaks.timestamp, peaks.content))
+        #     elif self.configuration == Configuration.STRONG_FLOOR:
+        #         session.add(StrongFloor(peaks.timestamp, peaks.content))
 
-            # Commit after every 2000 samples
-            sample_count += 1
-            if sample_count > 2000:
-                session.commit()
-                sample_count = 0
+        #     # Commit after every 2000 samples
+        #     sample_count += 1
+        #     if sample_count > 2000:
+        #         session.commit()
+        #         sample_count = 0
 
         session.commit()
         session.close()
