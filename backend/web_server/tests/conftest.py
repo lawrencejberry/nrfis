@@ -10,7 +10,7 @@ from sqlalchemy.orm import sessionmaker
 
 from ..main import app
 from ..dependencies import get_db
-from database import (
+from database_models import (
     Base,
     Basement,
     StrongFloor,
@@ -31,14 +31,15 @@ if not path.isfile("./backend/web_server/tests/.test.db"):
     initialSession = SessionLocal()
 
     with open(
-        "backend/database/test_data/basement_fbg_metadata.csv", encoding="utf-8-sig"
+        "backend/database_models/test_data/basement_fbg_metadata.csv",
+        encoding="utf-8-sig",
     ) as csvfile:
         data = csv.DictReader(csvfile)
         for row in data:
             initialSession.add(BasementMetadata(**row))
 
     with open(
-        "backend/database/test_data/strong_floor_fbg_metadata.csv",
+        "backend/database_models/test_data/strong_floor_fbg_metadata.csv",
         encoding="utf-8-sig",
     ) as csvfile:
         data = csv.DictReader(csvfile)
@@ -46,7 +47,8 @@ if not path.isfile("./backend/web_server/tests/.test.db"):
             initialSession.add(StrongFloorMetadata(**row))
 
     with open(
-        "backend/database/test_data/steel_frame_fbg_metadata.csv", encoding="utf-8-sig",
+        "backend/database_models/test_data/steel_frame_fbg_metadata.csv",
+        encoding="utf-8-sig",
     ) as csvfile:
         data = csv.DictReader(csvfile)
         for row in data:
@@ -55,7 +57,7 @@ if not path.isfile("./backend/web_server/tests/.test.db"):
     initialSession.commit()
 
     with open(
-        "backend/database/test_data/basement_fbg.csv", encoding="utf-8-sig"
+        "backend/database_models/test_data/basement_fbg.csv", encoding="utf-8-sig"
     ) as csvfile:
         data = csv.DictReader(csvfile)
         for row in data:
@@ -63,7 +65,7 @@ if not path.isfile("./backend/web_server/tests/.test.db"):
             initialSession.add(Basement(**row))
 
     with open(
-        "backend/database/test_data/strong_floor_fbg.csv", encoding="utf-8-sig",
+        "backend/database_models/test_data/strong_floor_fbg.csv", encoding="utf-8-sig",
     ) as csvfile:
         data = csv.DictReader(csvfile)
         for row in data:
@@ -71,7 +73,7 @@ if not path.isfile("./backend/web_server/tests/.test.db"):
             initialSession.add(StrongFloor(**row))
 
     with open(
-        "backend/database/test_data/steel_frame_fbg.csv", encoding="utf-8-sig",
+        "backend/database_models/test_data/steel_frame_fbg.csv", encoding="utf-8-sig",
     ) as csvfile:
         data = csv.DictReader(csvfile)
         for row in data:

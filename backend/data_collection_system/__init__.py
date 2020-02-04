@@ -3,7 +3,11 @@ import os
 import logging
 import logging.handlers
 
-from database import Session, Basement, StrongFloor, SteelFrame
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from database_models import Basement, StrongFloor, SteelFrame
+
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -23,3 +27,9 @@ logger.addHandler(fileHandler)
 consoleHandler = logging.StreamHandler(sys.stdout)
 consoleHandler.setFormatter(logFormatter)
 logger.addHandler(consoleHandler)
+
+
+# Create database engine
+DATABASE_URL = "postgresql+psycopg2://postgres:@localhost/timescaletest"
+db = create_engine(DATABASE_URL, echo=False)
+Session = sessionmaker(db)
