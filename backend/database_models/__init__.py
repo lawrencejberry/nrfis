@@ -23,3 +23,14 @@ from .metadata import (
     StrongFloorMetadata,
     SteelFrameMetadata,
 )
+
+
+class Package:
+    def __init__(self, values_table, metadata_table):
+        self.values_table = values_table
+        self.metadata_table = metadata_table
+
+
+basement_package = Package(Basement, BasementMetadata)
+strong_floor_package = Package(StrongFloor, StrongFloorMetadata)
+steel_frame_package = Package(SteelFrame, SteelFrameMetadata)

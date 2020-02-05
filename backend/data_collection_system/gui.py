@@ -3,10 +3,12 @@ from asyncio import sleep
 import wx
 from wxasync import AsyncBind
 
-from .x55.x55_client import x55Client
-
-SAMPLING_RATE_CHOICES = ["1", "10", "100", "1000"]
-CONFIGURATION_CHOICES = ["Basement and Frame", "Strong Floor"]
+from .x55.x55_client import (
+    x55Client,
+    SetupOptions,
+    SAMPLING_RATE_CHOICES,
+    SETUP_OPTIONS,
+)
 
 
 class Gui(wx.Frame):
@@ -38,9 +40,10 @@ class Gui(wx.Frame):
         self.connect = wx.Button(self, wx.ID_ANY, "Connect")
         self.stream = wx.Button(self, wx.ID_ANY, "Start streaming")
         self.stream.Disable()  # Streaming button disabled until client has connected
+        self.configuration = wx.Button(self, wx.ID_ANY, "Upload config file")
         self.host = wx.TextCtrl(self, wx.ID_ANY, self.client.host)
-        self.configuration = wx.Choice(self, wx.ID_ANY, choices=CONFIGURATION_CHOICES)
-        self.configuration.SetSelection(self.client.configuration)
+        self.setup = wx.Choice(self, wx.ID_ANY, choices=SETUP_OPTIONS)
+        self.setup.SetSelection(self.client.configuration.setup)
         self.sampling_rate = wx.Choice(self, wx.ID_ANY, choices=SAMPLING_RATE_CHOICES)
         self.sampling_rate.SetSelection(
             self.sampling_rate.FindString(str(self.client.sampling_rate))
@@ -67,8 +70,10 @@ class Gui(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_menu)
         AsyncBind(wx.EVT_BUTTON, self.on_connect, self.connect)
         AsyncBind(wx.EVT_BUTTON, self.on_stream, self.stream)
+        AsyncBind(wx.EVT_BUTTON, self.on_configuration, self.configuration)
+        AsyncBind(wx.EVT_TEXT, self.on_change_host, self.host)
         AsyncBind(wx.EVT_CHOICE, self.on_change_sampling_rate, self.sampling_rate)
-        AsyncBind(wx.EVT_CHOICE, self.on_change_configuration, self.configuration)
+        AsyncBind(wx.EVT_CHOICE, self.on_change_setup, self.setup)
 
         # Configure sizers for layout
         main_sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -81,6 +86,8 @@ class Gui(wx.Frame):
         client_sizer.Add(self.title, 0, wx.ALL, 5)
         client_sizer.Add(self.connect, 0, wx.ALL | wx.EXPAND, 5)
         client_sizer.Add(self.stream, 0, wx.ALL | wx.EXPAND, 5)
+        client_sizer.Add(self.configuration, 0, wx.ALL | wx.EXPAND, 5)
+
         client_sizer.Add(control_sizer, 0, wx.ALL | wx.EXPAND, 5)
         client_sizer.Add(status_sizer, 0, wx.ALL | wx.EXPAND, 5)
 
@@ -91,16 +98,19 @@ class Gui(wx.Frame):
             self.host, 0, wx.ALL | wx.EXPAND, 5,
         )
         control_sizer.Add(
-            wx.StaticText(self, wx.ID_ANY, "Configuration:"), 0, wx.ALL | wx.EXPAND, 5,
-        )
-        control_sizer.Add(
-            self.configuration, 0, wx.ALL | wx.EXPAND, 5,
-        )
-        control_sizer.Add(
-            wx.StaticText(self, wx.ID_ANY, "Sampling rate:"), 0, wx.ALL | wx.EXPAND, 5,
+            wx.StaticText(self, wx.ID_ANY, "Sampling rate (Hz):"),
+            0,
+            wx.ALL | wx.EXPAND,
+            5,
         )
         control_sizer.Add(
             self.sampling_rate, 0, wx.ALL | wx.EXPAND, 5,
+        )
+        control_sizer.Add(
+            wx.StaticText(self, wx.ID_ANY, "Setup:"), 0, wx.ALL | wx.EXPAND, 5,
+        )
+        control_sizer.Add(
+            self.setup, 0, wx.ALL | wx.EXPAND, 5,
         )
 
         for status in self.statuses:
@@ -137,11 +147,13 @@ class Gui(wx.Frame):
             await self.client.disconnect()
             self.connect.SetLabel("Connect")
             self.stream.Disable()
+            self.host.Disable()
             self.sampling_rate.Disable()
         else:
             await self.client.connect()
             self.connect.SetLabel("Disconnect")
             self.stream.Enable()
+            self.host.Enable()
             self.sampling_rate.Enable()
             await self.update_status()
 
@@ -153,6 +165,39 @@ class Gui(wx.Frame):
         else:
             self.stream.SetLabel("Stop streaming")
             await self.client.record()
+
+    async def on_configuration(self, event):
+        if (
+            wx.MessageBox(
+                f"This will overwrite the configuration for {self.client.configuration.setup._name_}.",
+                "Warning",
+                wx.ICON_QUESTION | wx.YES_NO,
+                self,
+            )
+            == wx.NO
+        ):
+            return
+
+        # otherwise ask the user what new file to open
+        with wx.FileDialog(
+            self,
+            "Upload Enlight config file",
+            wildcard="MOI files (*.moi)|*.moi",
+            style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST,
+        ) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return  # the user changed their mind
+
+            # Proceed loading the file chosen by the user
+            pathname = fileDialog.GetPath()
+            try:
+                with open(pathname, "r") as file:
+                    pass  # self.doLoadDataOrWhatever(file)
+            except IOError:
+                wx.LogError("Cannot open file '%s'." % file)
+
+    async def on_change_host(self, event):
+        self.client.host = self.host.GetValue()
 
     async def on_change_sampling_rate(self, event):
         """Handle the event when the user changes the sampling rate control
@@ -166,15 +211,13 @@ class Gui(wx.Frame):
                 self.sampling_rate.FindString(str(self.client.sampling_rate))
             )
 
-    async def on_change_configuration(self, event):
-        """Handle the event when the user changes the configuration control
+    async def on_change_setup(self, event):
+        """Handle the event when the user changes the setup control
         value. """
-        status = await self.client.update_configuration(
-            self.configuration.GetSelection()
-        )
+        status = await self.client.update_setup(SetupOptions(self.setup.GetSelection()))
         if not status:  # If unsuccessful, revert to original selection
-            self.configuration.SetSelection(
-                self.sampling_rate.FindString(str(self.client.sampling_rate))
+            self.setup.SetSelection(
+                self.setup.FindString(str(self.client.configuration.setup))
             )
 
     async def update_status(self):

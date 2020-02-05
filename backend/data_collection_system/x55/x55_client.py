@@ -1,9 +1,20 @@
 import asyncio
+import re
+import xml.etree.ElementTree as ET
+import string
 from itertools import count
 from struct import unpack
 from enum import IntEnum
+from typing import List
 
-from .. import logger, Session, Basement, StrongFloor, SteelFrame
+from .. import (
+    logger,
+    Session,
+    Base,
+    basement_package,
+    strong_floor_package,
+    steel_frame_package,
+)
 from .x55_protocol import (
     Request,
     GetFirmwareVersion,
@@ -38,10 +49,132 @@ COMMAND_PORT = 51971
 PEAK_STREAMING_PORT = 51972
 HEADER_LENGTH = 8
 
+SAMPLING_RATE_CHOICES = ["1", "10", "100", "1000"]
 
-class Configuration(IntEnum):
+
+class SetupOptions(IntEnum):
     BASEMENT_AND_FRAME = 0
     STRONG_FLOOR = 1
+    BASEMENT = 2
+    FRAME = 3
+
+    def __str__(self):
+        return self._name_.replace("_", " ")
+
+
+SETUP_OPTIONS = [str(option) for option in SetupOptions]
+
+
+class Configuration:
+    def __init__(self):
+        self.mapping = None  # For every table, for every channel, map an index to an ID
+        self.setup = None  # Store the current sensor setup
+        self.load(SetupOptions.BASEMENT_AND_FRAME)
+
+    @property
+    def packages(self):
+        """
+        Return the packages associated with the current sensor setup.
+        """
+        if self.setup == SetupOptions.BASEMENT_AND_FRAME:
+            return (
+                basement_package,
+                steel_frame_package,
+            )
+        if self.setup == SetupOptions.STRONG_FLOOR:
+            return (strong_floor_package,)
+        if self.setup == SetupOptions.BASEMENT:
+            return (basement_package,)
+        if self.setup == SetupOptions.FRAME:
+            return (steel_frame_package,)
+
+    def map(self, peaks: List[List[float]], table: Base):
+        """
+        Map the optical instrument output peaks array of arrays to UID: value pairs for the given database table.
+        To turn off the recording of individual sensors change its measurement_type to "off".
+        If a sensor can no longer be read at all by the optical instrument, remove its row from the metadata table entirely.
+        """
+        mapped_peaks = {}
+        for uid, values in self.mapping[table].items():
+            if values["measurement_type"] != "off":
+                # TODO: guard against cross-overs and dropped peaks
+                mapped_peaks[uid] = peaks[values["channel"]][values["index"]]
+
+        return mapped_peaks
+
+    def load(self, setup: SetupOptions):
+        """
+        Load a new configuration from database metadata tables.
+        """
+        self.setup = setup
+        self.mapping = {}  # {"Basement": {"A1":{"channel":1, "index":1, "coeffs..."}}}
+
+        # Load in metadata from tables to mapping
+        session = Session()
+        for package in self.packages:
+            self.mapping[package.values_table] = {
+                row.uid: row._asdict()["data"]
+                for row in session.query(package.metadata_table).all()
+            }
+        session.close()
+
+    def parse(self, config_file):
+        """
+        Parse and save a configuration to the database metadata tables.
+        Any sensor UIDs or names referenced in the file that exist will be updated,
+        but additional UIDs or names in the file will be ignored. It is therefore
+        safe to update just Basement metadata table from a combined config file, whilst
+        it is also safe to update both the Basement and Steel Frame metadata tables simultaneously.
+        """
+        session = Session()
+
+        root = ET.parse(config_file).getroot()
+
+        for package in self.packages:
+            # Data associated with a UID
+            for sensor in root.iter("SensorConfiguration"):
+                uid = re.search("[^_]{1,3}$", sensor.find("Name").text)[0]
+                reference_wavelength = sensor.find("Reference").text
+                minimum_wavelength = sensor.find("WavelengthMinimum").text
+                maximum_wavelength = sensor.find("WavelengthMaximum").text
+
+                channel = string.ascii_uppercase.index(uid[0])
+                index = int(uid[1:])
+
+                data = {
+                    "channel": channel,
+                    "index": index,
+                    "reference_wavelength": reference_wavelength,
+                    "minimum_wavelength": minimum_wavelength,
+                    "maximum_wavelength": maximum_wavelength,
+                }
+
+                session.query(package.metadata_table).get(uid).update(data)
+
+            # Data associated with a sensor name
+            for transducer in root.iter("Transducer"):
+                name = transducer.find("ID").text
+                data = {}
+                for constant in transducer.iter("TransducerConstant"):
+                    constant_name = constant.find("Name").text
+                    constant_value = constant.find("Value").text
+
+                    if constant_name.startswith("FBG"):
+                        uid = re.search("_([^;]*)_", constant_name)[1]
+                        session.query(package.metadata_table).get(uid).update(
+                            {"initial_wavelength": constant_value}
+                        )
+                    else:
+                        data[constant_name] = constant_value
+
+                session.query(package.metadata_table).filter(
+                    package.metadata_table.name == name
+                ).update(data)
+
+        session.commit()
+        session.close()
+
+        self.load(self.setup)  # Load the newly parsed config file
 
 
 class Connection:
@@ -54,14 +187,12 @@ class Connection:
 
     async def connect(self):
         self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
-        self.active = True
         logger.info("%s connected to %s:%d", self.name, self.host, self.port)
 
     async def disconnect(self):
         if self.writer is not None:
             self.writer.close()
             await self.writer.wait_closed()
-            self.active = False
             logger.info("%s disconnected from %s:%d", self.name, self.host, self.port)
 
     async def read(self) -> bytes:
@@ -115,7 +246,7 @@ class x55Client:
         self.streaming = False
 
         # Configuration setting
-        self.configuration = Configuration.BASEMENT_AND_FRAME
+        self.configuration = Configuration()
         self.sampling_rate = 1000  # Hz
 
     async def connect(self):
@@ -176,8 +307,8 @@ class x55Client:
             self.sampling_rate = sampling_rate
         return status
 
-    async def update_configuration(self, configuration: Configuration) -> bool:
-        self.configuration = configuration
+    async def update_setup(self, setup: SetupOptions) -> bool:
+        self.configuration.load(setup)
         return True
 
     async def stream(self):
@@ -214,13 +345,10 @@ class x55Client:
         session = Session()
         sample_count = 0
 
-        async for peaks in self.stream():
-            if self.configuration == Configuration.BASEMENT_AND_FRAME:
-                session.add(Basement(peaks.timestamp, peaks.content))
-                session.add(SteelFrame(peaks.timestamp, peaks.content))
-
-            elif self.configuration == Configuration.STRONG_FLOOR:
-                session.add(StrongFloor(peaks.timestamp, peaks.content))
+        async for response in self.stream():
+            for table in self.configuration.mapping:
+                peaks = self.configuration.map(response.content, table)
+                session.add(table(timestamp=response.timestamp, **peaks))
 
             # Commit after every 2000 samples
             sample_count += 1

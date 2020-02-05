@@ -23,21 +23,26 @@ with open(
 ) as csvfile:
     data = csv.DictReader(csvfile)
     for row in data:
-        session.add(BasementMetadata(**row))
+        session.add(BasementMetadata(**{k: v for k, v in row.items() if v != ""}))
+        session.commit()
 
 with open(
-    "backend/database_models/test_data/strong_floor_fbg_metadata.csv", encoding="utf-8-sig",
+    "backend/database_models/test_data/strong_floor_fbg_metadata.csv",
+    encoding="utf-8-sig",
 ) as csvfile:
     data = csv.DictReader(csvfile)
     for row in data:
-        session.add(StrongFloorMetadata(**row))
+        session.add(StrongFloorMetadata(**{k: v for k, v in row.items() if v != ""}))
+        session.commit()
 
 with open(
-    "backend/database_models/test_data/steel_frame_fbg_metadata.csv", encoding="utf-8-sig",
+    "backend/database_models/test_data/steel_frame_fbg_metadata.csv",
+    encoding="utf-8-sig",
 ) as csvfile:
     data = csv.DictReader(csvfile)
     for row in data:
-        session.add(SteelFrameMetadata(**row))
+        session.add(SteelFrameMetadata(**{k: v for k, v in row.items() if v != ""}))
+        session.commit()
 
 session.commit()
 

@@ -6,7 +6,12 @@ import logging.handlers
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database_models import Basement, StrongFloor, SteelFrame
+from database_models import (
+    Base,
+    basement_package,
+    strong_floor_package,
+    steel_frame_package,
+)
 
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -30,6 +35,8 @@ logger.addHandler(consoleHandler)
 
 
 # Create database engine
-DATABASE_URL = "postgresql+psycopg2://postgres:@localhost/timescaletest"
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "sqlite:///./backend/data_collection_system/tests/.test.db"
+)
 db = create_engine(DATABASE_URL, echo=False)
 Session = sessionmaker(db)

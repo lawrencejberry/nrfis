@@ -1,87 +1,20 @@
-import csv
-from datetime import datetime
-from os import path
-
 import pytest
 
 from starlette.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from database_models.utils import make_test_db
 from ..main import app
 from ..dependencies import get_db
-from database_models import (
-    Base,
-    Basement,
-    StrongFloor,
-    SteelFrame,
-    BasementMetadata,
-    StrongFloorMetadata,
-    SteelFrameMetadata,
-)
 
 
+# Create SQLite database engine
 DATABASE_URL = "sqlite:///./backend/web_server/tests/.test.db"
 db = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=db)
 
-if not path.isfile("./backend/web_server/tests/.test.db"):
-    Base.metadata.create_all(db)
-
-    initialSession = SessionLocal()
-
-    with open(
-        "backend/database_models/test_data/basement_fbg_metadata.csv",
-        encoding="utf-8-sig",
-    ) as csvfile:
-        data = csv.DictReader(csvfile)
-        for row in data:
-            initialSession.add(BasementMetadata(**row))
-
-    with open(
-        "backend/database_models/test_data/strong_floor_fbg_metadata.csv",
-        encoding="utf-8-sig",
-    ) as csvfile:
-        data = csv.DictReader(csvfile)
-        for row in data:
-            initialSession.add(StrongFloorMetadata(**row))
-
-    with open(
-        "backend/database_models/test_data/steel_frame_fbg_metadata.csv",
-        encoding="utf-8-sig",
-    ) as csvfile:
-        data = csv.DictReader(csvfile)
-        for row in data:
-            initialSession.add(SteelFrameMetadata(**row))
-
-    initialSession.commit()
-
-    with open(
-        "backend/database_models/test_data/basement_fbg.csv", encoding="utf-8-sig"
-    ) as csvfile:
-        data = csv.DictReader(csvfile)
-        for row in data:
-            row["timestamp"] = datetime.fromisoformat(row["timestamp"])
-            initialSession.add(Basement(**row))
-
-    with open(
-        "backend/database_models/test_data/strong_floor_fbg.csv", encoding="utf-8-sig",
-    ) as csvfile:
-        data = csv.DictReader(csvfile)
-        for row in data:
-            row["timestamp"] = datetime.fromisoformat(row["timestamp"])
-            initialSession.add(StrongFloor(**row))
-
-    with open(
-        "backend/database_models/test_data/steel_frame_fbg.csv", encoding="utf-8-sig",
-    ) as csvfile:
-        data = csv.DictReader(csvfile)
-        for row in data:
-            row["timestamp"] = datetime.fromisoformat(row["timestamp"])
-            initialSession.add(SteelFrame(**row))
-
-    initialSession.commit()
-    initialSession.close()
+make_test_db(DATABASE_URL, db, SessionLocal)
 
 
 def override_get_db():

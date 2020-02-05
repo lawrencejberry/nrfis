@@ -1,10 +1,17 @@
 import threading
 
 import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
+from database_models.utils import make_test_db
+from .. import DATABASE_URL, db, Session
 from .utils import Mockx30Instrument, Mockx55Instrument
 from ..x30.x30_client import x30Client
 from ..x55.x55_client import x55Client
+
+
+make_test_db(DATABASE_URL, db, Session)
 
 
 @pytest.fixture
