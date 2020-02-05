@@ -86,7 +86,7 @@ class DataCollector:
                         metadata[uid]["name"]: calculate_uncompensated_strain(
                             str_wvl=row["data"][uid],
                             initial_str_wvl=metadata[uid]["initial_wavelength"],
-                            gauge_factor=metadata[uid]["Fg"],
+                            Fg=metadata[uid]["Fg"],
                         )
                         for uid in strain_sensors
                     },
@@ -106,7 +106,10 @@ class DataCollector:
                             initial_tmp_wvl=metadata[
                                 metadata[uid]["corresponding_sensor"]
                             ]["initial_wavelength"],
-                            gauge_factor=metadata[uid]["Fg"],
+                            Fg=metadata[uid]["Fg"],
+                            St=metadata[uid]["St"],
+                            CTEs=metadata[uid]["CTEs"],
+                            CTEt=metadata[uid]["CTEt"],
                         )
                         for uid in strain_sensors
                     },
