@@ -2,12 +2,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from database_models import (
-    Basement,
-    StrongFloor,
-    SteelFrame,
-    BasementMetadata,
-    StrongFloorMetadata,
-    SteelFrameMetadata,
+    Package,
+    basement_package,
+    strong_floor_package,
+    steel_frame_package,
 )
 
 # Create database engine

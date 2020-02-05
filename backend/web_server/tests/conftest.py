@@ -36,7 +36,9 @@ if not path.isfile("./backend/web_server/tests/.test.db"):
     ) as csvfile:
         data = csv.DictReader(csvfile)
         for row in data:
-            initialSession.add(BasementMetadata(**row))
+            initialSession.add(
+                BasementMetadata(**{k: v for k, v in row.items() if v != ""})
+            )
 
     with open(
         "backend/database_models/test_data/strong_floor_fbg_metadata.csv",
@@ -44,7 +46,9 @@ if not path.isfile("./backend/web_server/tests/.test.db"):
     ) as csvfile:
         data = csv.DictReader(csvfile)
         for row in data:
-            initialSession.add(StrongFloorMetadata(**row))
+            initialSession.add(
+                StrongFloorMetadata(**{k: v for k, v in row.items() if v != ""})
+            )
 
     with open(
         "backend/database_models/test_data/steel_frame_fbg_metadata.csv",
@@ -52,7 +56,9 @@ if not path.isfile("./backend/web_server/tests/.test.db"):
     ) as csvfile:
         data = csv.DictReader(csvfile)
         for row in data:
-            initialSession.add(SteelFrameMetadata(**row))
+            initialSession.add(
+                SteelFrameMetadata(**{k: v for k, v in row.items() if v != ""})
+            )
 
     initialSession.commit()
 

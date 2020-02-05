@@ -8,12 +8,9 @@ from sqlalchemy.orm import sessionmaker
 
 from database_models import (
     Base,
-    Basement,
-    StrongFloor,
-    SteelFrame,
-    BasementMetadata,
-    StrongFloorMetadata,
-    SteelFrameMetadata,
+    basement_package,
+    strong_floor_package,
+    steel_frame_package,
 )
 
 

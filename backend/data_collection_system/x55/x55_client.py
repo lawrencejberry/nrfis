@@ -11,12 +11,9 @@ from .. import (
     logger,
     Session,
     Base,
-    Basement,
-    StrongFloor,
-    SteelFrame,
-    BasementMetadata,
-    StrongFloorMetadata,
-    SteelFrameMetadata,
+    basement_package,
+    strong_floor_package,
+    steel_frame_package,
 )
 from .x55_protocol import (
     Request,
@@ -68,12 +65,6 @@ class SetupOptions(IntEnum):
 SETUP_OPTIONS = [str(option) for option in SetupOptions]
 
 
-class Package:
-    def __init__(self, values_table, metadata_table):
-        self.values_table = values_table
-        self.metadata_table = metadata_table
-
-
 class Configuration:
     def __init__(self):
         self.mapping = None  # For every table, for every channel, map an index to an ID
@@ -87,15 +78,15 @@ class Configuration:
         """
         if self.setup == SetupOptions.BASEMENT_AND_FRAME:
             return (
-                Package(Basement, BasementMetadata),
-                Package(SteelFrame, SteelFrameMetadata),
+                basement_package,
+                steel_frame_package,
             )
         if self.setup == SetupOptions.STRONG_FLOOR:
-            return (Package(StrongFloor, StrongFloorMetadata),)
+            return (strong_floor_package,)
         if self.setup == SetupOptions.BASEMENT:
-            return (Package(Basement, BasementMetadata),)
+            return (basement_package,)
         if self.setup == SetupOptions.FRAME:
-            return (Package(SteelFrame, SteelFrameMetadata),)
+            return (steel_frame_package,)
 
     def map(self, peaks: List[List[float]], table: Base):
         """
@@ -111,7 +102,7 @@ class Configuration:
 
         return mapped_peaks
 
-    def load(self, setup):
+    def load(self, setup: SetupOptions):
         """
         Load a new configuration from database metadata tables.
         """
@@ -122,7 +113,7 @@ class Configuration:
         session = Session()
         for package in self.packages:
             self.mapping[package.values_table] = {
-                row.sensor: row._asdict()["data"]
+                row.uid: row._asdict()["data"]
                 for row in session.query(package.metadata_table).all()
             }
         session.close()

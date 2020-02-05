@@ -6,14 +6,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from .. import (
-    Basement,
-    StrongFloor,
-    SteelFrame,
-    BasementMetadata,
-    StrongFloorMetadata,
-    SteelFrameMetadata,
-)
+from .. import Package, basement_package, strong_floor_package, steel_frame_package
 from ..dependencies import get_db
 from ..calculations import (
     calculate_uncompensated_strain,
@@ -36,9 +29,8 @@ router = APIRouter()
 
 
 class DataCollector:
-    def __init__(self, model, metadata):
-        self.model = model
-        self.metadata = metadata
+    def __init__(self, package: Package):
+        self.package = package
 
     def __call__(
         self,
@@ -66,9 +58,9 @@ class DataCollector:
 
         raw_data = [
             row._asdict()
-            for row in session.query(self.model)
-            .filter(self.model.timestamp > start_time)
-            .filter(self.model.timestamp < end_time)
+            for row in session.query(self.package.values_table)
+            .filter(self.package.values_table.timestamp > start_time)
+            .filter(self.package.values_table.timestamp < end_time)
             .all()
         ]
 
@@ -76,13 +68,14 @@ class DataCollector:
             return raw_data
 
         metadata = {
-            row.id: row._asdict()["data"] for row in session.query(self.metadata).all()
+            row.uid: row._asdict()["data"]
+            for row in session.query(self.package.metadata_table).all()
         }
 
         strain_sensors = [
-            sensor
-            for sensor, sensor_metadata in metadata.items()
-            if sensor_metadata["measurement_type"] == "str"
+            uid
+            for uid, values in metadata.items()
+            if values["measurement_type"] == "str"
         ]
 
         if data_type == DataType.uncompensated_strain:
@@ -90,12 +83,12 @@ class DataCollector:
                 {
                     "timestamp": row["timestamp"],
                     "data": {
-                        metadata[sensor]["name"]: calculate_uncompensated_strain(
-                            str_wvl=row["data"][sensor],
-                            initial_str_wvl=metadata[sensor]["initial_wavelength"],
-                            gauge_factor=metadata[sensor]["gauge_factor"],
+                        metadata[uid]["name"]: calculate_uncompensated_strain(
+                            str_wvl=row["data"][uid],
+                            initial_str_wvl=metadata[uid]["initial_wavelength"],
+                            gauge_factor=metadata[uid]["Fg"],
                         )
-                        for sensor in strain_sensors
+                        for uid in strain_sensors
                     },
                 }
                 for row in raw_data
@@ -106,20 +99,16 @@ class DataCollector:
                 {
                     "timestamp": row["timestamp"],
                     "data": {
-                        metadata[sensor][
-                            "name"
-                        ]: calculate_temperature_compensated_strain(
-                            str_wvl=row["data"][sensor],
-                            initial_str_wvl=metadata[sensor]["initial_wavelength"],
-                            tmp_wvl=row["data"][
-                                metadata[sensor]["corresponding_sensor"]
-                            ],
+                        metadata[uid]["name"]: calculate_temperature_compensated_strain(
+                            str_wvl=row["data"][uid],
+                            initial_str_wvl=metadata[uid]["initial_wavelength"],
+                            tmp_wvl=row["data"][metadata[uid]["corresponding_sensor"]],
                             initial_tmp_wvl=metadata[
-                                metadata[sensor]["corresponding_sensor"]
+                                metadata[uid]["corresponding_sensor"]
                             ]["initial_wavelength"],
-                            gauge_factor=metadata[sensor]["gauge_factor"],
+                            gauge_factor=metadata[uid]["Fg"],
                         )
-                        for sensor in strain_sensors
+                        for uid in strain_sensors
                     },
                 }
                 for row in raw_data
@@ -128,7 +117,7 @@ class DataCollector:
 
 @router.get("/basement/", response_model=List[DataResponse])
 def get_basement_data(
-    data: List[DataResponse] = Depends(DataCollector(Basement, BasementMetadata))
+    data: List[DataResponse] = Depends(DataCollector(basement_package)),
 ):
     """
     Fetch FBG sensor data from the basement raft and perimeter walls for a particular time period.
@@ -138,7 +127,7 @@ def get_basement_data(
 
 @router.get("/strong-floor/", response_model=List)
 def get_strong_floor_data(
-    data: List[DataResponse] = Depends(DataCollector(StrongFloor, StrongFloorMetadata))
+    data: List[DataResponse] = Depends(DataCollector(strong_floor_package)),
 ):
     """
     Fetch FBG sensor data from the strong floor for a particular time period.
@@ -148,7 +137,7 @@ def get_strong_floor_data(
 
 @router.get("/steel-frame/", response_model=List[DataResponse])
 def get_steel_frame_data(
-    data: List[DataResponse] = Depends(DataCollector(SteelFrame, SteelFrameMetadata))
+    data: List[DataResponse] = Depends(DataCollector(steel_frame_package)),
 ):
     """
     Fetch FBG sensor data from the steel frame for a particular time period.

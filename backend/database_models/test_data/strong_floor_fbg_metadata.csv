@@ -1,4 +1,4 @@
-﻿id,channel,index,name,measurement_type,corresponding_sensor,initial_wavelength,Fg,St,CTEs,CTEt,reference_wavelength,minimum_wavelength,maximum_wavelength
+﻿uid,channel,index,name,measurement_type,corresponding_sensor,initial_wavelength,Fg,St,CTEs,CTEt,reference_wavelength,minimum_wavelength,maximum_wavelength
 A1,0,0,SF_FBG_EW01_Str_bot01,str,P3,2.5,2.5,2.5,0,0,100,100,100
 A2,0,1,SF_FBG_EW01_Str_bot02,str,P3,2.5,2.5,2.5,0,0,100,100,100
 A3,0,2,SF_FBG_EW01_Str_bot03,str,P3,2.5,2.5,2.5,0,0,100,100,100
