@@ -126,7 +126,6 @@ class Configuration:
         safe to update just Basement metadata table from a combined config file, whilst
         it is also safe to update both the Basement and Steel Frame metadata tables simultaneously.
         """
-        # metadata_tables = self.tables[0]
         session = Session()
 
         root = ET.parse(config_file).getroot()
@@ -174,6 +173,8 @@ class Configuration:
 
         session.commit()
         session.close()
+
+        self.load(self.setup)  # Load the newly parsed config file
 
 
 class Connection:
