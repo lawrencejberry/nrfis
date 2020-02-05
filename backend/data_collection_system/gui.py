@@ -3,7 +3,12 @@ from asyncio import sleep
 import wx
 from wxasync import AsyncBind
 
-from .x55.x55_client import x55Client, SAMPLING_RATE_CHOICES, SETUP_OPTIONS
+from .x55.x55_client import (
+    x55Client,
+    SetupOptions,
+    SAMPLING_RATE_CHOICES,
+    SETUP_OPTIONS,
+)
 
 
 class Gui(wx.Frame):
@@ -164,8 +169,8 @@ class Gui(wx.Frame):
     async def on_configuration(self, event):
         if (
             wx.MessageBox(
-                "This will overwrite the configuration for X",
-                "Please confirm",
+                f"This will overwrite the configuration for {self.client.configuration.setup._name_}.",
+                "Warning",
                 wx.ICON_QUESTION | wx.YES_NO,
                 self,
             )
@@ -209,7 +214,7 @@ class Gui(wx.Frame):
     async def on_change_setup(self, event):
         """Handle the event when the user changes the setup control
         value. """
-        status = await self.client.update_setup(self.setup.GetSelection())
+        status = await self.client.update_setup(SetupOptions(self.setup.GetSelection()))
         if not status:  # If unsuccessful, revert to original selection
             self.setup.SetSelection(
                 self.setup.FindString(str(self.client.configuration.setup))

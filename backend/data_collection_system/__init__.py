@@ -6,7 +6,15 @@ import logging.handlers
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database_models import Basement, StrongFloor, SteelFrame
+from database_models import (
+    Base,
+    Basement,
+    StrongFloor,
+    SteelFrame,
+    BasementMetadata,
+    StrongFloorMetadata,
+    SteelFrameMetadata,
+)
 
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
