@@ -23,6 +23,7 @@ jobs:
     - name: Test with pytest
       run: |
         export PYTHONPATH=`pwd`
+        export DATABASE_URL="sqlite:///./backend/data_collection_system/tests/.test.db"
         pytest backend/data_collection_system --cov=./ --cov-report=xml
 
     - name: Upload coverage to Codecov  

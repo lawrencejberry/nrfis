@@ -35,6 +35,8 @@ logger.addHandler(consoleHandler)
 
 
 # Create database engine
-DATABASE_URL = "postgresql+psycopg2://postgres:@localhost/timescaletest"
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "sqlite:///./backend/data_collection_system/tests/.test.db"
+)
 db = create_engine(DATABASE_URL, echo=False)
 Session = sessionmaker(db)

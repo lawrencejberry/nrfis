@@ -4,25 +4,14 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-import data_collection_system
 from database_models.utils import make_test_db
+from .. import DATABASE_URL, db, Session
 from .utils import Mockx30Instrument, Mockx55Instrument
 from ..x30.x30_client import x30Client
 from ..x55.x55_client import x55Client
 
-# Create SQLite database engine
-DATABASE_URL = "sqlite:///./backend/data_collection_system/tests/.test.db"
-db = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=db)
 
-make_test_db(DATABASE_URL, db, SessionLocal)
-
-# Monkeypatch database
-@pytest.fixture(autouse=True)
-def override_db(monkeypatch):
-    monkeypatch.setattr(data_collection_system, "DATABASE_URL", DATABASE_URL)
-    monkeypatch.setattr(data_collection_system, "db", db)
-    monkeypatch.setattr(data_collection_system, "Session", SessionLocal)
+make_test_db(DATABASE_URL, db, Session)
 
 
 @pytest.fixture

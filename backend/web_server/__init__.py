@@ -1,3 +1,5 @@
+import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -9,6 +11,8 @@ from database_models import (
 )
 
 # Create database engine
-DATABASE_URL = "postgresql+psycopg2://postgres:@host.docker.internal/timescaletest"
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql+psycopg2://postgres:@host.docker.internal/timescaletest"
+)
 db = create_engine(DATABASE_URL, echo=False)
 Session = sessionmaker(db)
