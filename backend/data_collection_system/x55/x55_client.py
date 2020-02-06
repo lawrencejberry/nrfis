@@ -98,12 +98,12 @@ class Configuration:
         for uid, metadata in self.mapping[table].items():
             channel = metadata["channel"]
             index = metadata["index"]
-            measurement_type = metadata["measurement_type"]
+            recording = metadata["recording"]
             minimum_wavelength = metadata["minimum_wavelength"]
             maximum_wavelength = metadata["maximum_wavelength"]
 
-            # Skip disabled sensors that are present in peaks
-            if measurement_type == "off":
+            # Skip disabled sensors
+            if not recording:
                 continue
 
             # Search peaks[channel] array for a matching sensor

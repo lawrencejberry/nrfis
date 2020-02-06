@@ -23,6 +23,7 @@ with open(
 ) as csvfile:
     data = csv.DictReader(csvfile)
     for row in data:
+        row["recording"] = row["recording"] == True
         session.add(BasementMetadata(**{k: v for k, v in row.items() if v != ""}))
         session.commit()
 
@@ -32,6 +33,7 @@ with open(
 ) as csvfile:
     data = csv.DictReader(csvfile)
     for row in data:
+        row["recording"] = row["recording"] == True
         session.add(StrongFloorMetadata(**{k: v for k, v in row.items() if v != ""}))
         session.commit()
 
@@ -41,6 +43,7 @@ with open(
 ) as csvfile:
     data = csv.DictReader(csvfile)
     for row in data:
+        row["recording"] = row["recording"] == True
         session.add(SteelFrameMetadata(**{k: v for k, v in row.items() if v != ""}))
         session.commit()
 
