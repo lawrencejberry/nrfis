@@ -30,6 +30,7 @@ def make_test_db(DATABASE_URL, db, Session):
     ) as csvfile:
         data = csv.DictReader(csvfile)
         for row in data:
+            row["recording"] = row["recording"] == True
             session.add(BasementMetadata(**{k: v for k, v in row.items() if v != ""}))
 
     with open(
@@ -38,6 +39,7 @@ def make_test_db(DATABASE_URL, db, Session):
     ) as csvfile:
         data = csv.DictReader(csvfile)
         for row in data:
+            row["recording"] = row["recording"] == True
             session.add(
                 StrongFloorMetadata(**{k: v for k, v in row.items() if v != ""})
             )
@@ -48,6 +50,7 @@ def make_test_db(DATABASE_URL, db, Session):
     ) as csvfile:
         data = csv.DictReader(csvfile)
         for row in data:
+            row["recording"] = row["recording"] == True
             session.add(SteelFrameMetadata(**{k: v for k, v in row.items() if v != ""}))
 
     session.commit()

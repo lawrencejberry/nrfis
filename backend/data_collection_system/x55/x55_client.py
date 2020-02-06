@@ -95,10 +95,25 @@ class Configuration:
         If a sensor can no longer be read at all by the optical instrument, remove its row from the metadata table entirely.
         """
         mapped_peaks = {}
-        for uid, values in self.mapping[table].items():
-            if values["measurement_type"] != "off":
-                # TODO: guard against cross-overs and dropped peaks
-                mapped_peaks[uid] = peaks[values["channel"]][values["index"]]
+        for uid, metadata in self.mapping[table].items():
+            channel = metadata["channel"]
+            index = metadata["index"]
+            recording = metadata["recording"]
+            minimum_wavelength = metadata["minimum_wavelength"]
+            maximum_wavelength = metadata["maximum_wavelength"]
+
+            # Skip disabled sensors
+            if not recording:
+                continue
+
+            # Search peaks[channel] array for a matching sensor
+            # Readings may accidentally be dropped, but extra readings cannot be added, therefore
+            # the sensor's actual index can only be equal to or lower than the expected index
+            for measurement in peaks[channel][index::-1]:  # Start at the expected index
+                if minimum_wavelength < measurement < maximum_wavelength:
+                    mapped_peaks[uid] = measurement
+                    break
+                # Otherwise the sensor has been dropped or is out-of-band, so ignore
 
         return mapped_peaks
 

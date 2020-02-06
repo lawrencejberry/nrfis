@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, Integer
+from sqlalchemy import Column, String, Float, Integer, Boolean
 
 from . import Base
 
@@ -11,6 +11,7 @@ class BasementMetadata(Base):
     index = Column(Integer)
     name = Column(String, unique=True)
     measurement_type = Column(String)
+    recording = Column(Boolean)
     corresponding_sensor = Column(String)
     initial_wavelength = Column(Float)
     Fg = Column(Float)
@@ -30,6 +31,7 @@ class StrongFloorMetadata(Base):
     index = Column(Integer)
     name = Column(String, unique=True)
     measurement_type = Column(String)
+    recording = Column(Boolean)
     corresponding_sensor = Column(String)
     initial_wavelength = Column(Float)
     Fg = Column(Float)
@@ -49,6 +51,7 @@ class SteelFrameMetadata(Base):
     index = Column(Integer)
     name = Column(String, unique=True)
     measurement_type = Column(String)
+    recording = Column(Boolean)
     corresponding_sensor = Column(String)
     initial_wavelength = Column(Float)
     Fg = Column(Float)
