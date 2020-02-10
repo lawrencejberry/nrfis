@@ -211,12 +211,11 @@ class Connection:
             logger.info("%s disconnected from %s:%d", self.name, self.host, self.port)
 
     async def read(self) -> bytes:
-        header = await self.reader.read(HEADER_LENGTH)
+        header = await self.reader.readexactly(HEADER_LENGTH)
         status = not unpack("<?", header[0:1])[0]  # True if successful
         message_size = unpack("<H", header[2:4])[0]
         content_size = unpack("<I", header[4:8])[0]
-
-        response = await self.reader.read(message_size + content_size)
+        response = await self.reader.readexactly(message_size + content_size)
         message = response[:message_size]
         content = response[message_size : message_size + content_size]
 
