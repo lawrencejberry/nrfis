@@ -49,7 +49,7 @@ COMMAND_PORT = 51971
 PEAK_STREAMING_PORT = 51972
 HEADER_LENGTH = 8
 
-SAMPLING_RATE_CHOICES = ["1", "10", "100", "1000"]
+SAMPLING_RATE_CHOICES = ["UNKNOWN", "1", "10", "100", "1000"]
 
 
 class SetupOptions(IntEnum):
@@ -199,6 +199,7 @@ class Connection:
         self.port = port
         self.reader = None
         self.writer = None
+        self.reading = asyncio.Condition()
 
     async def connect(self):
         self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
@@ -211,15 +212,16 @@ class Connection:
             logger.info("%s disconnected from %s:%d", self.name, self.host, self.port)
 
     async def read(self) -> bytes:
-        header = await self.reader.readexactly(HEADER_LENGTH)
-        status = not unpack("<?", header[0:1])[0]  # True if successful
-        message_size = unpack("<H", header[2:4])[0]
-        content_size = unpack("<I", header[4:8])[0]
-        response = await self.reader.readexactly(message_size + content_size)
-        message = response[:message_size]
-        content = response[message_size : message_size + content_size]
+        async with self.reading:
+            header = await self.reader.readexactly(HEADER_LENGTH)
+            status = not unpack("<?", header[0:1])[0]  # True if successful
+            message_size = unpack("<H", header[2:4])[0]
+            content_size = unpack("<I", header[4:8])[0]
+            response = await self.reader.readexactly(message_size + content_size)
+            message = response[:message_size]
+            content = response[message_size : message_size + content_size]
 
-        return status, message, content
+            return status, message, content
 
     async def execute(self, request: Request) -> bytes:
         self.writer.write(request.serialize())
@@ -261,7 +263,7 @@ class x55Client:
 
         # Configuration setting
         self.configuration = Configuration()
-        self.sampling_rate = 1000  # Hz
+        self.sampling_rate = "UNKNOWN"
 
     async def connect(self):
         self.command = Connection(self.name, self.host, COMMAND_PORT)
@@ -275,6 +277,10 @@ class x55Client:
         self.connected = False
 
     async def update_status(self):
+        self.sampling_rate = LaserScanSpeed(
+            await self.command.execute(GetLaserScanSpeed())
+        ).content
+
         self.instrument_name = InstrumentName(
             await self.command.execute(GetInstrumentName())
         ).content
@@ -299,10 +305,6 @@ class x55Client:
 
         self.peak_data_streaming_available_buffer = PeakDataStreamingAvailableBuffer(
             await self.command.execute(GetPeakDataStreamingAvailableBuffer())
-        ).content
-
-        self.laser_scan_speed = LaserScanSpeed(
-            await self.command.execute(GetLaserScanSpeed())
         ).content
 
         self.instrument_time = InstrumentUtcDateTime(

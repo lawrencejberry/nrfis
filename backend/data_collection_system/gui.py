@@ -1,4 +1,4 @@
-from asyncio import sleep
+from asyncio import sleep, current_task
 
 import wx
 from wxasync import AsyncBind
@@ -59,7 +59,6 @@ class Gui(wx.Frame):
             "peak_data_streaming_status": "Streaming status",
             "peak_data_streaming_divider": "Streaming divider",
             "peak_data_streaming_available_buffer": "Available streaming buffer",
-            "laser_scan_speed": "Laser scan speed",
             "instrument_time": "Instrument time",
             "ntp_enabled": "NTP server enabled",
         }
@@ -79,7 +78,7 @@ class Gui(wx.Frame):
         main_sizer = wx.BoxSizer(wx.HORIZONTAL)
         client_sizer = wx.BoxSizer(wx.VERTICAL)
         control_sizer = wx.GridSizer(3, 2, 0, 10)
-        status_sizer = wx.GridSizer(len(self.statuses), 2, 0, 10)
+        status_sizer = wx.GridSizer(len(self.statuses), 2, 0, 9)
 
         main_sizer.Add(client_sizer)
 
@@ -222,7 +221,14 @@ class Gui(wx.Frame):
 
     async def update_status(self):
         while self.client.connected:
+            if self.client.command.reading.locked():
+                await sleep(0.1)
+                continue
+
             await self.client.update_status()
             for status in self.statuses:
                 getattr(self, status).SetLabel(f"{str(getattr(self.client, status))} ")
+            self.sampling_rate.SetSelection(
+                self.sampling_rate.FindString(str(self.client.sampling_rate))
+            )
             await sleep(1)
