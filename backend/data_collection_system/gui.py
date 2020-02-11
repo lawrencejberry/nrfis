@@ -63,7 +63,7 @@ class Gui(wx.Frame):
     def __init__(self):
         """Initialise widgets and layout."""
         super().__init__(
-            parent=None, title="IRIS Data Collection System", size=(1000, 800)
+            parent=None, title="NRFIS Data Collection System", size=(1000, 800)
         )
 
         # Initialise client
@@ -191,8 +191,8 @@ class Gui(wx.Frame):
             self.Close(True)
         elif event_id == wx.ID_ABOUT:
             wx.MessageBox(
-                "IRIS Analyser Client\nLawrence Berry",
-                "About IRIS",
+                "A program that records sensor data from an si255 optical instrument and stores it in a permanent database. The user can see live status information, upload a particular Enlight configuration file and start/stop recording the received data.\n\nDeveloped by Lawrence Berry for a IIB Master's Project, 2019-2020",
+                "About",
                 wx.ICON_INFORMATION | wx.OK,
             )
 
