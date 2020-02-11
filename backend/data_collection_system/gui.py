@@ -257,7 +257,11 @@ class Gui(wx.Frame):
     async def on_change_sampling_rate(self, event):
         """Handle the event when the user changes the sampling rate control
         value. """
-        sampling_rate = int(event.GetString())
+        try:
+            sampling_rate = int(event.GetString())
+        except ValueError:
+            logger.warning("Invalid sampling rate: %s", event.GetString())
+            return
         status = await self.client.update_sampling_rate(sampling_rate)
         if not status:  # If unsuccessful, revert to original selection
             self.sampling_rate_choice.SetSelection(
@@ -267,7 +271,7 @@ class Gui(wx.Frame):
     async def on_change_setup(self, event):
         """Handle the event when the user changes the setup control
         value. """
-        status = await self.client.update_setup(SetupOptions(self.setup.GetSelection()))
+        status = await self.client.update_setup(SetupOptions(event.GetInt()))
         if not status:  # If unsuccessful, revert to original selection
             self.setup.SetSelection(
                 self.setup.FindString(str(self.client.configuration.setup))
