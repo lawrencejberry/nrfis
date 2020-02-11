@@ -1,12 +1,28 @@
 from asyncio import sleep
 
 import wx
+from wx.lib.mixins import listctrl
 from wxasync import AsyncBind
 
+from . import logger, logFormatter, CustomConsoleHandler
 from .x55.x55_client import (
     x55Client,
     SetupOptions,
 )
+
+
+class LogList(wx.ListCtrl, listctrl.ListCtrlAutoWidthMixin):
+    def __init__(
+        self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0
+    ):
+        wx.ListCtrl.__init__(self, parent, ID, pos, size, style)
+        listctrl.ListCtrlAutoWidthMixin.__init__(self)
+        self.setResizeColumn(0)
+        self.InsertColumn(0, heading="Log")
+        self.SetFont(wx.Font(13, wx.FONTFAMILY_TELETYPE, wx.NORMAL, wx.NORMAL))
+        txtHandler = CustomConsoleHandler(self)
+        txtHandler.setFormatter(logFormatter)
+        logger.addHandler(txtHandler)
 
 
 class Gui(wx.Frame):
@@ -70,6 +86,9 @@ class Gui(wx.Frame):
         for status in self.statuses:
             setattr(self, status, wx.StaticText(self, wx.ID_ANY, "None"))
 
+        # Log widget
+        self.log = LogList(self, wx.ID_ANY, size=(300, 100), style=wx.LC_REPORT)
+
         # Bind events to widgets
         self.Bind(wx.EVT_MENU, self.on_menu)
         AsyncBind(wx.EVT_BUTTON, self.on_connect, self.connect)
@@ -88,12 +107,12 @@ class Gui(wx.Frame):
         status_sizer = wx.GridSizer(len(self.statuses), 2, 0, 10)
 
         main_sizer.Add(client_sizer)
+        main_sizer.Add(self.log, 1, wx.ALL | wx.EXPAND, 5)
 
         client_sizer.Add(self.title, 0, wx.ALL, 5)
         client_sizer.Add(self.connect, 0, wx.ALL | wx.EXPAND, 5)
         client_sizer.Add(self.stream, 0, wx.ALL | wx.EXPAND, 5)
         client_sizer.Add(self.configuration, 0, wx.ALL | wx.EXPAND, 5)
-
         client_sizer.Add(control_sizer, 0, wx.ALL | wx.EXPAND, 5)
         client_sizer.Add(status_sizer, 0, wx.ALL | wx.EXPAND, 5)
 
@@ -149,6 +168,12 @@ class Gui(wx.Frame):
 
     async def on_connect(self, event):
         """Handle the event when the user clicks the connect/disconnect button."""
+        logger.debug("")
+        logger.info("")
+        logger.warning("")
+        logger.error("")
+        logger.critical("")
+
         if self.client.connected:
             await self.client.disconnect()
             self.connect.SetLabel("Connect")
