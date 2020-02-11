@@ -6,7 +6,6 @@ from wxasync import AsyncBind
 from .x55.x55_client import (
     x55Client,
     SetupOptions,
-    SETUP_OPTIONS,
 )
 
 
@@ -41,7 +40,9 @@ class Gui(wx.Frame):
         self.stream.Disable()  # Streaming button disabled until client has connected
         self.configuration = wx.Button(self, wx.ID_ANY, "Upload config file")
         self.host = wx.TextCtrl(self, wx.ID_ANY, self.client.host)
-        self.setup = wx.Choice(self, wx.ID_ANY, choices=SETUP_OPTIONS)
+        self.setup = wx.Choice(
+            self, wx.ID_ANY, choices=[str(option) for option in SetupOptions]
+        )
         self.setup.SetSelection(self.client.configuration.setup)
         self.sampling_rate_choice = wx.Choice(
             self,

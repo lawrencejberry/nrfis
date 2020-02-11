@@ -62,9 +62,6 @@ class SetupOptions(IntEnum):
         return self._name_.replace("_", " ")
 
 
-SETUP_OPTIONS = [str(option) for option in SetupOptions]
-
-
 class Configuration:
     def __init__(self):
         self.mapping = None  # For every table, for every channel, map an index to an ID
