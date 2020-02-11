@@ -85,6 +85,10 @@ class SetLaserScanSpeed(Request):
     speed: int
 
 
+class GetAvailableLaserScanSpeeds(Request):
+    pass
+
+
 class GetInstrumentUtcDateTime(Request):
     pass
 
@@ -208,6 +212,15 @@ class LaserScanSpeed(Response):
         speed = unpack("<I", content)[0]
 
         return {"content": speed}
+
+
+class AvailableLaserScanSpeeds(Response):
+    content: List[int]
+
+    def parse(self, content: bytes):
+        available_speeds = unpack("<" + (len(content) // 4) * "I", content)
+
+        return {"content": available_speeds}
 
 
 class InstrumentUtcDateTime(Response):

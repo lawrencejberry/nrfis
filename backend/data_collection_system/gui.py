@@ -1,4 +1,4 @@
-from asyncio import sleep, current_task
+from asyncio import sleep
 
 import wx
 from wxasync import AsyncBind
@@ -6,7 +6,6 @@ from wxasync import AsyncBind
 from .x55.x55_client import (
     x55Client,
     SetupOptions,
-    SAMPLING_RATE_CHOICES,
     SETUP_OPTIONS,
 )
 
@@ -44,11 +43,15 @@ class Gui(wx.Frame):
         self.host = wx.TextCtrl(self, wx.ID_ANY, self.client.host)
         self.setup = wx.Choice(self, wx.ID_ANY, choices=SETUP_OPTIONS)
         self.setup.SetSelection(self.client.configuration.setup)
-        self.sampling_rate = wx.Choice(self, wx.ID_ANY, choices=SAMPLING_RATE_CHOICES)
-        self.sampling_rate.SetSelection(
-            self.sampling_rate.FindString(str(self.client.sampling_rate))
+        self.sampling_rate_choice = wx.Choice(
+            self,
+            wx.ID_ANY,
+            choices=[str(x) for x in self.client.available_sampling_rates],
         )
-        self.sampling_rate.Disable()
+        self.sampling_rate_choice.SetSelection(
+            self.sampling_rate_choice.FindString(str(self.client.sampling_rate))
+        )
+        self.sampling_rate_choice.Disable()
 
         # Status information
         self.statuses = {
@@ -56,6 +59,7 @@ class Gui(wx.Frame):
             "firmware_version": "Firmware version",
             "is_ready": "Ready",
             "dut_channel_count": "DUT channel count",
+            "sampling_rate": "Sampling rate",
             "peak_data_streaming_status": "Streaming status",
             "peak_data_streaming_divider": "Streaming divider",
             "peak_data_streaming_available_buffer": "Available streaming buffer",
@@ -71,14 +75,16 @@ class Gui(wx.Frame):
         AsyncBind(wx.EVT_BUTTON, self.on_stream, self.stream)
         AsyncBind(wx.EVT_BUTTON, self.on_configuration, self.configuration)
         AsyncBind(wx.EVT_TEXT, self.on_change_host, self.host)
-        AsyncBind(wx.EVT_CHOICE, self.on_change_sampling_rate, self.sampling_rate)
+        AsyncBind(
+            wx.EVT_CHOICE, self.on_change_sampling_rate, self.sampling_rate_choice
+        )
         AsyncBind(wx.EVT_CHOICE, self.on_change_setup, self.setup)
 
         # Configure sizers for layout
         main_sizer = wx.BoxSizer(wx.HORIZONTAL)
         client_sizer = wx.BoxSizer(wx.VERTICAL)
         control_sizer = wx.GridSizer(3, 2, 0, 10)
-        status_sizer = wx.GridSizer(len(self.statuses), 2, 0, 9)
+        status_sizer = wx.GridSizer(len(self.statuses), 2, 0, 10)
 
         main_sizer.Add(client_sizer)
 
@@ -103,7 +109,7 @@ class Gui(wx.Frame):
             5,
         )
         control_sizer.Add(
-            self.sampling_rate, 0, wx.ALL | wx.EXPAND, 5,
+            self.sampling_rate_choice, 0, wx.ALL | wx.EXPAND, 5,
         )
         control_sizer.Add(
             wx.StaticText(self, wx.ID_ANY, "Setup:"), 0, wx.ALL | wx.EXPAND, 5,
@@ -201,13 +207,11 @@ class Gui(wx.Frame):
     async def on_change_sampling_rate(self, event):
         """Handle the event when the user changes the sampling rate control
         value. """
-        sampling_rate = int(
-            self.sampling_rate.GetString(self.sampling_rate.GetSelection())
-        )
+        sampling_rate = int(event.GetString())
         status = await self.client.update_sampling_rate(sampling_rate)
         if not status:  # If unsuccessful, revert to original selection
-            self.sampling_rate.SetSelection(
-                self.sampling_rate.FindString(str(self.client.sampling_rate))
+            self.sampling_rate_choice.SetSelection(
+                self.sampling_rate_choice.FindString(str(self.client.sampling_rate))
             )
 
     async def on_change_setup(self, event):
@@ -228,7 +232,10 @@ class Gui(wx.Frame):
             await self.client.update_status()
             for status in self.statuses:
                 getattr(self, status).SetLabel(f"{str(getattr(self.client, status))} ")
-            self.sampling_rate.SetSelection(
-                self.sampling_rate.FindString(str(self.client.sampling_rate))
+            self.sampling_rate_choice.Set(
+                [str(x) for x in self.client.available_sampling_rates]
+            )
+            self.sampling_rate_choice.SetSelection(
+                self.sampling_rate_choice.FindString(str(self.client.sampling_rate))
             )
             await sleep(1)

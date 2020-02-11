@@ -28,6 +28,7 @@ from .x55_protocol import (
     GetPeakDataStreamingAvailableBuffer,
     GetLaserScanSpeed,
     SetLaserScanSpeed,
+    GetAvailableLaserScanSpeeds,
     GetInstrumentUtcDateTime,
     GetNtpEnabled,
     Response,
@@ -40,6 +41,7 @@ from .x55_protocol import (
     PeakDataStreamingDivider,
     PeakDataStreamingAvailableBuffer,
     LaserScanSpeed,
+    AvailableLaserScanSpeeds,
     InstrumentUtcDateTime,
     NtpEnabled,
 )
@@ -48,8 +50,6 @@ HOST = "10.0.0.55"
 COMMAND_PORT = 51971
 PEAK_STREAMING_PORT = 51972
 HEADER_LENGTH = 8
-
-SAMPLING_RATE_CHOICES = ["UNKNOWN", "1", "10", "100", "1000"]
 
 
 class SetupOptions(IntEnum):
@@ -250,6 +250,8 @@ class x55Client:
         self.firmware_version = None
         self.is_ready = None
         self.dut_channel_count = None
+        self.sampling_rate = None
+        self.available_sampling_rates = [None]
         self.peak_data_streaming_status = None
         self.peak_data_streaming_divider = None
         self.peak_data_streaming_available_buffer = None
@@ -263,7 +265,6 @@ class x55Client:
 
         # Configuration setting
         self.configuration = Configuration()
-        self.sampling_rate = "UNKNOWN"
 
     async def connect(self):
         self.command = Connection(self.name, self.host, COMMAND_PORT)
@@ -277,10 +278,6 @@ class x55Client:
         self.connected = False
 
     async def update_status(self):
-        self.sampling_rate = LaserScanSpeed(
-            await self.command.execute(GetLaserScanSpeed())
-        ).content
-
         self.instrument_name = InstrumentName(
             await self.command.execute(GetInstrumentName())
         ).content
@@ -293,6 +290,14 @@ class x55Client:
 
         self.dut_channel_count = DutChannelCount(
             await self.command.execute(GetDutChannelCount())
+        ).content
+
+        self.sampling_rate = LaserScanSpeed(
+            await self.command.execute(GetLaserScanSpeed())
+        ).content
+
+        self.available_sampling_rates = AvailableLaserScanSpeeds(
+            await self.command.execute(GetAvailableLaserScanSpeeds())
         ).content
 
         self.peak_data_streaming_status = PeakDataStreamingStatus(
