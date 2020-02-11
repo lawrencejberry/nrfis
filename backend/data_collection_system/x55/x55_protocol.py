@@ -100,10 +100,9 @@ class Response(BaseModel):
     content: bytes
 
     def __init__(self, response: Tuple[bool, bytes, bytes]):
+        status, message, content = response
         try:
-            super().__init__(
-                status=response[0], message=response[1], **self.parse(response[2])
-            )
+            super().__init__(status=status, message=message, **self.parse(content))
         except:
             raise ValueError("Could not parse response")
 
