@@ -197,7 +197,7 @@ class Gui(wx.Frame):
             pathname = fileDialog.GetPath()
             try:
                 with open(pathname, "r") as file:
-                    pass  # self.doLoadDataOrWhatever(file)
+                    self.client.configuration.parse(file)
             except IOError:
                 wx.LogError("Cannot open file '%s'." % file)
 

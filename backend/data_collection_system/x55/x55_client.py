@@ -133,6 +133,8 @@ class Configuration:
             }
         session.close()
 
+        logger.info("Loaded configuration from database")
+
     def parse(self, config_file):
         """
         Parse and save a configuration to the database metadata tables.
@@ -163,8 +165,10 @@ class Configuration:
                     "minimum_wavelength": minimum_wavelength,
                     "maximum_wavelength": maximum_wavelength,
                 }
-
-                session.query(package.metadata_table).get(uid).update(data)
+                if data:
+                    session.query(package.metadata_table).filter(
+                        package.metadata_table.uid == uid
+                    ).update(data)
 
             # Data associated with a sensor name
             for transducer in root.iter("Transducer"):
@@ -174,20 +178,23 @@ class Configuration:
                     constant_name = constant.find("Name").text
                     constant_value = constant.find("Value").text
 
-                    if constant_name.startswith("FBG"):
+                    if constant_name.startswith("FBG") and constant_name.endswith("0"):
                         uid = re.search("_([^;]*)_", constant_name)[1]
-                        session.query(package.metadata_table).get(uid).update(
-                            {"initial_wavelength": constant_value}
-                        )
-                    else:
+                        session.query(package.metadata_table).filter(
+                            package.metadata_table.uid == uid
+                        ).update({"initial_wavelength": constant_value})
+                    elif constant_name in ("Fg", "St", "CTEs", "CTEt"):
                         data[constant_name] = constant_value
 
-                session.query(package.metadata_table).filter(
-                    package.metadata_table.name == name
-                ).update(data)
+                if data:
+                    session.query(package.metadata_table).filter(
+                        package.metadata_table.name == name
+                    ).update(data)
 
         session.commit()
         session.close()
+
+        logger.info("Uploaded new configuration file to database")
 
         self.load(self.setup)  # Load the newly parsed config file
 
