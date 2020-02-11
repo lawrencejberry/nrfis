@@ -105,9 +105,10 @@ class Gui(wx.Frame):
         client_sizer = wx.BoxSizer(wx.VERTICAL)
         control_sizer = wx.GridSizer(3, 2, 0, 10)
         status_sizer = wx.GridSizer(len(self.statuses), 2, 0, 10)
+        log_sizer = wx.StaticBoxSizer(wx.HORIZONTAL, self)
 
-        main_sizer.Add(client_sizer)
-        main_sizer.Add(self.log, 1, wx.ALL | wx.EXPAND, 5)
+        main_sizer.Add(client_sizer, 0.5, wx.ALL | wx.EXPAND, 5)
+        main_sizer.Add(log_sizer, 1, wx.ALL | wx.EXPAND, 5)
 
         client_sizer.Add(self.title, 0, wx.ALL, 5)
         client_sizer.Add(self.connect, 0, wx.ALL | wx.EXPAND, 5)
@@ -147,6 +148,8 @@ class Gui(wx.Frame):
             )
             status_sizer.Add(getattr(self, status), 0, wx.ALL | wx.EXPAND, 5)
 
+        log_sizer.Add(self.log, 1, wx.ALL | wx.EXPAND, 5)
+
         self.SetSizeHints(600, 600)  # Sets the minimum window size
         self.SetSizer(main_sizer)
 
@@ -168,12 +171,6 @@ class Gui(wx.Frame):
 
     async def on_connect(self, event):
         """Handle the event when the user clicks the connect/disconnect button."""
-        logger.debug("")
-        logger.info("")
-        logger.warning("")
-        logger.error("")
-        logger.critical("")
-
         if self.client.connected:
             await self.client.disconnect()
             self.connect.SetLabel("Connect")
