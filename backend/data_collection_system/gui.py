@@ -200,7 +200,7 @@ class Gui(wx.Frame):
     async def on_configuration(self, event):
         if (
             wx.MessageBox(
-                f"This will overwrite the configuration for {self.client.configuration.setup._name_}.",
+                f"This will overwrite the configuration for {str(self.client.configuration.setup)}.",
                 "Warning",
                 wx.ICON_QUESTION | wx.YES_NO,
                 self,
