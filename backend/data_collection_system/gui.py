@@ -52,7 +52,6 @@ class Gui(wx.Frame):
         self.sampling_rate_choice.SetSelection(
             self.sampling_rate_choice.FindString(str(self.client.sampling_rate))
         )
-        self.sampling_rate_choice.Disable()
 
         # Status information
         self.statuses = {
