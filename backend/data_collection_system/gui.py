@@ -1,14 +1,42 @@
+import logging
 from asyncio import sleep
 
 import wx
 from wx.lib.mixins import listctrl
 from wxasync import AsyncBind
 
-from . import logger, logFormatter, CustomConsoleHandler
+from . import logger, logFormatter
 from .x55.x55_client import (
     x55Client,
     SetupOptions,
 )
+
+
+class CustomConsoleHandler(logging.StreamHandler):
+    def __init__(self, listctrl):
+        logging.StreamHandler.__init__(self)
+        self.listctrl = listctrl
+
+        colours = wx.ColourDatabase()
+        self.colours = {
+            "CRITICAL": colours.Find("RED"),
+            "ERROR": colours.Find("MEDIUM VIOLET RED"),
+            "WARNING": colours.Find("YELLOW"),
+            "INFO": colours.Find("YELLOW GREEN"),
+            "DEBUG": colours.Find("MEDIUM GOLDENROD"),
+        }
+
+    def emit(self, record):
+        item = wx.ListItem()
+        item.SetText(self.format(record))
+        item.SetBackgroundColour(
+            self.colours.get(record.levelname, self.colours["CRITICAL"])
+        )
+        item.SetId(self.listctrl.GetItemCount())
+        if self.listctrl.ItemCount > 200:
+            self.listctrl.DeleteItem(0)
+        self.listctrl.InsertItem(item)
+        self.flush()
 
 
 class LogList(wx.ListCtrl, listctrl.ListCtrlAutoWidthMixin):

@@ -3,7 +3,6 @@ import os
 import logging
 import logging.handlers
 
-from wx import ListItem, ColourDatabase
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -16,33 +15,6 @@ from backend.database_models import (
 
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-
-
-class CustomConsoleHandler(logging.StreamHandler):
-    def __init__(self, listctrl):
-        logging.StreamHandler.__init__(self)
-        self.listctrl = listctrl
-
-        colours = ColourDatabase()
-        self.colours = {
-            "CRITICAL": colours.Find("RED"),
-            "ERROR": colours.Find("MEDIUM VIOLET RED"),
-            "WARNING": colours.Find("YELLOW"),
-            "INFO": colours.Find("YELLOW GREEN"),
-            "DEBUG": colours.Find("MEDIUM GOLDENROD"),
-        }
-
-    def emit(self, record):
-        item = ListItem()
-        item.SetText(self.format(record))
-        item.SetBackgroundColour(
-            self.colours.get(record.levelname, self.colours["CRITICAL"])
-        )
-        item.SetId(self.listctrl.GetItemCount())
-        if self.listctrl.ItemCount > 200:
-            self.listctrl.DeleteItem(0)
-        self.listctrl.InsertItem(item)
-        self.flush()
 
 
 # Create logger
