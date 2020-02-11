@@ -16,6 +16,7 @@ from backend.database_models import (
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
+
 # Create logger
 os.makedirs(os.path.join(ROOT_DIR, "logs"), exist_ok=True)
 

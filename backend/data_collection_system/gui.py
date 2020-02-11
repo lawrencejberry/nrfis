@@ -1,12 +1,56 @@
+import logging
 from asyncio import sleep
 
 import wx
+from wx.lib.mixins import listctrl
 from wxasync import AsyncBind
 
+from . import logger, logFormatter
 from .x55.x55_client import (
     x55Client,
     SetupOptions,
 )
+
+
+class CustomConsoleHandler(logging.StreamHandler):
+    def __init__(self, listctrl):
+        logging.StreamHandler.__init__(self)
+        self.listctrl = listctrl
+
+        colours = wx.ColourDatabase()
+        self.colours = {
+            "CRITICAL": colours.Find("RED"),
+            "ERROR": colours.Find("MEDIUM VIOLET RED"),
+            "WARNING": colours.Find("YELLOW"),
+            "INFO": colours.Find("YELLOW GREEN"),
+            "DEBUG": colours.Find("MEDIUM GOLDENROD"),
+        }
+
+    def emit(self, record):
+        item = wx.ListItem()
+        item.SetText(self.format(record))
+        item.SetBackgroundColour(
+            self.colours.get(record.levelname, self.colours["CRITICAL"])
+        )
+        item.SetId(self.listctrl.GetItemCount())
+        if self.listctrl.ItemCount > 200:
+            self.listctrl.DeleteItem(0)
+        self.listctrl.InsertItem(item)
+        self.flush()
+
+
+class LogList(wx.ListCtrl, listctrl.ListCtrlAutoWidthMixin):
+    def __init__(
+        self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0
+    ):
+        wx.ListCtrl.__init__(self, parent, ID, pos, size, style)
+        listctrl.ListCtrlAutoWidthMixin.__init__(self)
+        self.setResizeColumn(0)
+        self.InsertColumn(0, heading="Log")
+        self.SetFont(wx.Font(13, wx.FONTFAMILY_TELETYPE, wx.NORMAL, wx.NORMAL))
+        txtHandler = CustomConsoleHandler(self)
+        txtHandler.setFormatter(logFormatter)
+        logger.addHandler(txtHandler)
 
 
 class Gui(wx.Frame):
@@ -69,6 +113,9 @@ class Gui(wx.Frame):
         for status in self.statuses:
             setattr(self, status, wx.StaticText(self, wx.ID_ANY, "None"))
 
+        # Log widget
+        self.log = LogList(self, wx.ID_ANY, size=(300, 100), style=wx.LC_REPORT)
+
         # Bind events to widgets
         self.Bind(wx.EVT_MENU, self.on_menu)
         AsyncBind(wx.EVT_BUTTON, self.on_connect, self.connect)
@@ -85,14 +132,15 @@ class Gui(wx.Frame):
         client_sizer = wx.BoxSizer(wx.VERTICAL)
         control_sizer = wx.GridSizer(3, 2, 0, 10)
         status_sizer = wx.GridSizer(len(self.statuses), 2, 0, 10)
+        log_sizer = wx.StaticBoxSizer(wx.HORIZONTAL, self)
 
-        main_sizer.Add(client_sizer)
+        main_sizer.Add(client_sizer, 0.5, wx.ALL | wx.EXPAND, 5)
+        main_sizer.Add(log_sizer, 1, wx.ALL | wx.EXPAND, 5)
 
         client_sizer.Add(self.title, 0, wx.ALL, 5)
         client_sizer.Add(self.connect, 0, wx.ALL | wx.EXPAND, 5)
         client_sizer.Add(self.stream, 0, wx.ALL | wx.EXPAND, 5)
         client_sizer.Add(self.configuration, 0, wx.ALL | wx.EXPAND, 5)
-
         client_sizer.Add(control_sizer, 0, wx.ALL | wx.EXPAND, 5)
         client_sizer.Add(status_sizer, 0, wx.ALL | wx.EXPAND, 5)
 
@@ -126,6 +174,8 @@ class Gui(wx.Frame):
                 5,
             )
             status_sizer.Add(getattr(self, status), 0, wx.ALL | wx.EXPAND, 5)
+
+        log_sizer.Add(self.log, 1, wx.ALL | wx.EXPAND, 5)
 
         self.SetSizeHints(600, 600)  # Sets the minimum window size
         self.SetSizer(main_sizer)
@@ -174,7 +224,7 @@ class Gui(wx.Frame):
     async def on_configuration(self, event):
         if (
             wx.MessageBox(
-                f"This will overwrite the configuration for {self.client.configuration.setup._name_}.",
+                f"This will overwrite the configuration for {str(self.client.configuration.setup)}.",
                 "Warning",
                 wx.ICON_QUESTION | wx.YES_NO,
                 self,
