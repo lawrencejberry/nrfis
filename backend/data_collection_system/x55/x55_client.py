@@ -280,7 +280,7 @@ class x55Client:
     def effective_sampling_rate(self):
         if (self.laser_scan_speed and self.peak_data_streaming_divider) is None:
             return None
-        return self.laser_scan_speed / self.peak_data_streaming_divider
+        return self.laser_scan_speed // self.peak_data_streaming_divider
 
     async def connect(self):
         self.command = Connection(self.name, self.host, COMMAND_PORT)
