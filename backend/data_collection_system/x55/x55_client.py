@@ -133,6 +133,8 @@ class Configuration:
 
         logger.info("Loaded configuration from database")
 
+        return self.setup
+
     def parse(self, config_file):
         """
         Parse and save a configuration to the database metadata tables.
@@ -353,7 +355,7 @@ class x55Client:
         return self.peak_data_streaming_divider
 
     async def update_setup(self, setup: SetupOptions) -> bool:
-        self.configuration.load(setup)
+        return self.configuration.load(setup)
 
     async def stream(self):
         await self.peaks.connect()

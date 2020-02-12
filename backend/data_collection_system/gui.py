@@ -302,11 +302,11 @@ class Gui(wx.Frame):
     async def on_change_setup(self, event):
         """Handle the event when the user changes the setup control
         value. """
-        status = await self.client.update_setup(SetupOptions(event.GetInt()))
-        if not status:  # If unsuccessful, revert to original selection
-            self.setup.SetSelection(
-                self.setup.FindString(str(self.client.configuration.setup))
+        self.setup.SetSelection(
+            self.setup.FindString(
+                str(await self.client.update_setup(SetupOptions(event.GetInt())))
             )
+        )
 
     async def update_status(self):
         while self.client.connected:
