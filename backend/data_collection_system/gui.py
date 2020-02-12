@@ -13,9 +13,9 @@ from .x55.x55_client import (
 
 
 class CustomConsoleHandler(logging.StreamHandler):
-    def __init__(self, listctrl):
+    def __init__(self, ctrl):
         logging.StreamHandler.__init__(self)
-        self.listctrl = listctrl
+        self.listctrl = ctrl
 
         colours = wx.ColourDatabase()
         self.colours = {
@@ -88,14 +88,16 @@ class Gui(wx.Frame):
             self, wx.ID_ANY, choices=[str(option) for option in SetupOptions]
         )
         self.setup.SetSelection(self.client.configuration.setup)
-        self.sampling_rate_choice = wx.Choice(
+        self.laser_scan_speed_choice = wx.Choice(
             self,
             wx.ID_ANY,
-            choices=[str(x) for x in self.client.available_sampling_rates],
+            choices=[str(x) for x in self.client.available_laser_scan_speeds],
         )
-        self.sampling_rate_choice.SetSelection(
-            self.sampling_rate_choice.FindString(str(self.client.sampling_rate))
+        self.laser_scan_speed_choice.Disable()
+        self.divider = wx.Choice(
+            self, wx.ID_ANY, choices=[str(x) for x in self.client.divider_options]
         )
+        self.divider.Disable()
 
         # Status information
         self.statuses = {
@@ -103,9 +105,10 @@ class Gui(wx.Frame):
             "firmware_version": "Firmware version",
             "is_ready": "Ready",
             "dut_channel_count": "DUT channel count",
-            "sampling_rate": "Sampling rate",
             "peak_data_streaming_status": "Streaming status",
+            "laser_scan_speed": "Laser scan speed",
             "peak_data_streaming_divider": "Streaming divider",
+            "effective_sampling_rate": "Effective sampling rate",
             "peak_data_streaming_available_buffer": "Available streaming buffer",
             "instrument_time": "Instrument time",
             "ntp_enabled": "NTP server enabled",
@@ -123,14 +126,15 @@ class Gui(wx.Frame):
         AsyncBind(wx.EVT_BUTTON, self.on_configuration, self.configuration)
         AsyncBind(wx.EVT_TEXT, self.on_change_host, self.host)
         AsyncBind(
-            wx.EVT_CHOICE, self.on_change_sampling_rate, self.sampling_rate_choice
+            wx.EVT_CHOICE, self.on_change_laser_scan_speed, self.laser_scan_speed_choice
         )
+        AsyncBind(wx.EVT_CHOICE, self.on_change_divider, self.divider)
         AsyncBind(wx.EVT_CHOICE, self.on_change_setup, self.setup)
 
         # Configure sizers for layout
         main_sizer = wx.BoxSizer(wx.HORIZONTAL)
         client_sizer = wx.BoxSizer(wx.VERTICAL)
-        control_sizer = wx.GridSizer(3, 2, 0, 10)
+        control_sizer = wx.GridSizer(4, 2, 0, 10)
         status_sizer = wx.GridSizer(len(self.statuses), 2, 0, 10)
         log_sizer = wx.StaticBoxSizer(wx.HORIZONTAL, self)
 
@@ -151,13 +155,22 @@ class Gui(wx.Frame):
             self.host, 0, wx.ALL | wx.EXPAND, 5,
         )
         control_sizer.Add(
-            wx.StaticText(self, wx.ID_ANY, "Sampling rate (Hz):"),
+            wx.StaticText(self, wx.ID_ANY, "Laser scan speed (Hz):"),
             0,
             wx.ALL | wx.EXPAND,
             5,
         )
         control_sizer.Add(
-            self.sampling_rate_choice, 0, wx.ALL | wx.EXPAND, 5,
+            self.laser_scan_speed_choice, 0, wx.ALL | wx.EXPAND, 5,
+        )
+        control_sizer.Add(
+            wx.StaticText(self, wx.ID_ANY, "Peak data streaming divider:"),
+            0,
+            wx.ALL | wx.EXPAND,
+            5,
+        )
+        control_sizer.Add(
+            self.divider, 0, wx.ALL | wx.EXPAND, 5,
         )
         control_sizer.Add(
             wx.StaticText(self, wx.ID_ANY, "Setup:"), 0, wx.ALL | wx.EXPAND, 5,
@@ -203,13 +216,15 @@ class Gui(wx.Frame):
             self.connect.SetLabel("Connect")
             self.stream.Disable()
             self.host.Disable()
-            self.sampling_rate.Disable()
+            self.laser_scan_speed_choice.Disable()
+            self.divider.Disable()
         else:
             await self.client.connect()
             self.connect.SetLabel("Disconnect")
             self.stream.Enable()
             self.host.Enable()
-            self.sampling_rate.Enable()
+            self.laser_scan_speed_choice.Enable()
+            self.divider.Enable()
             await self.update_status()
 
     async def on_stream(self, event):
@@ -254,18 +269,34 @@ class Gui(wx.Frame):
     async def on_change_host(self, event):
         self.client.host = self.host.GetValue()
 
-    async def on_change_sampling_rate(self, event):
-        """Handle the event when the user changes the sampling rate control
+    async def on_change_laser_scan_speed(self, event):
+        """Handle the event when the user changes the laser scan speed control
         value. """
         try:
-            sampling_rate = int(event.GetString())
+            laser_scan_speed = int(event.GetString())
         except ValueError:
-            logger.warning("Invalid sampling rate: %s", event.GetString())
+            logger.warning("Invalid laser scan speed: %s", event.GetString())
             return
-        status = await self.client.update_sampling_rate(sampling_rate)
+        status = await self.client.update_laser_scan_speed(laser_scan_speed)
         if not status:  # If unsuccessful, revert to original selection
-            self.sampling_rate_choice.SetSelection(
-                self.sampling_rate_choice.FindString(str(self.client.sampling_rate))
+            self.laser_scan_speed_choice.SetSelection(
+                self.laser_scan_speed_choice.FindString(
+                    str(self.client.laser_scan_speed)
+                )
+            )
+
+    async def on_change_divider(self, event):
+        """Handle the event when the user changes the peak data streaming divider control
+        value. """
+        try:
+            divider = int(event.GetString())
+        except ValueError:
+            logger.warning("Invalid peak data streaming divider: %s", event.GetString())
+            return
+        status = await self.client.update_peak_data_streaming_divider(divider)
+        if not status:  # If unsuccessful, revert to original selection
+            self.divider.SetSelection(
+                self.divider.FindString(str(self.client.peak_data_streaming_divider))
             )
 
     async def on_change_setup(self, event):
@@ -286,10 +317,15 @@ class Gui(wx.Frame):
             await self.client.update_status()
             for status in self.statuses:
                 getattr(self, status).SetLabel(f"{str(getattr(self.client, status))} ")
-            self.sampling_rate_choice.Set(
-                [str(x) for x in self.client.available_sampling_rates]
+            self.laser_scan_speed_choice.Set(
+                [str(x) for x in self.client.available_laser_scan_speeds]
             )
-            self.sampling_rate_choice.SetSelection(
-                self.sampling_rate_choice.FindString(str(self.client.sampling_rate))
+            self.laser_scan_speed_choice.SetSelection(
+                self.laser_scan_speed_choice.FindString(
+                    str(self.client.laser_scan_speed)
+                )
+            )
+            self.divider.SetSelection(
+                self.divider.FindString(str(self.client.peak_data_streaming_divider))
             )
             await sleep(1)
