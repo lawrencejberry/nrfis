@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from typing import List, Tuple
 from itertools import accumulate
 from struct import pack, unpack
+from ipaddress import IPv4Address, ip_address
 
 from pydantic import BaseModel
 
@@ -98,6 +99,10 @@ class GetInstrumentUtcDateTime(Request):
 
 
 class GetNtpEnabled(Request):
+    pass
+
+
+class GetNtpServer(Request):
     pass
 
 
@@ -248,3 +253,12 @@ class NtpEnabled(Response):
         enabled = bool(unpack("<I", content)[0])
 
         return {"content": enabled}
+
+
+class NtpServer(Response):
+    content: IPv4Address
+
+    def parse(self, content: bytes):
+        address = ip_address(content.decode("ascii"))
+
+        return {"content": address}
