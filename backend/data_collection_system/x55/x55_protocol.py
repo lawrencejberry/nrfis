@@ -101,6 +101,10 @@ class GetNtpEnabled(Request):
     pass
 
 
+class GetNtpServer(Request):
+    pass
+
+
 # Responses
 class Response(BaseModel):
     status: bool
@@ -248,3 +252,12 @@ class NtpEnabled(Response):
         enabled = bool(unpack("<I", content)[0])
 
         return {"content": enabled}
+
+
+class NtpServer(Response):
+    content: str
+
+    def parse(self, content: bytes):
+        ip_address = content.decode("ascii")
+
+        return {"content": ip_address}

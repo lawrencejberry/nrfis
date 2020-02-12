@@ -112,6 +112,7 @@ class Gui(wx.Frame):
             "peak_data_streaming_available_buffer": "Available streaming buffer",
             "instrument_time": "Instrument time",
             "ntp_enabled": "NTP server enabled",
+            "ntp_server": "NTP server address",
         }
         for status in self.statuses:
             setattr(self, status, wx.StaticText(self, wx.ID_ANY, "None"))

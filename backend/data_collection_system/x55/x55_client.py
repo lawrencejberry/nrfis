@@ -32,6 +32,7 @@ from .x55_protocol import (
     GetAvailableLaserScanSpeeds,
     GetInstrumentUtcDateTime,
     GetNtpEnabled,
+    GetNtpServer,
     Response,
     FirmwareVersion,
     InstrumentName,
@@ -45,6 +46,7 @@ from .x55_protocol import (
     AvailableLaserScanSpeeds,
     InstrumentUtcDateTime,
     NtpEnabled,
+    NtpServer,
 )
 
 HOST = "10.0.0.55"
@@ -335,6 +337,8 @@ class x55Client:
         self.ntp_enabled = NtpEnabled(
             await self.command.execute(GetNtpEnabled())
         ).content
+
+        self.ntp_server = NtpServer(await self.command.execute(GetNtpServer())).content
 
     async def update_laser_scan_speed(self, laser_scan_speed: int) -> bool:
         await self.command.execute(SetLaserScanSpeed(speed=laser_scan_speed))
