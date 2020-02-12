@@ -102,6 +102,10 @@ class GetNtpEnabled(Request):
     pass
 
 
+class SetNtpServer(Request):
+    address: IPv4Address
+
+
 class GetNtpServer(Request):
     pass
 

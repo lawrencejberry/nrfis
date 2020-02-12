@@ -6,6 +6,7 @@ from itertools import count
 from struct import unpack
 from enum import IntEnum
 from typing import List
+from ipaddress import ip_address
 
 from .. import (
     logger,
@@ -33,6 +34,7 @@ from .x55_protocol import (
     GetInstrumentUtcDateTime,
     GetNtpEnabled,
     GetNtpServer,
+    SetNtpServer,
     Response,
     FirmwareVersion,
     InstrumentName,
@@ -290,6 +292,7 @@ class x55Client:
         self.peaks = Connection(self.name, self.host, PEAK_STREAMING_PORT)
         await self.command.connect()
         self.connected = True
+        await self.command.execute(SetNtpServer(address=ip_address("143.210.16.201")))
 
     async def disconnect(self):
         await self.command.disconnect()
