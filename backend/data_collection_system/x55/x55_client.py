@@ -270,6 +270,7 @@ class x55Client:
         self.laser_scan_speed = None
         self.instrument_time = None
         self.ntp_enabled = None
+        self.ntp_server = None
 
         # Recording and streaming toggles
         self.recording = False
