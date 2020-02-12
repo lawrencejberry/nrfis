@@ -335,24 +335,25 @@ class x55Client:
         ).content
 
     async def update_laser_scan_speed(self, laser_scan_speed: int) -> bool:
-        status = Response(
-            await self.command.execute(SetLaserScanSpeed(speed=laser_scan_speed))
-        ).status
-        if status:  # If successful
-            self.laser_scan_speed = laser_scan_speed
-        return status
+        await self.command.execute(SetLaserScanSpeed(speed=laser_scan_speed))
+
+        self.laser_scan_speed = LaserScanSpeed(
+            await self.command.execute(GetLaserScanSpeed())
+        ).content
+
+        return self.laser_scan_speed
 
     async def update_peak_data_streaming_divider(self, divider: int) -> bool:
-        status = Response(
-            await self.command.execute(SetPeakDataStreamingDivider(divider=divider))
-        ).status
-        if status:  # If successful
-            self.peak_data_streaming_divider = divider
-        return status
+        await self.command.execute(SetPeakDataStreamingDivider(divider=divider))
+
+        self.peak_data_streaming_divider = PeakDataStreamingDivider(
+            await self.command.execute(GetPeakDataStreamingDivider())
+        ).content
+
+        return self.peak_data_streaming_divider
 
     async def update_setup(self, setup: SetupOptions) -> bool:
         self.configuration.load(setup)
-        return True
 
     async def stream(self):
         await self.peaks.connect()
