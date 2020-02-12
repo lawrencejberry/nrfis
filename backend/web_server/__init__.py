@@ -12,8 +12,7 @@ from database_models import (
 
 # Create database engine
 DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql+psycopg2://postgres:fourth-year@host.docker.internal/nrfisdb",
+    "DATABASE_URL", "postgresql+psycopg2://postgres:fourth-year@127.0.0.1/nrfisdb",
 )
 db = create_engine(DATABASE_URL, echo=False)
 Session = sessionmaker(db)
