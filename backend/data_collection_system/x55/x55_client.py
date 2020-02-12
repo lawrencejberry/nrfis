@@ -156,7 +156,7 @@ class Configuration:
                 maximum_wavelength = sensor.find("WavelengthMaximum").text
 
                 channel = string.ascii_uppercase.index(uid[0])
-                index = int(uid[1:])
+                index = int(uid[1:]) - 1
 
                 data = {
                     "channel": channel,
