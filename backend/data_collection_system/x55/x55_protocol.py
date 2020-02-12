@@ -73,6 +73,10 @@ class GetPeakDataStreamingDivider(Request):
     pass
 
 
+class SetPeakDataStreamingDivider(Request):
+    divider: int
+
+
 class GetPeakDataStreamingAvailableBuffer(Request):
     pass
 

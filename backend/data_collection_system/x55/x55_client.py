@@ -25,6 +25,7 @@ from .x55_protocol import (
     DisablePeakDataStreaming,
     GetPeakDataStreamingStatus,
     GetPeakDataStreamingDivider,
+    SetPeakDataStreamingDivider,
     GetPeakDataStreamingAvailableBuffer,
     GetLaserScanSpeed,
     SetLaserScanSpeed,
@@ -249,14 +250,17 @@ class x55Client:
         self.peaks = None
         self.connected = False
 
+        # Options
+        self.divider_options = [1, 10, 100]
+
         # Status information
         self.instrument_name = None
         self.firmware_version = None
         self.is_ready = None
         self.dut_channel_count = None
-        self.sampling_rate = None
-        self.available_sampling_rates = [None]
+        self.available_laser_scan_speeds = [None]
         self.peak_data_streaming_status = None
+        self.laser_scan_speed = None
         self.peak_data_streaming_divider = None
         self.peak_data_streaming_available_buffer = None
         self.laser_scan_speed = None
@@ -269,6 +273,12 @@ class x55Client:
 
         # Configuration setting
         self.configuration = Configuration()
+
+    @property
+    def effective_sampling_rate(self):
+        if (self.laser_scan_speed and self.peak_data_streaming_divider) is None:
+            return None
+        return self.laser_scan_speed / self.peak_data_streaming_divider
 
     async def connect(self):
         self.command = Connection(self.name, self.host, COMMAND_PORT)
@@ -296,16 +306,16 @@ class x55Client:
             await self.command.execute(GetDutChannelCount())
         ).content
 
-        self.sampling_rate = LaserScanSpeed(
-            await self.command.execute(GetLaserScanSpeed())
-        ).content
-
-        self.available_sampling_rates = AvailableLaserScanSpeeds(
+        self.available_laser_scan_speeds = AvailableLaserScanSpeeds(
             await self.command.execute(GetAvailableLaserScanSpeeds())
         ).content
 
         self.peak_data_streaming_status = PeakDataStreamingStatus(
             await self.command.execute(GetPeakDataStreamingStatus())
+        ).content
+
+        self.laser_scan_speed = LaserScanSpeed(
+            await self.command.execute(GetLaserScanSpeed())
         ).content
 
         self.peak_data_streaming_divider = PeakDataStreamingDivider(
@@ -324,12 +334,20 @@ class x55Client:
             await self.command.execute(GetNtpEnabled())
         ).content
 
-    async def update_sampling_rate(self, sampling_rate: int) -> bool:
+    async def update_laser_scan_speed(self, laser_scan_speed: int) -> bool:
         status = Response(
-            await self.command.execute(SetLaserScanSpeed(speed=sampling_rate))
+            await self.command.execute(SetLaserScanSpeed(speed=laser_scan_speed))
         ).status
         if status:  # If successful
-            self.sampling_rate = sampling_rate
+            self.laser_scan_speed = laser_scan_speed
+        return status
+
+    async def update_peak_data_streaming_divider(self, divider: int) -> bool:
+        status = Response(
+            await self.command.execute(SetPeakDataStreamingDivider(divider=divider))
+        ).status
+        if status:  # If successful
+            self.peak_data_streaming_divider = divider
         return status
 
     async def update_setup(self, setup: SetupOptions) -> bool:
