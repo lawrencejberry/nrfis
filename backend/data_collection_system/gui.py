@@ -277,13 +277,12 @@ class Gui(wx.Frame):
         except ValueError:
             logger.warning("Invalid laser scan speed: %s", event.GetString())
             return
-        status = await self.client.update_laser_scan_speed(laser_scan_speed)
-        if not status:  # If unsuccessful, revert to original selection
-            self.laser_scan_speed_choice.SetSelection(
-                self.laser_scan_speed_choice.FindString(
-                    str(self.client.laser_scan_speed)
-                )
+
+        self.laser_scan_speed_choice.SetSelection(
+            self.laser_scan_speed_choice.FindString(
+                str(await self.client.update_laser_scan_speed(laser_scan_speed))
             )
+        )
 
     async def on_change_divider(self, event):
         """Handle the event when the user changes the peak data streaming divider control
@@ -293,20 +292,21 @@ class Gui(wx.Frame):
         except ValueError:
             logger.warning("Invalid peak data streaming divider: %s", event.GetString())
             return
-        status = await self.client.update_peak_data_streaming_divider(divider)
-        if not status:  # If unsuccessful, revert to original selection
-            self.divider.SetSelection(
-                self.divider.FindString(str(self.client.peak_data_streaming_divider))
+
+        self.divider.SetSelection(
+            self.divider.FindString(
+                str(await self.client.update_peak_data_streaming_divider(divider))
             )
+        )
 
     async def on_change_setup(self, event):
         """Handle the event when the user changes the setup control
         value. """
-        status = await self.client.update_setup(SetupOptions(event.GetInt()))
-        if not status:  # If unsuccessful, revert to original selection
-            self.setup.SetSelection(
-                self.setup.FindString(str(self.client.configuration.setup))
+        self.setup.SetSelection(
+            self.setup.FindString(
+                str(await self.client.update_setup(SetupOptions(event.GetInt())))
             )
+        )
 
     async def update_status(self):
         while self.client.connected:
