@@ -35,13 +35,14 @@ The _Web Server_ is a Python [FastAPI](https://fastapi.tiangolo.com) application
 
 ### To install:
 ```
-docker build -t app -f backend/web_server/Dockerfile ./backend
+sudo docker build -t web_server_image -f backend/web_server/Dockerfile ./backend
 ```
 
 ### To run:
 ```
-docker run -d --name web_server -p 80:80 app
+sudo docker run -d --name web_server_container -p 80:80 --network="host" --env DATABASE_URL=postgresql+psycopg2://postgres:fourth-year@127.0.0.1/nrfisdb web_server_image
 ```
+To run against a local test database substitute in your own `DATABASE_URL`.
 
 ### To run tests locally:
 ```
