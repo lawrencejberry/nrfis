@@ -234,9 +234,11 @@ class Gui(wx.Frame):
         """Handle the event when the user clicks the start/stop streaming button."""
         if self.client.streaming:
             self.stream.SetLabel("Start streaming")
+            self.connect.Enable()
             self.client.streaming = False
         else:
             self.stream.SetLabel("Stop streaming")
+            self.connect.Disable()
             await self.client.record()
 
     async def on_configuration(self, event):
