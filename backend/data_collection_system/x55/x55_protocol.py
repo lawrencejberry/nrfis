@@ -10,7 +10,7 @@ from pydantic import BaseModel
 # Requests
 class Request(BaseModel):
     _serializers = {
-        datetime: lambda x: x.strftime(f"%m.%d.%H.%M.%y").encode("ascii"),
+        datetime: lambda x: x.strftime("%Y %m %d %H %M %S").encode("ascii"),
         bool: lambda x: str(int(x)).encode("ascii"),
     }
     _default_serializer = lambda self, x: str(x).encode("ascii")
@@ -94,6 +94,10 @@ class GetAvailableLaserScanSpeeds(Request):
     pass
 
 
+class SetInstrumentUtcDateTime(Request):
+    dt: datetime
+
+
 class GetInstrumentUtcDateTime(Request):
     pass
 
@@ -101,6 +105,9 @@ class GetInstrumentUtcDateTime(Request):
 class GetNtpEnabled(Request):
     pass
 
+
+class SetNtpEnabled(Request):
+    enabled: bool
 
 class SetNtpServer(Request):
     address: IPv4Address
