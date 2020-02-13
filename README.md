@@ -7,6 +7,8 @@
 
 The _Data Collection System_ is a Python package which connects to and records sensor data from a variety of optical instruments. At the moment only a single si255 optical instrument is enabled. It features a graphical user interface from which the user can connect to this optical instrument, see various status information, upload a particular configuration and start/stop recording.
 
+Please note that the si255 instrument obtains the time from NRFIS Ubuntu computer when it connects. The computer must therefore be set to the Etc/UTC timezone to ensure the instrument time is also always UTC.
+
 ### To install:
 ```
 source venv/bin/activate  # Activate virtual environment
