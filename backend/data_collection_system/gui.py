@@ -1,5 +1,7 @@
 import logging
 from asyncio import sleep
+from socket import gethostbyname
+from ipaddress import ip_address
 
 import wx
 from wx.lib.mixins import listctrl
@@ -315,9 +317,17 @@ class Gui(wx.Frame):
                 await sleep(0.1)
                 continue
 
+            # Update NTP server address if it has changed
+            ntp_server = ip_address(gethostbyname("ntp0.cam.ac.uk"))
+            if self.client.ntp_server != ntp_server:
+                await self.client.update_ntp_server(ntp_server)
             await self.client.update_status()
+
+            # Refresh status information
             for status in self.statuses:
                 getattr(self, status).SetLabel(f"{str(getattr(self.client, status))} ")
+
+            # Refresh control widgets
             self.laser_scan_speed_choice.Set(
                 [str(x) for x in self.client.available_laser_scan_speeds]
             )
@@ -329,4 +339,5 @@ class Gui(wx.Frame):
             self.divider.SetSelection(
                 self.divider.FindString(str(self.client.peak_data_streaming_divider))
             )
+
             await sleep(1)

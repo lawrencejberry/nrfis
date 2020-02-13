@@ -6,7 +6,7 @@ from itertools import count
 from struct import unpack
 from enum import IntEnum
 from typing import List
-from ipaddress import ip_address
+from ipaddress import IPv4Address
 
 from .. import (
     logger,
@@ -292,7 +292,6 @@ class x55Client:
         self.peaks = Connection(self.name, self.host, PEAK_STREAMING_PORT)
         await self.command.connect()
         self.connected = True
-        await self.command.execute(SetNtpServer(address=ip_address("143.210.16.201")))
 
     async def disconnect(self):
         await self.command.disconnect()
@@ -353,7 +352,7 @@ class x55Client:
 
         return self.laser_scan_speed
 
-    async def update_peak_data_streaming_divider(self, divider: int) -> bool:
+    async def update_peak_data_streaming_divider(self, divider: int):
         await self.command.execute(SetPeakDataStreamingDivider(divider=divider))
 
         self.peak_data_streaming_divider = PeakDataStreamingDivider(
@@ -362,8 +361,16 @@ class x55Client:
 
         return self.peak_data_streaming_divider
 
-    async def update_setup(self, setup: SetupOptions) -> bool:
+    async def update_setup(self, setup: SetupOptions):
         return self.configuration.load(setup)
+
+    async def update_ntp_server(self, address: IPv4Address):
+        await self.command.execute(SetNtpServer(address=address))
+
+        self.ntp_server = NtpServer(await self.command.execute(GetNtpServer())).content
+
+        logger.info("Updated NTP server address to: %s", self.ntp_server)
+        return self.ntp_server
 
     async def stream(self):
         await self.peaks.connect()
