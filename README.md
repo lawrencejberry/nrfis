@@ -40,7 +40,7 @@ sudo docker build -t web_server_image -f backend/web_server/Dockerfile ./backend
 
 ### To run:
 ```
-sudo docker run -d --name web_server_container -p 80:80 --network="host" --env DATABASE_URL=postgresql+psycopg2://postgres:fourth-year@127.0.0.1/nrfisdb web_server_image
+sudo docker run -d --name web_server_container -p 80:80 --restart always --network="host" --env DATABASE_URL=postgresql+psycopg2://postgres:fourth-year@127.0.0.1/nrfisdb web_server_image
 ```
 To run against a local test database substitute in your own `DATABASE_URL`.
 

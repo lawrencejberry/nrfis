@@ -7,6 +7,7 @@ from struct import unpack
 from enum import IntEnum
 from typing import List
 from ipaddress import IPv4Address
+from datetime import datetime
 
 from .. import (
     logger,
@@ -31,8 +32,10 @@ from .x55_protocol import (
     GetLaserScanSpeed,
     SetLaserScanSpeed,
     GetAvailableLaserScanSpeeds,
+    SetInstrumentUtcDateTime,
     GetInstrumentUtcDateTime,
     GetNtpEnabled,
+    SetNtpEnabled,
     GetNtpServer,
     SetNtpServer,
     Response,
@@ -365,9 +368,15 @@ class x55Client:
         return self.configuration.load(setup)
 
     async def update_ntp_server(self, address: IPv4Address):
+        await self.command.execute(SetNtpEnabled(enabled=False))
+        await self.command.execute(SetInstrumentUtcDateTime(dt=datetime.utcnow()))
         await self.command.execute(SetNtpServer(address=address))
-
+        await self.command.execute(SetNtpEnabled(enabled=True))
+        
         self.ntp_server = NtpServer(await self.command.execute(GetNtpServer())).content
+        self.ntp_enabled = NtpEnabled(
+            await self.command.execute(GetNtpEnabled())
+        ).content
 
         logger.info("Updated NTP server address to: %s", self.ntp_server)
         return self.ntp_server
