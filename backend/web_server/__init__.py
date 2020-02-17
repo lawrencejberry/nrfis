@@ -3,12 +3,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database_models import (
-    Package,
-    basement_package,
-    strong_floor_package,
-    steel_frame_package,
-)
+from database_models import Package, Packages
 
 # Create database engine
 DATABASE_URL = os.getenv(

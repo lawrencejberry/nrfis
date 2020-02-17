@@ -1,4 +1,4 @@
-from . import basement_package, strong_floor_package, steel_frame_package
+from . import Packages
 from .schemas.fbg import DataType
 
 
@@ -53,15 +53,15 @@ def FR_Temperature(uid, row, metadata):
 
 
 Calculations = {
-    basement_package: {
+    Packages.basement: {
         DataType.strain: BA_SF_Strain,
         DataType.temperature: BA_SF_Temperature,
     },
-    strong_floor_package: {
+    Packages.strong_floor: {
         DataType.strain: BA_SF_Strain,
         DataType.temperature: BA_SF_Temperature,
     },
-    steel_frame_package: {
+    Packages.steel_frame: {
         DataType.strain: FR_Strain,
         DataType.temperature: FR_Temperature,
     },

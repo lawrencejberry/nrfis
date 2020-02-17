@@ -5,7 +5,7 @@ from datetime import datetime
 from pydantic import BaseModel, create_model
 from sqlalchemy.inspection import inspect
 
-from .. import Session, basement_package, strong_floor_package, steel_frame_package
+from .. import Session, Packages
 
 
 class DataType(str, Enum):
@@ -42,7 +42,7 @@ def _fields(p, d):
 
 Schemas = {}
 
-for package in (basement_package, strong_floor_package, steel_frame_package):
+for package in (Packages.basement, Packages.strong_floor, Packages.steel_frame):
     models = tuple(
         create_model(
             f"{package.values_table.__name__}:{data_type}",

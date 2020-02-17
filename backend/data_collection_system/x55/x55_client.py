@@ -9,14 +9,7 @@ from typing import List
 from ipaddress import IPv4Address
 from datetime import datetime
 
-from .. import (
-    logger,
-    Session,
-    Base,
-    basement_package,
-    strong_floor_package,
-    steel_frame_package,
-)
+from .. import logger, Session, Base, Packages
 from .x55_protocol import (
     Request,
     GetFirmwareVersion,
@@ -83,15 +76,15 @@ class Configuration:
         """
         if self.setup == SetupOptions.BASEMENT_AND_FRAME:
             return (
-                basement_package,
-                steel_frame_package,
+                Packages.basement,
+                Packages.steel_frame,
             )
         if self.setup == SetupOptions.STRONG_FLOOR:
-            return (strong_floor_package,)
+            return (Packages.strong_floor,)
         if self.setup == SetupOptions.BASEMENT:
-            return (basement_package,)
+            return (Packages.basement,)
         if self.setup == SetupOptions.FRAME:
-            return (steel_frame_package,)
+            return (Packages.steel_frame,)
 
     def map(self, peaks: List[List[float]], table: Base):
         """

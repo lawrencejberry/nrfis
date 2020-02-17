@@ -4,7 +4,7 @@ from typing import List
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 
-from .. import Package, basement_package, strong_floor_package, steel_frame_package
+from .. import Package, Packages
 from ..dependencies import get_db
 from ..calculations import Calculations
 from ..schemas.fbg import DataType, Schemas
@@ -72,24 +72,24 @@ class DataCollector:
         ]
 
 
-@router.get("/basement/", response_model=List[Schemas[basement_package]])
-def get_basement_data(data=Depends(DataCollector(basement_package))):
+@router.get("/basement/", response_model=List[Schemas[Packages.basement]])
+def get_basement_data(data=Depends(DataCollector(Packages.basement))):
     """
     Fetch FBG sensor data from the basement raft and perimeter walls for a particular time period.
     """
     return data
 
 
-@router.get("/strong-floor/", response_model=List[Schemas[strong_floor_package]])
-def get_strong_floor_data(data=Depends(DataCollector(strong_floor_package))):
+@router.get("/strong-floor/", response_model=List[Schemas[Packages.strong_floor]])
+def get_strong_floor_data(data=Depends(DataCollector(Packages.strong_floor))):
     """
     Fetch FBG sensor data from the strong floor for a particular time period.
     """
     return data
 
 
-@router.get("/steel-frame/", response_model=List[Schemas[steel_frame_package]])
-def get_steel_frame_data(data=Depends(DataCollector(steel_frame_package))):
+@router.get("/steel-frame/", response_model=List[Schemas[Packages.steel_frame]])
+def get_steel_frame_data(data=Depends(DataCollector(Packages.steel_frame))):
     """
     Fetch FBG sensor data from the steel frame for a particular time period.
     """
