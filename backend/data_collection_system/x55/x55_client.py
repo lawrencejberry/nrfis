@@ -424,9 +424,9 @@ class x55Client:
                 peaks = self.configuration.map(response.content, table)
                 session.add(table(timestamp=response.timestamp, **peaks))
 
-            # Commit after every 2000 samples
+            # Commit every 2 seconds
             sample_count += 1
-            if sample_count > 2000:
+            if sample_count > (2 * self.effective_sampling_rate):
                 session.commit()
                 sample_count = 0
 
