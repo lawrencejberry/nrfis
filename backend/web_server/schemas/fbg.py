@@ -1,29 +1,54 @@
+from enum import Enum
+from typing import List, Union
 from datetime import datetime
 
-from pydantic import create_model
+from pydantic import BaseModel, create_model
 from sqlalchemy.inspection import inspect
 
-from .. import basement_package, strong_floor_package, steel_frame_package
+from .. import Session, basement_package, strong_floor_package, steel_frame_package
 
 
-def _type(key: str):
-    if key == "timestamp":
-        return datetime
-    return float
+class DataType(str, Enum):
+    raw = "raw"
+    strain = "str"
+    temperature = "tmp"
 
 
-class Config:
-    orm_mode = True
+class Response(BaseModel):
+    timestamp: datetime
+
+    class Config:
+        orm_mode = True
+
+
+def _fields(p, d):
+    if d == DataType.raw:
+        return {
+            c.key: (float, ...)
+            for c in inspect(p.values_table).mapper.column_attrs
+            if c.key != "timestamp"
+        }
+
+    session = Session()
+    names = [
+        (sensor.name or sensor.uid)
+        for sensor in session.query(p.metadata_table).all()
+        if sensor.measurement_type == d.value
+    ]
+    session.close()
+
+    return {name: (float, ...) for name in names}
 
 
 schemas = {}
 
 for package in (basement_package, strong_floor_package, steel_frame_package):
-    schemas[package] = create_model(
-        f"{package}",
-        **{
-            c.key: (_type(c.key), ...)
-            for c in inspect(package.values_table).mapper.column_attrs
-        },
-        __config__=Config,
+    models = tuple(
+        create_model(
+            f"{package.values_table.__name__}:{data_type}",
+            **_fields(package, data_type),
+            __base__=Response,
+        )
+        for data_type in DataType
     )
+    schemas[package] = Union[models]

@@ -13,13 +13,7 @@ from ..calculations import (
     calculate_uncompensated_strain,
     calculate_temperature_compensated_strain,
 )
-from ..schemas.fbg import schemas
-
-
-class DataType(str, Enum):
-    raw_wavelength = "raw-wavelength"
-    uncompensated_strain = "uncompensated-strain"
-    temperature_compensated_strain = "temperature-compensated-strain"
+from ..schemas.fbg import DataType, schemas
 
 
 router = APIRouter()
