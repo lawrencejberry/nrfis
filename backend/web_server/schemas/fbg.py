@@ -33,7 +33,7 @@ def _fields(p, d):
     names = [
         (sensor.name or sensor.uid)
         for sensor in session.query(p.metadata_table).all()
-        if sensor.measurement_type == d.value
+        if sensor.type == d.value
     ]
     session.close()
 

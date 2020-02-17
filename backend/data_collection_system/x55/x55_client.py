@@ -94,11 +94,11 @@ class Configuration:
         """
         mapped_peaks = {}
         for uid, metadata in self.mapping[table].items():
-            channel = metadata["channel"]
-            index = metadata["index"]
-            recording = metadata["recording"]
-            minimum_wavelength = metadata["minimum_wavelength"]
-            maximum_wavelength = metadata["maximum_wavelength"]
+            channel = metadata.channel
+            index = metadata.index
+            recording = metadata.recording
+            minimum_wavelength = metadata.minimum_wavelength
+            maximum_wavelength = metadata.maximum_wavelength
 
             # Skip disabled sensors
             if not recording:
@@ -126,8 +126,7 @@ class Configuration:
         session = Session()
         for package in self.packages:
             self.mapping[package.values_table] = {
-                row.uid: row._asdict()["data"]
-                for row in session.query(package.metadata_table).all()
+                row.uid: row for row in session.query(package.metadata_table).all()
             }
         session.close()
 
@@ -183,8 +182,14 @@ class Configuration:
                         session.query(package.metadata_table).filter(
                             package.metadata_table.uid == uid
                         ).update({"initial_wavelength": constant_value})
-                    elif constant_name in ("Fg", "St", "CTEs", "CTEt"):
-                        data[constant_name] = constant_value
+
+                    if package in (Packages.basement, Packages.strong_floor):
+                        if constant_name in ("Fg", "eta", "beta"):
+                            data[constant_name] = constant_value
+
+                    elif package in (Packages.steel_frame,):
+                        if constant_name in ("Fg", "CTEt", "St"):
+                            data[constant_name] = constant_value
 
                 if data:
                     session.query(package.metadata_table).filter(
