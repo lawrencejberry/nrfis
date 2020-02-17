@@ -1,10 +1,11 @@
 from enum import Enum
 from datetime import datetime
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 
 from fastapi import APIRouter, Depends, Query, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, create_model
 from sqlalchemy.orm import Session
+from sqlalchemy.inspection import inspect
 
 from .. import Package, basement_package, strong_floor_package, steel_frame_package
 from ..dependencies import get_db
@@ -12,6 +13,7 @@ from ..calculations import (
     calculate_uncompensated_strain,
     calculate_temperature_compensated_strain,
 )
+from ..schemas.fbg import schemas
 
 
 class DataType(str, Enum):
@@ -20,15 +22,10 @@ class DataType(str, Enum):
     temperature_compensated_strain = "temperature-compensated-strain"
 
 
-class DataResponse(BaseModel):
-    timestamp: datetime
-    data: Dict[str, Optional[float]]
-
-
 router = APIRouter()
 
 
-class DataCollector:
+class RawDataCollector:
     def __init__(self, package: Package):
         self.package = package
 
@@ -56,93 +53,53 @@ class DataCollector:
                 status_code=422, detail="Start time is later than end time"
             )
 
-        raw_data = [
-            row._asdict()
-            for row in session.query(self.package.values_table)
+        raw_data = (
+            session.query(self.package.values_table)
             .filter(self.package.values_table.timestamp > start_time)
             .filter(self.package.values_table.timestamp < end_time)
             .all()
-        ]
-
-        if data_type == DataType.raw_wavelength:
-            return raw_data
+        )
+        # return raw_data
 
         metadata = {
             row.uid: row._asdict()["data"]
             for row in session.query(self.package.metadata_table).all()
         }
 
-        strain_sensors = [
-            uid
-            for uid, values in metadata.items()
-            if values["measurement_type"] == "str"
-        ]
-
-        if data_type == DataType.uncompensated_strain:
-            return [
-                {
-                    "timestamp": row["timestamp"],
-                    "data": {
-                        metadata[uid]["name"]: calculate_uncompensated_strain(
-                            str_wvl=row["data"][uid],
-                            initial_str_wvl=metadata[uid]["initial_wavelength"],
-                            Fg=metadata[uid]["Fg"],
-                        )
-                        for uid in strain_sensors
-                    },
-                }
-                for row in raw_data
-            ]
-
-        if data_type == DataType.temperature_compensated_strain:
-            return [
-                {
-                    "timestamp": row["timestamp"],
-                    "data": {
-                        metadata[uid]["name"]: calculate_temperature_compensated_strain(
-                            str_wvl=row["data"][uid],
-                            initial_str_wvl=metadata[uid]["initial_wavelength"],
-                            tmp_wvl=row["data"][metadata[uid]["corresponding_sensor"]],
-                            initial_tmp_wvl=metadata[
-                                metadata[uid]["corresponding_sensor"]
-                            ]["initial_wavelength"],
-                            Fg=metadata[uid]["Fg"],
-                            St=metadata[uid]["St"],
-                            CTEs=metadata[uid]["CTEs"],
-                            CTEt=metadata[uid]["CTEt"],
-                        )
-                        for uid in strain_sensors
-                    },
-                }
-                for row in raw_data
-            ]
+        return raw_data
 
 
-@router.get("/basement/", response_model=List[DataResponse])
+@router.get("/basement/", response_model=List[schemas[basement_package]])
 def get_basement_data(
-    data: List[DataResponse] = Depends(DataCollector(basement_package)),
+    raw_data: List[basement_package.values_table] = Depends(
+        RawDataCollector(basement_package)
+    ),
 ):
     """
     Fetch FBG sensor data from the basement raft and perimeter walls for a particular time period.
     """
-    return data
+    return raw_data
 
 
-@router.get("/strong-floor/", response_model=List)
+@router.get("/strong-floor/", response_model=List[schemas[strong_floor_package]])
 def get_strong_floor_data(
-    data: List[DataResponse] = Depends(DataCollector(strong_floor_package)),
+    raw_data: List[strong_floor_package.values_table] = Depends(
+        RawDataCollector(strong_floor_package)
+    ),
 ):
     """
     Fetch FBG sensor data from the strong floor for a particular time period.
     """
-    return data
+    return raw_data
 
 
-@router.get("/steel-frame/", response_model=List[DataResponse])
+@router.get("/steel-frame/", response_model=List[schemas[steel_frame_package]])
 def get_steel_frame_data(
-    data: List[DataResponse] = Depends(DataCollector(steel_frame_package)),
+    raw_data: List[steel_frame_package.values_table] = Depends(
+        RawDataCollector(steel_frame_package)
+    ),
 ):
     """
     Fetch FBG sensor data from the steel frame for a particular time period.
     """
-    return data
+    return raw_data
