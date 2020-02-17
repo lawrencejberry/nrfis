@@ -353,6 +353,7 @@ class x55Client:
             await self.command.execute(GetLaserScanSpeed())
         ).content
 
+        logger.info("Laser scan speed set to: %d", self.laser_scan_speed)
         return self.laser_scan_speed
 
     async def update_peak_data_streaming_divider(self, divider: int):
@@ -362,6 +363,9 @@ class x55Client:
             await self.command.execute(GetPeakDataStreamingDivider())
         ).content
 
+        logger.info(
+            "Peak data streaming divider set to: %d", self.peak_data_streaming_divider
+        )
         return self.peak_data_streaming_divider
 
     async def update_setup(self, setup: SetupOptions):
@@ -372,7 +376,7 @@ class x55Client:
         await self.command.execute(SetInstrumentUtcDateTime(dt=datetime.utcnow()))
         await self.command.execute(SetNtpServer(address=address))
         await self.command.execute(SetNtpEnabled(enabled=True))
-        
+
         self.ntp_server = NtpServer(await self.command.execute(GetNtpServer())).content
         self.ntp_enabled = NtpEnabled(
             await self.command.execute(GetNtpEnabled())
@@ -406,7 +410,7 @@ class x55Client:
 
         # Log the size of the unprocessed buffer
         logger.info(
-            "%s finished streaming with %d unproccessed bytes in the TCP buffer",
+            "%s stopped streaming with %d unproccessed bytes in the TCP buffer",
             self.name,
             len(buffer),
         )
