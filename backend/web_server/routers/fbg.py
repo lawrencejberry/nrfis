@@ -1,25 +1,18 @@
-from enum import Enum
 from datetime import datetime
-from typing import List, Dict, Optional, Tuple
+from typing import List
 
 from fastapi import APIRouter, Depends, Query, HTTPException
-from pydantic import BaseModel, create_model
 from sqlalchemy.orm import Session
-from sqlalchemy.inspection import inspect
 
 from .. import Package, basement_package, strong_floor_package, steel_frame_package
 from ..dependencies import get_db
-from ..calculations import (
-    calculate_uncompensated_strain,
-    calculate_temperature_compensated_strain,
-)
-from ..schemas.fbg import DataType, schemas
-
+from ..calculations import Calculations
+from ..schemas.fbg import DataType, Schemas
 
 router = APIRouter()
 
 
-class RawDataCollector:
+class DataCollector:
     def __init__(self, package: Package):
         self.package = package
 
@@ -53,47 +46,51 @@ class RawDataCollector:
             .filter(self.package.values_table.timestamp < end_time)
             .all()
         )
-        # return raw_data
+
+        if data_type == DataType.raw:
+            return raw_data
 
         metadata = {
-            row.uid: row._asdict()["data"]
-            for row in session.query(self.package.metadata_table).all()
+            row.uid: row for row in session.query(self.package.metadata_table).all()
         }
 
-        return raw_data
+        selected_sensors = [
+            uid for uid, sensor in metadata.items() if sensor.type == data_type.value
+        ]
+
+        return [
+            {
+                "timestamp": row.timestamp,
+                **{
+                    (metadata[uid].name or uid): Calculations[self.package][data_type](
+                        uid, row, metadata
+                    )
+                    for uid in selected_sensors
+                },
+            }
+            for row in raw_data
+        ]
 
 
-@router.get("/basement/", response_model=List[schemas[basement_package]])
-def get_basement_data(
-    raw_data: List[basement_package.values_table] = Depends(
-        RawDataCollector(basement_package)
-    ),
-):
+@router.get("/basement/", response_model=List[Schemas[basement_package]])
+def get_basement_data(data=Depends(DataCollector(basement_package))):
     """
     Fetch FBG sensor data from the basement raft and perimeter walls for a particular time period.
     """
-    return raw_data
+    return data
 
 
-@router.get("/strong-floor/", response_model=List[schemas[strong_floor_package]])
-def get_strong_floor_data(
-    raw_data: List[strong_floor_package.values_table] = Depends(
-        RawDataCollector(strong_floor_package)
-    ),
-):
+@router.get("/strong-floor/", response_model=List[Schemas[strong_floor_package]])
+def get_strong_floor_data(data=Depends(DataCollector(strong_floor_package))):
     """
     Fetch FBG sensor data from the strong floor for a particular time period.
     """
-    return raw_data
+    return data
 
 
-@router.get("/steel-frame/", response_model=List[schemas[steel_frame_package]])
-def get_steel_frame_data(
-    raw_data: List[steel_frame_package.values_table] = Depends(
-        RawDataCollector(steel_frame_package)
-    ),
-):
+@router.get("/steel-frame/", response_model=List[Schemas[steel_frame_package]])
+def get_steel_frame_data(data=Depends(DataCollector(steel_frame_package))):
     """
     Fetch FBG sensor data from the steel frame for a particular time period.
     """
-    return raw_data
+    return data

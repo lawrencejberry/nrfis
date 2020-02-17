@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Union
+from typing import Union
 from datetime import datetime
 
 from pydantic import BaseModel, create_model
@@ -40,7 +40,7 @@ def _fields(p, d):
     return {name: (float, ...) for name in names}
 
 
-schemas = {}
+Schemas = {}
 
 for package in (basement_package, strong_floor_package, steel_frame_package):
     models = tuple(
@@ -51,4 +51,4 @@ for package in (basement_package, strong_floor_package, steel_frame_package):
         )
         for data_type in DataType
     )
-    schemas[package] = Union[models]
+    Schemas[package] = Union[models]
