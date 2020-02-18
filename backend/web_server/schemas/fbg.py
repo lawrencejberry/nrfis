@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import Union
 from datetime import datetime
 
 from pydantic import BaseModel, create_model
@@ -43,12 +42,11 @@ def _fields(p, d):
 Schemas = {}
 
 for package in (Packages.basement, Packages.strong_floor, Packages.steel_frame):
-    models = tuple(
-        create_model(
+    Schemas[package] = {
+        data_type: create_model(
             f"{package.values_table.__name__}:{data_type}",
             **_fields(package, data_type),
             __base__=Response,
         )
         for data_type in DataType
-    )
-    Schemas[package] = Union[models]
+    }

@@ -1,8 +1,12 @@
+import io
+import csv
 from enum import Enum
 from datetime import datetime
-from typing import List
+from typing import List, Union
 
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, Header, HTTPException
+from starlette.responses import StreamingResponse
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
@@ -12,6 +16,11 @@ from ..calculations import Calculations
 from ..schemas.fbg import DataType, Schemas
 
 router = APIRouter()
+
+
+class MediaType(str, Enum):
+    JSON = "application/json"
+    CSV = "text/csv"
 
 
 class AveragingWindow(str, Enum):
@@ -109,25 +118,89 @@ class DataCollector:
         ]
 
 
-@router.get("/basement/", response_model=List[Schemas[Packages.basement]])
-def get_basement_data(data=Depends(DataCollector(Packages.basement))):
+class ResponseFormatter:
+    def __init__(self, package: Package):
+        self.package = package
+
+    def __call__(
+        self,
+        media_type: MediaType = Header(
+            MediaType.JSON, description="The format of the response."
+        ),
+        data_type: DataType = Query(
+            ..., alias="data-type", description="The type of data requested."
+        ),
+    ):
+        if media_type == MediaType.JSON:
+            return lambda data: data
+
+        def convert_to_csv(data):
+            output = io.StringIO()
+            writer = csv.DictWriter(
+                output, fieldnames=Schemas[self.package][data_type].__fields__
+            )
+            writer.writeheader()
+            try:  # Row is an object
+                validated_data = [
+                    Schemas[self.package][data_type].from_orm(row).dict()
+                    for row in data
+                ]
+            except ValidationError:  # Row is a dict
+                validated_data = [
+                    Schemas[self.package][data_type](**row).dict() for row in data
+                ]
+            writer.writerows(validated_data)
+            output.seek(0)
+            return StreamingResponse(output, media_type="text/csv")
+
+        return convert_to_csv
+
+
+@router.get(
+    "/basement/",
+    response_model=List[
+        Union[tuple(Schemas[Packages.basement][data_type] for data_type in DataType)]
+    ],
+)
+def get_basement_data(
+    data=Depends(DataCollector(Packages.basement)),
+    formatter=Depends(ResponseFormatter(Packages.basement)),
+):
     """
     Fetch FBG sensor data from the basement raft and perimeter walls for a particular time period.
     """
-    return data
+    return formatter(data)
 
 
-@router.get("/strong-floor/", response_model=List[Schemas[Packages.strong_floor]])
-def get_strong_floor_data(data=Depends(DataCollector(Packages.strong_floor))):
+@router.get(
+    "/strong-floor/",
+    response_model=List[
+        Union[
+            tuple(Schemas[Packages.strong_floor][data_type] for data_type in DataType)
+        ]
+    ],
+)
+def get_strong_floor_data(
+    response=Depends(DataCollector(Packages.strong_floor)),
+    formatter=Depends(ResponseFormatter(Packages.strong_floor)),
+):
     """
     Fetch FBG sensor data from the strong floor for a particular time period.
     """
-    return data
+    return formatter(response)
 
 
-@router.get("/steel-frame/", response_model=List[Schemas[Packages.steel_frame]])
-def get_steel_frame_data(data=Depends(DataCollector(Packages.steel_frame))):
+@router.get(
+    "/steel-frame/",
+    response_model=List[
+        Union[tuple(Schemas[Packages.steel_frame][data_type] for data_type in DataType)]
+    ],
+)
+def get_steel_frame_data(
+    response=Depends(DataCollector(Packages.steel_frame)),
+    formatter=Depends(ResponseFormatter(Packages.steel_frame)),
+):
     """
     Fetch FBG sensor data from the steel frame for a particular time period.
     """
-    return data
+    return formatter(response)
