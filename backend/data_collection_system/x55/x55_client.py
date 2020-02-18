@@ -9,14 +9,7 @@ from typing import List
 from ipaddress import IPv4Address
 from datetime import datetime
 
-from .. import (
-    logger,
-    Session,
-    Base,
-    basement_package,
-    strong_floor_package,
-    steel_frame_package,
-)
+from .. import logger, Session, Base, Packages
 from .x55_protocol import (
     Request,
     GetFirmwareVersion,
@@ -83,15 +76,15 @@ class Configuration:
         """
         if self.setup == SetupOptions.BASEMENT_AND_FRAME:
             return (
-                basement_package,
-                steel_frame_package,
+                Packages.basement,
+                Packages.steel_frame,
             )
         if self.setup == SetupOptions.STRONG_FLOOR:
-            return (strong_floor_package,)
+            return (Packages.strong_floor,)
         if self.setup == SetupOptions.BASEMENT:
-            return (basement_package,)
+            return (Packages.basement,)
         if self.setup == SetupOptions.FRAME:
-            return (steel_frame_package,)
+            return (Packages.steel_frame,)
 
     def map(self, peaks: List[List[float]], table: Base):
         """
@@ -101,11 +94,11 @@ class Configuration:
         """
         mapped_peaks = {}
         for uid, metadata in self.mapping[table].items():
-            channel = metadata["channel"]
-            index = metadata["index"]
-            recording = metadata["recording"]
-            minimum_wavelength = metadata["minimum_wavelength"]
-            maximum_wavelength = metadata["maximum_wavelength"]
+            channel = metadata.channel
+            index = metadata.index
+            recording = metadata.recording
+            minimum_wavelength = metadata.minimum_wavelength
+            maximum_wavelength = metadata.maximum_wavelength
 
             # Skip disabled sensors
             if not recording:
@@ -127,14 +120,13 @@ class Configuration:
         Load a new configuration from database metadata tables.
         """
         self.setup = setup
-        self.mapping = {}  # {"Basement": {"A1":{"channel":1, "index":1, "coeffs..."}}}
+        self.mapping = {}  # {Basement: {"A1": row, ...}, ... }
 
         # Load in metadata from tables to mapping
         session = Session()
         for package in self.packages:
             self.mapping[package.values_table] = {
-                row.uid: row._asdict()["data"]
-                for row in session.query(package.metadata_table).all()
+                row.uid: row for row in session.query(package.metadata_table).all()
             }
         session.close()
 
@@ -180,7 +172,7 @@ class Configuration:
             # Data associated with a sensor name
             for transducer in root.iter("Transducer"):
                 name = transducer.find("ID").text
-                data = {}
+                coeffs = {}
                 for constant in transducer.iter("TransducerConstant"):
                     constant_name = constant.find("Name").text
                     constant_value = constant.find("Value").text
@@ -190,13 +182,14 @@ class Configuration:
                         session.query(package.metadata_table).filter(
                             package.metadata_table.uid == uid
                         ).update({"initial_wavelength": constant_value})
-                    elif constant_name in ("Fg", "St", "CTEs", "CTEt"):
-                        data[constant_name] = constant_value
 
-                if data:
+                    else:
+                        coeffs[constant_name] = constant_value
+
+                if coeffs:
                     session.query(package.metadata_table).filter(
                         package.metadata_table.name == name
-                    ).update(data)
+                    ).update({"coeffs": coeffs})
 
         session.commit()
         session.close()

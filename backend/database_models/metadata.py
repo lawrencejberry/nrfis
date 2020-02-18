@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, Integer, Boolean
+from sqlalchemy import Column, String, Float, Integer, Boolean, JSON
 
 from . import Base
 
@@ -10,17 +10,14 @@ class BasementMetadata(Base):
     channel = Column(Integer)
     index = Column(Integer)
     name = Column(String, unique=True)
-    measurement_type = Column(String)
+    type = Column(String)
     recording = Column(Boolean)
     corresponding_sensor = Column(String)
-    initial_wavelength = Column(Float)
-    Fg = Column(Float)
-    St = Column(Float)
-    CTEt = Column(Float)
-    CTEs = Column(Float)
     reference_wavelength = Column(Float)
     minimum_wavelength = Column(Float)
     maximum_wavelength = Column(Float)
+    initial_wavelength = Column(Float)
+    coeffs = Column(JSON)
 
 
 class StrongFloorMetadata(Base):
@@ -30,17 +27,14 @@ class StrongFloorMetadata(Base):
     channel = Column(Integer)
     index = Column(Integer)
     name = Column(String, unique=True)
-    measurement_type = Column(String)
+    type = Column(String)
     recording = Column(Boolean)
     corresponding_sensor = Column(String)
-    initial_wavelength = Column(Float)
-    Fg = Column(Float)
-    St = Column(Float)
-    CTEt = Column(Float)
-    CTEs = Column(Float)
     reference_wavelength = Column(Float)
     minimum_wavelength = Column(Float)
     maximum_wavelength = Column(Float)
+    initial_wavelength = Column(Float)
+    coeffs = Column(JSON)
 
 
 class SteelFrameMetadata(Base):
@@ -50,15 +44,11 @@ class SteelFrameMetadata(Base):
     channel = Column(Integer)
     index = Column(Integer)
     name = Column(String, unique=True)
-    measurement_type = Column(String)
+    type = Column(String)
     recording = Column(Boolean)
     corresponding_sensor = Column(String)
-    initial_wavelength = Column(Float)
-    Fg = Column(Float)
-    St = Column(Float)
-    CTEt = Column(Float)
-    CTEs = Column(Float)
     reference_wavelength = Column(Float)
     minimum_wavelength = Column(Float)
     maximum_wavelength = Column(Float)
-
+    initial_wavelength = Column(Float)
+    coeffs = Column(JSON)

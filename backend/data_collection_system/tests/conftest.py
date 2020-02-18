@@ -1,8 +1,6 @@
 import threading
 
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 from database_models.utils import make_test_db
 from .. import DATABASE_URL, db, Session

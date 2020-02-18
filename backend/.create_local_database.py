@@ -1,10 +1,11 @@
 import csv
+import json
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
-from database_models import Base, Basement, StrongFloor, SteelFrame
-from database_models.metadata import (
+from database_models import (
+    Base,
     BasementMetadata,
     StrongFloorMetadata,
     SteelFrameMetadata,
@@ -24,6 +25,7 @@ with open(
     data = csv.DictReader(csvfile)
     for row in data:
         row["recording"] = row["recording"] == "TRUE"
+        row["coeffs"] = json.loads(row["coeffs"] or "null")
         session.add(BasementMetadata(**{k: v for k, v in row.items() if v != ""}))
         session.commit()
 
@@ -34,6 +36,7 @@ with open(
     data = csv.DictReader(csvfile)
     for row in data:
         row["recording"] = row["recording"] == "TRUE"
+        row["coeffs"] = json.loads(row["coeffs"] or "null")
         session.add(StrongFloorMetadata(**{k: v for k, v in row.items() if v != ""}))
         session.commit()
 
@@ -44,6 +47,7 @@ with open(
     data = csv.DictReader(csvfile)
     for row in data:
         row["recording"] = row["recording"] == "TRUE"
+        row["coeffs"] = json.loads(row["coeffs"] or "null")
         session.add(SteelFrameMetadata(**{k: v for k, v in row.items() if v != ""}))
         session.commit()
 

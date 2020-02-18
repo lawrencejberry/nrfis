@@ -1,4 +1,5 @@
 import csv
+import json
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
@@ -23,7 +24,8 @@ with open(
 ) as csvfile:
     data = csv.DictReader(csvfile)
     for row in data:
-        row["recording"] = row["recording"] == True
+        row["recording"] = row["recording"] == "TRUE"
+        row["coeffs"] = json.loads(row["coeffs"] or "null")
         session.add(BasementMetadata(**{k: v for k, v in row.items() if v != ""}))
         session.commit()
 
@@ -33,7 +35,8 @@ with open(
 ) as csvfile:
     data = csv.DictReader(csvfile)
     for row in data:
-        row["recording"] = row["recording"] == True
+        row["recording"] = row["recording"] == "TRUE"
+        row["coeffs"] = json.loads(row["coeffs"] or "null")
         session.add(StrongFloorMetadata(**{k: v for k, v in row.items() if v != ""}))
         session.commit()
 
@@ -43,7 +46,8 @@ with open(
 ) as csvfile:
     data = csv.DictReader(csvfile)
     for row in data:
-        row["recording"] = row["recording"] == True
+        row["recording"] = row["recording"] == "TRUE"
+        row["coeffs"] = json.loads(row["coeffs"] or "null")
         session.add(SteelFrameMetadata(**{k: v for k, v in row.items() if v != ""}))
         session.commit()
 

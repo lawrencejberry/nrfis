@@ -1,31 +1,36 @@
+import io
+import csv
 from enum import Enum
 from datetime import datetime
-from typing import List, Dict, Optional
+from typing import List, Union
 
-from fastapi import APIRouter, Depends, Query, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, Query, Header, HTTPException
+from starlette.responses import StreamingResponse
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import func
 
-from .. import Package, basement_package, strong_floor_package, steel_frame_package
+from .. import Package, Packages
 from ..dependencies import get_db
-from ..calculations import (
-    calculate_uncompensated_strain,
-    calculate_temperature_compensated_strain,
-)
-
-
-class DataType(str, Enum):
-    raw_wavelength = "raw-wavelength"
-    uncompensated_strain = "uncompensated-strain"
-    temperature_compensated_strain = "temperature-compensated-strain"
-
-
-class DataResponse(BaseModel):
-    timestamp: datetime
-    data: Dict[str, Optional[float]]
-
+from ..calculations import Calculations
+from ..schemas.fbg import DataType, Schemas
 
 router = APIRouter()
+
+
+class MediaType(str, Enum):
+    JSON = "application/json"
+    CSV = "text/csv"
+
+
+class AveragingWindow(str, Enum):
+    milliseconds = "milliseconds"
+    second = "second"
+    minute = "minute"
+    hour = "hour"
+    day = "day"
+    week = "week"
+    month = "month"
 
 
 class DataCollector:
@@ -38,16 +43,21 @@ class DataCollector:
         data_type: DataType = Query(
             ..., alias="data-type", description="The type of data requested."
         ),
+        averaging_window: AveragingWindow = Query(
+            None,
+            alias="averaging-window",
+            description="Bucket and average samples within a particular time window.",
+        ),
         start_time: datetime = Query(
             ...,
             alias="start-time",
-            description=" ISO 8601 format string representing the start time of the range of data requested.",
+            description="ISO 8601 format string representing the start time of the range of data requested.",
             example="2020-02-01T17:28:14.723333",
         ),
         end_time: datetime = Query(
             ...,
             alias="end-time",
-            description=" ISO 8601 format string representing the end time of the range of data requested.",
+            description="ISO 8601 format string representing the end time of the range of data requested.",
             example="2020-02-01T17:28:14.723333",
         ),
     ):
@@ -56,93 +66,141 @@ class DataCollector:
                 status_code=422, detail="Start time is later than end time"
             )
 
-        raw_data = [
-            row._asdict()
-            for row in session.query(self.package.values_table)
-            .filter(self.package.values_table.timestamp > start_time)
-            .filter(self.package.values_table.timestamp < end_time)
-            .all()
-        ]
+        if averaging_window is not None:
+            window = func.date_trunc(
+                averaging_window.value, self.package.values_table.timestamp
+            ).label("timestamp")
 
-        if data_type == DataType.raw_wavelength:
+            raw_data = (
+                session.query(
+                    window,
+                    *[
+                        func.avg(getattr(self.package.values_table, field)).label(field)
+                        for field in self.package.values_table.attrs()
+                    ],
+                )
+                .filter(window > start_time)
+                .filter(window < end_time)
+                .group_by(window)
+                .order_by(window)
+                .all()
+            )
+        else:
+            raw_data = (
+                session.query(self.package.values_table)
+                .filter(self.package.values_table.timestamp > start_time)
+                .filter(self.package.values_table.timestamp < end_time)
+                .all()
+            )
+
+        if data_type == DataType.raw:
             return raw_data
 
         metadata = {
-            row.uid: row._asdict()["data"]
-            for row in session.query(self.package.metadata_table).all()
+            row.uid: row for row in session.query(self.package.metadata_table).all()
         }
 
-        strain_sensors = [
-            uid
-            for uid, values in metadata.items()
-            if values["measurement_type"] == "str"
+        selected_sensors = [
+            uid for uid, sensor in metadata.items() if sensor.type == data_type.value
         ]
 
-        if data_type == DataType.uncompensated_strain:
-            return [
-                {
-                    "timestamp": row["timestamp"],
-                    "data": {
-                        metadata[uid]["name"]: calculate_uncompensated_strain(
-                            str_wvl=row["data"][uid],
-                            initial_str_wvl=metadata[uid]["initial_wavelength"],
-                            Fg=metadata[uid]["Fg"],
-                        )
-                        for uid in strain_sensors
-                    },
-                }
-                for row in raw_data
-            ]
-
-        if data_type == DataType.temperature_compensated_strain:
-            return [
-                {
-                    "timestamp": row["timestamp"],
-                    "data": {
-                        metadata[uid]["name"]: calculate_temperature_compensated_strain(
-                            str_wvl=row["data"][uid],
-                            initial_str_wvl=metadata[uid]["initial_wavelength"],
-                            tmp_wvl=row["data"][metadata[uid]["corresponding_sensor"]],
-                            initial_tmp_wvl=metadata[
-                                metadata[uid]["corresponding_sensor"]
-                            ]["initial_wavelength"],
-                            Fg=metadata[uid]["Fg"],
-                            St=metadata[uid]["St"],
-                            CTEs=metadata[uid]["CTEs"],
-                            CTEt=metadata[uid]["CTEt"],
-                        )
-                        for uid in strain_sensors
-                    },
-                }
-                for row in raw_data
-            ]
+        return [
+            {
+                "timestamp": row.timestamp,
+                **{
+                    (metadata[uid].name or uid): Calculations[self.package][data_type](
+                        uid, row, metadata
+                    )
+                    for uid in selected_sensors
+                },
+            }
+            for row in raw_data
+        ]
 
 
-@router.get("/basement/", response_model=List[DataResponse])
+class ResponseFormatter:
+    def __init__(self, package: Package):
+        self.package = package
+
+    def __call__(
+        self,
+        media_type: MediaType = Header(
+            MediaType.JSON, description="The format of the response."
+        ),
+        data_type: DataType = Query(
+            ..., alias="data-type", description="The type of data requested."
+        ),
+    ):
+        if media_type == MediaType.JSON:
+            return lambda data: data
+
+        def convert_to_csv(data):
+            output = io.StringIO()
+            writer = csv.DictWriter(
+                output, fieldnames=Schemas[self.package][data_type].__fields__
+            )
+            writer.writeheader()
+            try:  # Row is an object
+                validated_data = [
+                    Schemas[self.package][data_type].from_orm(row).dict()
+                    for row in data
+                ]
+            except ValidationError:  # Row is a dict
+                validated_data = [
+                    Schemas[self.package][data_type](**row).dict() for row in data
+                ]
+            writer.writerows(validated_data)
+            output.seek(0)
+            return StreamingResponse(output, media_type="text/csv")
+
+        return convert_to_csv
+
+
+@router.get(
+    "/basement/",
+    response_model=List[
+        Union[tuple(Schemas[Packages.basement][data_type] for data_type in DataType)]
+    ],
+)
 def get_basement_data(
-    data: List[DataResponse] = Depends(DataCollector(basement_package)),
+    data=Depends(DataCollector(Packages.basement)),
+    formatter=Depends(ResponseFormatter(Packages.basement)),
 ):
     """
     Fetch FBG sensor data from the basement raft and perimeter walls for a particular time period.
     """
-    return data
+    return formatter(data)
 
 
-@router.get("/strong-floor/", response_model=List)
+@router.get(
+    "/strong-floor/",
+    response_model=List[
+        Union[
+            tuple(Schemas[Packages.strong_floor][data_type] for data_type in DataType)
+        ]
+    ],
+)
 def get_strong_floor_data(
-    data: List[DataResponse] = Depends(DataCollector(strong_floor_package)),
+    response=Depends(DataCollector(Packages.strong_floor)),
+    formatter=Depends(ResponseFormatter(Packages.strong_floor)),
 ):
     """
     Fetch FBG sensor data from the strong floor for a particular time period.
     """
-    return data
+    return formatter(response)
 
 
-@router.get("/steel-frame/", response_model=List[DataResponse])
+@router.get(
+    "/steel-frame/",
+    response_model=List[
+        Union[tuple(Schemas[Packages.steel_frame][data_type] for data_type in DataType)]
+    ],
+)
 def get_steel_frame_data(
-    data: List[DataResponse] = Depends(DataCollector(steel_frame_package)),
+    response=Depends(DataCollector(Packages.steel_frame)),
+    formatter=Depends(ResponseFormatter(Packages.steel_frame)),
 ):
     """
     Fetch FBG sensor data from the steel frame for a particular time period.
     """
-    return data
+    return formatter(response)

@@ -6,12 +6,7 @@ import logging.handlers
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from backend.database_models import (
-    Base,
-    basement_package,
-    strong_floor_package,
-    steel_frame_package,
-)
+from database_models import Base, Packages
 
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))

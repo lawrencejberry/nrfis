@@ -180,6 +180,14 @@ class Mockx55Instrument:
             message = b"Laser scan speed set to %b Hz." % arguments
             content = b""
 
+        elif command == "#GetAvailableLaserScanSpeeds":
+            message = b"The available scan speed are 2 10 in Hz."
+            content = pack("<II", 2, 10)
+
+        elif command == "#SetInstrumentUtcDateTime":
+            message = b"The instrument date/time has been set to '2020-01-01 00:00:00'."
+            content = b""
+
         elif command == "#GetInstrumentUtcDateTime":
             message = b"The instrument date/time has been set to '2017-01-01 00:00:00'."
             content = pack("<HHHHHH", 2017, 1, 1, 0, 0, 0)
@@ -187,6 +195,18 @@ class Mockx55Instrument:
         elif command == "#GetNtpEnabled":
             message = b"NTP server is currently enabled."
             content = pack("<I", 1)
+
+        elif command == "#SetNtpEnabled":
+            message = b"The NTP Server has been enabled."
+            content = b""
+
+        elif command == "#SetNtpServer":
+            message = b"The NTP Server has been set to '98.175.203.200'."
+            content = b""
+
+        elif command == "#GetNtpServer":
+            message = b"NTP server is currently set to '98.175.203.200'."
+            content = b"98.175.203.200"
 
         message_size = pack("<H", len(message))
         content_size = pack("<I", len(content))
