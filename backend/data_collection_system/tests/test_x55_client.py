@@ -1,3 +1,6 @@
+from datetime import datetime
+from ipaddress import ip_address
+
 import pytest
 
 from ..x55.x55_protocol import (
@@ -13,8 +16,13 @@ from ..x55.x55_protocol import (
     GetPeakDataStreamingAvailableBuffer,
     GetLaserScanSpeed,
     SetLaserScanSpeed,
+    GetAvailableLaserScanSpeeds,
+    SetInstrumentUtcDateTime,
     GetInstrumentUtcDateTime,
     GetNtpEnabled,
+    SetNtpEnabled,
+    SetNtpServer,
+    GetNtpServer,
     Response,
     FirmwareVersion,
     InstrumentName,
@@ -25,8 +33,10 @@ from ..x55.x55_protocol import (
     PeakDataStreamingDivider,
     PeakDataStreamingAvailableBuffer,
     LaserScanSpeed,
+    AvailableLaserScanSpeeds,
     InstrumentUtcDateTime,
     NtpEnabled,
+    NtpServer,
 )
 
 pytestmark = [pytest.mark.asyncio, pytest.mark.usefixtures("x55_instrument")]
@@ -135,6 +145,31 @@ async def test_set_laser_scan_speed(x55_client):
     assert response.content == b""
 
 
+async def test_get_available_laser_scan_speeds(x55_client):
+    response = AvailableLaserScanSpeeds(
+        await x55_client.command.execute(GetAvailableLaserScanSpeeds(speed=100))
+    )
+
+    assert response.status == True
+    assert response.message == "The available scan speed are 2 10 in Hz."
+    assert response.content == [2, 10]
+
+
+async def test_set_instrument_utc_datetime(x55_client):
+    response = Response(
+        await x55_client.command.execute(
+            SetInstrumentUtcDateTime(dt=datetime(2020, 1, 1))
+        )
+    )
+
+    assert response.status == True
+    assert (
+        response.message
+        == "The instrument date/time has been set to '2020-01-01 00:00:00'."
+    )
+    assert response.content == b""
+
+
 async def test_get_instrument_utc_datetime(x55_client):
     response = InstrumentUtcDateTime(
         await x55_client.command.execute(GetInstrumentUtcDateTime())
@@ -154,6 +189,34 @@ async def test_get_ntp_enabled(x55_client):
     assert response.status == True
     assert response.message == "NTP server is currently enabled."
     assert response.content == True
+
+
+async def test_set_ntp_enabled(x55_client):
+    response = Response(await x55_client.command.execute(SetNtpEnabled(enabled=True)))
+
+    assert response.status == True
+    assert response.message == "The NTP Server has been enabled."
+    assert response.content == b""
+
+
+async def test_set_ntp_server(x55_client):
+    response = Response(
+        await x55_client.command.execute(
+            SetNtpServer(address=ip_address("98.175.203.200"))
+        )
+    )
+
+    assert response.status == True
+    assert response.message == "The NTP Server has been set to '98.175.203.200'."
+    assert response.content == b""
+
+
+async def test_get_ntp_server(x55_client):
+    response = NtpServer(await x55_client.command.execute(GetNtpServer()))
+
+    assert response.status == True
+    assert response.message == "NTP server is currently set to '98.175.203.200'."
+    assert response.content == ip_address("98.175.203.200")
 
 
 async def test_peaks_streaming(x55_client):

@@ -1,7 +1,8 @@
 from os import path, remove
 import csv
-from datetime import datetime
+import json
 import re
+from datetime import datetime
 
 from . import (
     Base,
@@ -30,7 +31,8 @@ def make_test_db(DATABASE_URL, db, Session):
     ) as csvfile:
         data = csv.DictReader(csvfile)
         for row in data:
-            row["recording"] = row["recording"] == True
+            row["recording"] = row["recording"] == "TRUE"
+            row["coeffs"] = json.loads(row["coeffs"] or "null")
             session.add(BasementMetadata(**{k: v for k, v in row.items() if v != ""}))
 
     with open(
@@ -39,7 +41,8 @@ def make_test_db(DATABASE_URL, db, Session):
     ) as csvfile:
         data = csv.DictReader(csvfile)
         for row in data:
-            row["recording"] = row["recording"] == True
+            row["recording"] = row["recording"] == "TRUE"
+            row["coeffs"] = json.loads(row["coeffs"] or "null")
             session.add(
                 StrongFloorMetadata(**{k: v for k, v in row.items() if v != ""})
             )
@@ -50,7 +53,8 @@ def make_test_db(DATABASE_URL, db, Session):
     ) as csvfile:
         data = csv.DictReader(csvfile)
         for row in data:
-            row["recording"] = row["recording"] == True
+            row["recording"] = row["recording"] == "TRUE"
+            row["coeffs"] = json.loads(row["coeffs"] or "null")
             session.add(SteelFrameMetadata(**{k: v for k, v in row.items() if v != ""}))
 
     session.commit()
