@@ -8,6 +8,12 @@ class Base:
         columns = inspect(self).mapper.column_attrs
         return {c.key: getattr(self, c.key) for c in columns}
 
+    @classmethod
+    def attrs(cls):
+        primary_key = inspect(cls).primary_key[0].key
+        columns = inspect(cls).mapper.column_attrs
+        return [c.key for c in columns if c.key != primary_key]
+
 
 from .basement import Basement
 from .strong_floor import StrongFloor

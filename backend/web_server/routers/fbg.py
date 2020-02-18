@@ -1,8 +1,10 @@
-from datetime import datetime
+from enum import Enum
+from datetime import datetime, timedelta
 from typing import List
 
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import func
 
 from .. import Package, Packages
 from ..dependencies import get_db
@@ -10,6 +12,16 @@ from ..calculations import Calculations
 from ..schemas.fbg import DataType, Schemas
 
 router = APIRouter()
+
+
+class AveragingWindow(str, Enum):
+    milliseconds = "milliseconds"
+    second = "second"
+    minute = "minute"
+    hour = "hour"
+    day = "day"
+    week = "week"
+    month = "month"
 
 
 class DataCollector:
@@ -22,16 +34,21 @@ class DataCollector:
         data_type: DataType = Query(
             ..., alias="data-type", description="The type of data requested."
         ),
+        averaging_window: AveragingWindow = Query(
+            None,
+            alias="averaging-window",
+            description="Bucket and average samples within a particular time window.",
+        ),
         start_time: datetime = Query(
             ...,
             alias="start-time",
-            description=" ISO 8601 format string representing the start time of the range of data requested.",
+            description="ISO 8601 format string representing the start time of the range of data requested.",
             example="2020-02-01T17:28:14.723333",
         ),
         end_time: datetime = Query(
             ...,
             alias="end-time",
-            description=" ISO 8601 format string representing the end time of the range of data requested.",
+            description="ISO 8601 format string representing the end time of the range of data requested.",
             example="2020-02-01T17:28:14.723333",
         ),
     ):
@@ -40,12 +57,32 @@ class DataCollector:
                 status_code=422, detail="Start time is later than end time"
             )
 
-        raw_data = (
-            session.query(self.package.values_table)
-            .filter(self.package.values_table.timestamp > start_time)
-            .filter(self.package.values_table.timestamp < end_time)
-            .all()
-        )
+        if averaging_window is not None:
+            window = func.date_trunc(
+                averaging_window.value, self.package.values_table.timestamp
+            ).label("timestamp")
+
+            raw_data = (
+                session.query(
+                    window,
+                    *[
+                        func.avg(getattr(self.package.values_table, field)).label(field)
+                        for field in self.package.values_table.attrs()
+                    ],
+                )
+                .filter(window > start_time)
+                .filter(window < end_time)
+                .group_by(window)
+                .order_by(window)
+                .all()
+            )
+        else:
+            raw_data = (
+                session.query(self.package.values_table)
+                .filter(self.package.values_table.timestamp > start_time)
+                .filter(self.package.values_table.timestamp < end_time)
+                .all()
+            )
 
         if data_type == DataType.raw:
             return raw_data
