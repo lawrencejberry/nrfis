@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, Integer, Boolean
+from sqlalchemy import Column, String, Float, Integer, Boolean, JSON
 
 from . import Base
 
@@ -17,9 +17,7 @@ class BasementMetadata(Base):
     minimum_wavelength = Column(Float)
     maximum_wavelength = Column(Float)
     initial_wavelength = Column(Float)
-    Fg = Column(Float)
-    eta = Column(Float)
-    beta = Column(Float)
+    coeffs = Column(JSON)
 
 
 class StrongFloorMetadata(Base):
@@ -36,9 +34,7 @@ class StrongFloorMetadata(Base):
     minimum_wavelength = Column(Float)
     maximum_wavelength = Column(Float)
     initial_wavelength = Column(Float)
-    Fg = Column(Float)
-    eta = Column(Float)
-    beta = Column(Float)
+    coeffs = Column(JSON)
 
 
 class SteelFrameMetadata(Base):
@@ -55,7 +51,4 @@ class SteelFrameMetadata(Base):
     minimum_wavelength = Column(Float)
     maximum_wavelength = Column(Float)
     initial_wavelength = Column(Float)
-    Fg = Column(Float)
-    CTEt = Column(Float)
-    St = Column(Float)
-
+    coeffs = Column(JSON)

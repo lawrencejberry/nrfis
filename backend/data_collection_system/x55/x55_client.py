@@ -120,7 +120,7 @@ class Configuration:
         Load a new configuration from database metadata tables.
         """
         self.setup = setup
-        self.mapping = {}  # {"Basement": {"A1":{"channel":1, "index":1, "coeffs..."}}}
+        self.mapping = {}  # {Basement: {"A1": row, ...}, ... }
 
         # Load in metadata from tables to mapping
         session = Session()
@@ -172,7 +172,7 @@ class Configuration:
             # Data associated with a sensor name
             for transducer in root.iter("Transducer"):
                 name = transducer.find("ID").text
-                data = {}
+                coeffs = {}
                 for constant in transducer.iter("TransducerConstant"):
                     constant_name = constant.find("Name").text
                     constant_value = constant.find("Value").text
@@ -183,18 +183,13 @@ class Configuration:
                             package.metadata_table.uid == uid
                         ).update({"initial_wavelength": constant_value})
 
-                    if package in (Packages.basement, Packages.strong_floor):
-                        if constant_name in ("Fg", "eta", "beta"):
-                            data[constant_name] = constant_value
+                    else:
+                        coeffs[constant_name] = constant_value
 
-                    elif package in (Packages.steel_frame,):
-                        if constant_name in ("Fg", "CTEt", "St"):
-                            data[constant_name] = constant_value
-
-                if data:
+                if coeffs:
                     session.query(package.metadata_table).filter(
                         package.metadata_table.name == name
-                    ).update(data)
+                    ).update({"coeffs": coeffs})
 
         session.commit()
         session.close()

@@ -5,13 +5,13 @@ from .schemas.fbg import DataType
 def BA_SF_Strain(uid, row, metadata):
     Str_W = getattr(row, uid)
     Str_W0 = metadata[uid].initial_wavelength
-    Fg = metadata[uid].Fg
-    eta = metadata[uid].eta
+    Fg = metadata[uid].coeffs["Fg"]
+    eta = metadata[uid].coeffs["eta"]
 
     tmp_uid = metadata[uid].corresponding_sensor
     Tmp_W = getattr(row, tmp_uid)
     Tmp_W0 = metadata[tmp_uid].initial_wavelength
-    beta = metadata[tmp_uid].beta
+    beta = metadata[tmp_uid].coeffs["beta"]
 
     Str_WN = (Str_W - Str_W0) / Str_W0
     Tmp_WN = (Tmp_W - Tmp_W0) / Tmp_W0
@@ -21,7 +21,7 @@ def BA_SF_Strain(uid, row, metadata):
 def BA_SF_Temperature(uid, row, metadata):
     Tmp_W = getattr(row, uid)
     Tmp_W0 = metadata[uid].initial_wavelength
-    beta = metadata[uid].beta
+    beta = metadata[uid].coeffs["beta"]
 
     Tmp_WN = (Tmp_W - Tmp_W0) / Tmp_W0
     return Tmp_WN / beta
@@ -30,13 +30,13 @@ def BA_SF_Temperature(uid, row, metadata):
 def FR_Strain(uid, row, metadata):
     Str_W = getattr(row, uid)
     Str_W0 = metadata[uid].initial_wavelength
-    Fg = metadata[uid].Fg
-    CTEt = metadata[uid].CTEt
+    Fg = metadata[uid].coeffs["Fg"]
+    CTEt = metadata[uid].coeffs["CTEt"]
 
     tmp_uid = metadata[uid].corresponding_sensor
     Tmp_W = getattr(row, tmp_uid)
     Tmp_W0 = metadata[tmp_uid].initial_wavelength
-    St = metadata[tmp_uid].St
+    St = metadata[tmp_uid].coeffs["St"]
 
     Str_WN = (Str_W - Str_W0) / Str_W0
     Tmp_WN = (Tmp_W - Tmp_W0) / Tmp_W0
@@ -46,7 +46,7 @@ def FR_Strain(uid, row, metadata):
 def FR_Temperature(uid, row, metadata):
     Tmp_W = getattr(row, uid)
     Tmp_W0 = metadata[uid].initial_wavelength
-    St = metadata[uid].St
+    St = metadata[uid].coeffs["St"]
 
     Tmp_WN = (Tmp_W - Tmp_W0) / Tmp_W0
     return Tmp_WN / St
