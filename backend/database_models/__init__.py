@@ -4,10 +4,6 @@ from sqlalchemy.inspection import inspect
 
 @as_declarative()
 class Base:
-    def _asdict(self):
-        columns = inspect(self).mapper.column_attrs
-        return {c.key: getattr(self, c.key) for c in columns}
-
     @classmethod
     def attrs(cls):
         primary_key = inspect(cls).primary_key[0].key
