@@ -4,7 +4,7 @@ import { Asset } from "expo-asset";
 import * as THREE from "three";
 import { Canvas } from "react-three-fiber";
 
-import SteelFrame from "./SteelFrame";
+import SteelFrame from "./models/SteelFrame";
 
 window.performance = {
   clearMeasures: () => {},
@@ -21,7 +21,7 @@ export default function Model() {
   useEffect(() => {
     (async () => {
       const asset = Asset.fromModule(
-        require("./assets/models/steel-frame.glb")
+        require("../assets/models/steel-frame.glb")
       );
       await asset.downloadAsync();
       setLocalUri(asset.localUri);
