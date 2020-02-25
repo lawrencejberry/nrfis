@@ -20,8 +20,9 @@
     "expo-asset": "~8.0.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.0.0",
     "babel-preset-expo": "~8.0.0",
-    "@babel/core": "^7.0.0"
+    "prettier": "^1.19.1"
   },
   "private": true
 }
