@@ -181,13 +181,13 @@ def get_basement_data(
     ],
 )
 def get_strong_floor_data(
-    response=Depends(DataCollector(Packages.strong_floor)),
+    data=Depends(DataCollector(Packages.strong_floor)),
     formatter=Depends(ResponseFormatter(Packages.strong_floor)),
 ):
     """
     Fetch FBG sensor data from the strong floor for a particular time period.
     """
-    return formatter(response)
+    return formatter(data)
 
 
 @router.get(
@@ -197,10 +197,10 @@ def get_strong_floor_data(
     ],
 )
 def get_steel_frame_data(
-    response=Depends(DataCollector(Packages.steel_frame)),
+    data=Depends(DataCollector(Packages.steel_frame)),
     formatter=Depends(ResponseFormatter(Packages.steel_frame)),
 ):
     """
     Fetch FBG sensor data from the steel frame for a particular time period.
     """
-    return formatter(response)
+    return formatter(data)
