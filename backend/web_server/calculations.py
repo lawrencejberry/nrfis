@@ -4,19 +4,21 @@ from . import Packages
 from .schemas.fbg import DataType
 
 
-def key_error_handler(func):
+def error_handler(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except KeyError as e:
             raise HTTPException(
-                status_code=500, detail=f"Calculation error occured, missing key {e}",
+                status_code=500, detail=f"Calculation error occured, missing {e}",
             )
+        except TypeError as e:
+            return None
 
     return wrapper
 
 
-@key_error_handler
+@error_handler
 def BA_SF_Strain(uid, row, metadata):
     Str_W = getattr(row, uid)
     Str_W0 = metadata[uid].initial_wavelength
@@ -33,7 +35,7 @@ def BA_SF_Strain(uid, row, metadata):
     return 1e6 * (Str_WN - (eta * Tmp_WN / beta)) / Fg
 
 
-@key_error_handler
+@error_handler
 def BA_SF_Temperature(uid, row, metadata):
     Tmp_W = getattr(row, uid)
     Tmp_W0 = metadata[uid].initial_wavelength
@@ -43,7 +45,7 @@ def BA_SF_Temperature(uid, row, metadata):
     return Tmp_WN / beta
 
 
-@key_error_handler
+@error_handler
 def FR_Strain(uid, row, metadata):
     Str_W = getattr(row, uid)
     Str_W0 = metadata[uid].initial_wavelength
@@ -60,7 +62,7 @@ def FR_Strain(uid, row, metadata):
     return 1e6 * ((Str_WN - Tmp_WN) / Fg + Tmp_WN * CTEt / St)
 
 
-@key_error_handler
+@error_handler
 def FR_Temperature(uid, row, metadata):
     Tmp_W = getattr(row, uid)
     Tmp_W0 = metadata[uid].initial_wavelength
