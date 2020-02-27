@@ -36,7 +36,18 @@ def BA_SF_Strain(uid, row, metadata):
 
 
 @error_handler
-def BA_SF_Temperature(uid, row, metadata):
+def BA_Temperature(uid, row, metadata):
+    Tmp_W = getattr(row, uid)
+    Tmp_W0 = metadata[uid].initial_wavelength
+    TS1 = metadata[uid].coeffs["TS1"]
+    TS2 = metadata[uid].coeffs["TS2"]
+
+    Tmp_WN = (Tmp_W - Tmp_W0) / Tmp_W0
+    return (TS1 * (Tmp_WN ** 2)) + (TS2 * Tmp_WN)
+
+
+@error_handler
+def SF_Temperature(uid, row, metadata):
     Tmp_W = getattr(row, uid)
     Tmp_W0 = metadata[uid].initial_wavelength
     beta = metadata[uid].coeffs["beta"]
@@ -75,11 +86,11 @@ def FR_Temperature(uid, row, metadata):
 Calculations = {
     Packages.basement: {
         DataType.strain: BA_SF_Strain,
-        DataType.temperature: BA_SF_Temperature,
+        DataType.temperature: BA_Temperature,
     },
     Packages.strong_floor: {
         DataType.strain: BA_SF_Strain,
-        DataType.temperature: BA_SF_Temperature,
+        DataType.temperature: SF_Temperature,
     },
     Packages.steel_frame: {
         DataType.strain: FR_Strain,
