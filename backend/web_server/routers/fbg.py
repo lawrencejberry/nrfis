@@ -34,15 +34,13 @@ class AveragingWindow(str, Enum):
 
 
 class DataCollector:
-    def __init__(self, package: Package):
+    def __init__(self, package: Package, data_type: DataType):
         self.package = package
+        self.data_type = data_type
 
     def __call__(
         self,
         session: Session = Depends(get_db),
-        data_type: DataType = Query(
-            ..., alias="data-type", description="The type of data requested."
-        ),
         averaging_window: AveragingWindow = Query(
             None,
             alias="averaging-window",
@@ -93,7 +91,7 @@ class DataCollector:
                 .all()
             )
 
-        if data_type == DataType.raw:
+        if self.data_type == DataType.raw:
             return raw_data
 
         metadata = {
@@ -101,16 +99,18 @@ class DataCollector:
         }
 
         selected_sensors = [
-            uid for uid, sensor in metadata.items() if sensor.type == data_type.value
+            uid
+            for uid, sensor in metadata.items()
+            if sensor.type == self.data_type.value
         ]
 
         return [
             {
                 "timestamp": row.timestamp,
                 **{
-                    (metadata[uid].name or uid): Calculations[self.package][data_type](
-                        uid, row, metadata
-                    )
+                    (metadata[uid].name or uid): Calculations[self.package][
+                        self.data_type
+                    ](uid, row, metadata)
                     for uid in selected_sensors
                 },
             }
@@ -119,16 +119,13 @@ class DataCollector:
 
 
 class ResponseFormatter:
-    def __init__(self, package: Package):
-        self.package = package
+    def __init__(self, schema):
+        self.schema = schema
 
     def __call__(
         self,
         media_type: MediaType = Header(
             MediaType.JSON, description="The format of the response."
-        ),
-        data_type: DataType = Query(
-            ..., alias="data-type", description="The type of data requested."
         ),
     ):
         if media_type == MediaType.JSON:
@@ -136,19 +133,12 @@ class ResponseFormatter:
 
         def convert_to_csv(data):
             output = io.StringIO()
-            writer = csv.DictWriter(
-                output, fieldnames=Schemas[self.package][data_type].__fields__
-            )
+            writer = csv.DictWriter(output, fieldnames=self.schema.__fields__)
             writer.writeheader()
             try:  # Row is an object
-                validated_data = [
-                    Schemas[self.package][data_type].from_orm(row).dict()
-                    for row in data
-                ]
+                validated_data = [self.schema.from_orm(row).dict() for row in data]
             except ValidationError:  # Row is a dict
-                validated_data = [
-                    Schemas[self.package][data_type](**row).dict() for row in data
-                ]
+                validated_data = [self.schema(**row).dict() for row in data]
             writer.writerows(validated_data)
             output.seek(0)
             return StreamingResponse(output, media_type="text/csv")
@@ -157,50 +147,134 @@ class ResponseFormatter:
 
 
 @router.get(
-    "/basement/",
-    response_model=List[
-        Union[tuple(Schemas[Packages.basement][data_type] for data_type in DataType)]
-    ],
+    "/basement/raw/", response_model=List[Schemas[Packages.basement][DataType.raw]],
 )
-def get_basement_data(
-    data=Depends(DataCollector(Packages.basement)),
-    formatter=Depends(ResponseFormatter(Packages.basement)),
+def get_basement_raw_data(
+    data=Depends(DataCollector(Packages.basement, DataType.raw)),
+    formatter=Depends(ResponseFormatter(Schemas[Packages.basement][DataType.raw])),
 ):
     """
-    Fetch FBG sensor data from the basement raft and perimeter walls for a particular time period.
+    Fetch raw FBG sensor data from the basement raft and perimeter walls for a particular time period.
     """
     return formatter(data)
 
 
 @router.get(
-    "/strong-floor/",
-    response_model=List[
-        Union[
-            tuple(Schemas[Packages.strong_floor][data_type] for data_type in DataType)
-        ]
-    ],
+    "/basement/str/", response_model=List[Schemas[Packages.basement][DataType.strain]]
 )
-def get_strong_floor_data(
-    data=Depends(DataCollector(Packages.strong_floor)),
-    formatter=Depends(ResponseFormatter(Packages.strong_floor)),
+def get_basement_str_data(
+    data=Depends(DataCollector(Packages.basement, DataType.strain)),
+    formatter=Depends(ResponseFormatter(Schemas[Packages.basement][DataType.strain])),
 ):
     """
-    Fetch FBG sensor data from the strong floor for a particular time period.
+    Fetch strain FBG sensor data from the basement raft and perimeter walls for a particular time period.
     """
     return formatter(data)
 
 
 @router.get(
-    "/steel-frame/",
-    response_model=List[
-        Union[tuple(Schemas[Packages.steel_frame][data_type] for data_type in DataType)]
-    ],
+    "/basement/tmp/",
+    response_model=List[Schemas[Packages.basement][DataType.temperature]],
 )
-def get_steel_frame_data(
-    data=Depends(DataCollector(Packages.steel_frame)),
-    formatter=Depends(ResponseFormatter(Packages.steel_frame)),
+def get_basement_tmp_data(
+    data=Depends(DataCollector(Packages.basement, DataType.temperature)),
+    formatter=Depends(
+        ResponseFormatter(Schemas[Packages.basement][DataType.temperature])
+    ),
 ):
     """
-    Fetch FBG sensor data from the steel frame for a particular time period.
+    Fetch temperature FBG sensor data from the basement raft and perimeter walls for a particular time period.
+    """
+    return formatter(data)
+
+
+@router.get(
+    "/strong-floor/raw/",
+    response_model=List[Schemas[Packages.strong_floor][DataType.raw]],
+)
+def get_strong_floor_raw_data(
+    data=Depends(DataCollector(Packages.strong_floor, DataType.raw)),
+    formatter=Depends(ResponseFormatter(Schemas[Packages.strong_floor][DataType.raw])),
+):
+    """
+    Fetch raw FBG sensor data from the strong floor for a particular time period.
+    """
+    return formatter(data)
+
+
+@router.get(
+    "/strong-floor/str/",
+    response_model=List[Schemas[Packages.strong_floor][DataType.strain]],
+)
+def get_strong_floor_str_data(
+    data=Depends(DataCollector(Packages.strong_floor, DataType.strain)),
+    formatter=Depends(
+        ResponseFormatter(Schemas[Packages.strong_floor][DataType.strain])
+    ),
+):
+    """
+    Fetch strain FBG sensor data from the strong floor for a particular time period.
+    """
+    return formatter(data)
+
+
+@router.get(
+    "/strong-floor/tmp/",
+    response_model=List[Schemas[Packages.strong_floor][DataType.temperature]],
+)
+def get_strong_floor_tmp_data(
+    data=Depends(DataCollector(Packages.strong_floor, DataType.temperature)),
+    formatter=Depends(
+        ResponseFormatter(Schemas[Packages.strong_floor][DataType.temperature])
+    ),
+):
+    """
+    Fetch temperature FBG sensor data from the strong floor for a particular time period.
+    """
+    return formatter(data)
+
+
+@router.get(
+    "/steel-frame/raw/",
+    response_model=List[Schemas[Packages.steel_frame][DataType.raw]],
+)
+def get_steel_frame_raw_data(
+    data=Depends(DataCollector(Packages.steel_frame, DataType.raw)),
+    formatter=Depends(ResponseFormatter(Schemas[Packages.steel_frame][DataType.raw])),
+):
+    """
+    Fetch raw FBG sensor data from the steel frame for a particular time period.
+    """
+    return formatter(data)
+
+
+@router.get(
+    "/steel-frame/str/",
+    response_model=List[Schemas[Packages.steel_frame][DataType.strain]],
+)
+def get_steel_frame_str_data(
+    data=Depends(DataCollector(Packages.steel_frame, DataType.strain)),
+    formatter=Depends(
+        ResponseFormatter(Schemas[Packages.steel_frame][DataType.strain])
+    ),
+):
+    """
+    Fetch strain FBG sensor data from the steel frame for a particular time period.
+    """
+    return formatter(data)
+
+
+@router.get(
+    "/steel-frame/tmp/",
+    response_model=List[Schemas[Packages.steel_frame][DataType.temperature]],
+)
+def get_steel_frame_tmp_data(
+    data=Depends(DataCollector(Packages.steel_frame, DataType.temperature)),
+    formatter=Depends(
+        ResponseFormatter(Schemas[Packages.steel_frame][DataType.temperature])
+    ),
+):
+    """
+    Fetch temperature FBG sensor data from the steel frame for a particular time period.
     """
     return formatter(data)

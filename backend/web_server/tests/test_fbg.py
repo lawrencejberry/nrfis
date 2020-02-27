@@ -6,7 +6,7 @@ import pytest
 @pytest.mark.parametrize("media_type", ["application/json", "text/csv"])
 def test_response_ok(client, package, data_type, media_type):
     response = client.get(
-        f"/fbg/{package}/?data-type={data_type}&start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
+        f"/fbg/{package}/{data_type}/?start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
         headers={"media-type": media_type},
     )
     assert response.status_code == 200
@@ -14,7 +14,7 @@ def test_response_ok(client, package, data_type, media_type):
 
 def test_get_basement_raw_data(client):
     response = client.get(
-        "/fbg/basement/?data-type=raw&start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
+        "/fbg/basement/raw/?start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
         headers={"media-type": "application/json"},
     )
     assert response.status_code == 200
@@ -141,7 +141,7 @@ def test_get_basement_raw_data(client):
 
 def test_get_basement_strain_data(client):
     response = client.get(
-        "/fbg/basement/?data-type=str&start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
+        "/fbg/basement/str/?start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
         headers={"media-type": "application/json"},
     )
     assert response.status_code == 200
@@ -246,7 +246,7 @@ def test_get_basement_strain_data(client):
 
 def test_get_basement_temperature_data(client):
     response = client.get(
-        "/fbg/basement/?data-type=tmp&start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
+        "/fbg/basement/tmp/?start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
         headers={"media-type": "application/json"},
     )
     assert response.status_code == 200
@@ -281,7 +281,7 @@ def test_get_basement_temperature_data(client):
 
 def test_get_strong_floor_raw_data(client):
     response = client.get(
-        "/fbg/strong-floor/?data-type=raw&start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
+        "/fbg/strong-floor/raw/?start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
         headers={"media-type": "application/json"},
     )
     assert response.status_code == 200
@@ -593,7 +593,7 @@ def test_get_strong_floor_raw_data(client):
 
 def test_get_strong_floor_strain_data(client):
     response = client.get(
-        "/fbg/strong-floor/?data-type=str&start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
+        "/fbg/strong-floor/str/?start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
         headers={"media-type": "application/json"},
     )
     assert response.status_code == 200
@@ -851,7 +851,7 @@ def test_get_strong_floor_strain_data(client):
 
 def test_get_strong_floor_temperature_data(client):
     response = client.get(
-        "/fbg/strong-floor/?data-type=tmp&start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
+        "/fbg/strong-floor/tmp/?start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
         headers={"media-type": "application/json"},
     )
     assert response.status_code == 200
@@ -918,7 +918,7 @@ def test_get_strong_floor_temperature_data(client):
 
 def test_get_steel_frame_raw_data(client):
     response = client.get(
-        "/fbg/steel-frame/?data-type=raw&start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
+        "/fbg/steel-frame/raw/?start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
         headers={"media-type": "application/json"},
     )
     assert response.status_code == 200
@@ -997,7 +997,7 @@ def test_get_steel_frame_raw_data(client):
 
 def test_get_steel_frame_strain_data(client):
     response = client.get(
-        "/fbg/steel-frame/?data-type=str&start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
+        "/fbg/steel-frame/str/?start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
         headers={"media-type": "application/json"},
     )
     assert response.status_code == 200
@@ -1052,7 +1052,7 @@ def test_get_steel_frame_strain_data(client):
 
 def test_get_steel_frame_temperature_data(client):
     response = client.get(
-        "/fbg/steel-frame/?data-type=tmp&start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
+        "/fbg/steel-frame/tmp/?start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
         headers={"media-type": "application/json"},
     )
     assert response.status_code == 200
@@ -1089,7 +1089,7 @@ def test_get_steel_frame_temperature_data(client):
 
 def test_get_basement_tmp_data_in_csv_format(client):
     response = client.get(
-        "/fbg/basement/?data-type=tmp&start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
+        "/fbg/basement/tmp/?start-time=2020-02-01T11%3A00%3A00.000000&end-time=2020-02-02T11%3A00%3A00.000000",
         headers={"media-type": "text/csv"},
     )
     assert response.status_code == 200
