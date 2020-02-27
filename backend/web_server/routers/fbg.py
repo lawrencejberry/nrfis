@@ -147,7 +147,14 @@ class ResponseFormatter:
 
 
 @router.get(
-    "/basement/raw/", response_model=List[Schemas[Packages.basement][DataType.raw]],
+    "/basement/raw/",
+    response_model=List[Schemas[Packages.basement][DataType.raw]],
+    responses={
+        200: {
+            "description": "Return data in JSON or CSV format.",
+            "content": {MediaType.JSON: {}, MediaType.CSV: {},},
+        },
+    },
 )
 def get_basement_raw_data(
     data=Depends(DataCollector(Packages.basement, DataType.raw)),
@@ -156,11 +163,19 @@ def get_basement_raw_data(
     """
     Fetch raw FBG sensor data from the basement raft and perimeter walls for a particular time period.
     """
+    print(Schemas[Packages.basement][DataType.raw])
     return formatter(data)
 
 
 @router.get(
-    "/basement/str/", response_model=List[Schemas[Packages.basement][DataType.strain]]
+    "/basement/str/",
+    response_model=List[Schemas[Packages.basement][DataType.strain]],
+    responses={
+        200: {
+            "description": "Return data in JSON or CSV format.",
+            "content": {MediaType.JSON: {}, MediaType.CSV: {},},
+        },
+    },
 )
 def get_basement_str_data(
     data=Depends(DataCollector(Packages.basement, DataType.strain)),
@@ -175,6 +190,12 @@ def get_basement_str_data(
 @router.get(
     "/basement/tmp/",
     response_model=List[Schemas[Packages.basement][DataType.temperature]],
+    responses={
+        200: {
+            "description": "Return data in JSON or CSV format.",
+            "content": {MediaType.JSON: {}, MediaType.CSV: {},},
+        },
+    },
 )
 def get_basement_tmp_data(
     data=Depends(DataCollector(Packages.basement, DataType.temperature)),
@@ -191,6 +212,12 @@ def get_basement_tmp_data(
 @router.get(
     "/strong-floor/raw/",
     response_model=List[Schemas[Packages.strong_floor][DataType.raw]],
+    responses={
+        200: {
+            "description": "Return data in JSON or CSV format.",
+            "content": {MediaType.JSON: {}, MediaType.CSV: {},},
+        },
+    },
 )
 def get_strong_floor_raw_data(
     data=Depends(DataCollector(Packages.strong_floor, DataType.raw)),
@@ -205,6 +232,12 @@ def get_strong_floor_raw_data(
 @router.get(
     "/strong-floor/str/",
     response_model=List[Schemas[Packages.strong_floor][DataType.strain]],
+    responses={
+        200: {
+            "description": "Return data in JSON or CSV format.",
+            "content": {MediaType.JSON: {}, MediaType.CSV: {},},
+        },
+    },
 )
 def get_strong_floor_str_data(
     data=Depends(DataCollector(Packages.strong_floor, DataType.strain)),
@@ -221,6 +254,12 @@ def get_strong_floor_str_data(
 @router.get(
     "/strong-floor/tmp/",
     response_model=List[Schemas[Packages.strong_floor][DataType.temperature]],
+    responses={
+        200: {
+            "description": "Return data in JSON or CSV format.",
+            "content": {MediaType.JSON: {}, MediaType.CSV: {},},
+        },
+    },
 )
 def get_strong_floor_tmp_data(
     data=Depends(DataCollector(Packages.strong_floor, DataType.temperature)),
@@ -237,6 +276,12 @@ def get_strong_floor_tmp_data(
 @router.get(
     "/steel-frame/raw/",
     response_model=List[Schemas[Packages.steel_frame][DataType.raw]],
+    responses={
+        200: {
+            "description": "Return data in JSON or CSV format.",
+            "content": {MediaType.JSON: {}, MediaType.CSV: {},},
+        },
+    },
 )
 def get_steel_frame_raw_data(
     data=Depends(DataCollector(Packages.steel_frame, DataType.raw)),
@@ -251,6 +296,12 @@ def get_steel_frame_raw_data(
 @router.get(
     "/steel-frame/str/",
     response_model=List[Schemas[Packages.steel_frame][DataType.strain]],
+    responses={
+        200: {
+            "description": "Return data in JSON or CSV format.",
+            "content": {MediaType.JSON: {}, MediaType.CSV: {},},
+        },
+    },
 )
 def get_steel_frame_str_data(
     data=Depends(DataCollector(Packages.steel_frame, DataType.strain)),
@@ -267,6 +318,12 @@ def get_steel_frame_str_data(
 @router.get(
     "/steel-frame/tmp/",
     response_model=List[Schemas[Packages.steel_frame][DataType.temperature]],
+    responses={
+        200: {
+            "description": "Return data in JSON or CSV format.",
+            "content": {MediaType.JSON: {}, MediaType.CSV: {},},
+        },
+    },
 )
 def get_steel_frame_tmp_data(
     data=Depends(DataCollector(Packages.steel_frame, DataType.temperature)),

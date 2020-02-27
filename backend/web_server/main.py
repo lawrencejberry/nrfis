@@ -8,14 +8,4 @@ app = FastAPI(
     version=0.1,
 )
 
-app.include_router(
-    fbg.router,
-    prefix="/fbg",
-    tags=["FBG"],
-    responses={
-        200: {
-            "description": "Return data in JSON or CSV format.",
-            "content": {fbg.MediaType.JSON: {}, fbg.MediaType.CSV: {},},
-        },
-    },
-)
+app.include_router(fbg.router, prefix="/fbg", tags=["FBG"])
