@@ -1,5 +1,6 @@
 from enum import Enum
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel, create_model
 from sqlalchemy.inspection import inspect
@@ -23,7 +24,7 @@ class Response(BaseModel):
 def _fields(p, d):
     if d == DataType.raw:
         return {
-            c.key: (float, ...)
+            c.key: (Optional[float], ...)  # None when measurements are missing
             for c in inspect(p.values_table).mapper.column_attrs
             if c.key != "timestamp"
         }
@@ -36,7 +37,9 @@ def _fields(p, d):
     ]
     session.close()
 
-    return {name: (float, ...) for name in names}
+    return {
+        name: (Optional[float], ...) for name in names
+    }  # None when measurements are missing
 
 
 Schemas = {}
