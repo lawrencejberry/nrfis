@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 
-from . import Packages
-from .schemas.fbg import DataType
+from .. import Packages
+from ..schemas.fbg import DataType
 
 
 def error_handler(func):

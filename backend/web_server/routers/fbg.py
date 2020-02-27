@@ -2,7 +2,7 @@ import io
 import csv
 from enum import Enum
 from datetime import datetime
-from typing import List, Union
+from typing import List
 
 from fastapi import APIRouter, Depends, Query, Header, HTTPException
 from starlette.responses import StreamingResponse
@@ -12,7 +12,7 @@ from sqlalchemy.sql import func
 
 from .. import Package, Packages
 from ..dependencies import get_db
-from ..calculations import Calculations
+from ..calculations.fbg import Calculations
 from ..schemas.fbg import DataType, Schemas
 
 router = APIRouter()
