@@ -184,6 +184,20 @@ class Configuration:
                         ).update({"initial_wavelength": constant_value})
 
                     else:
+                        # Handle edge cases caused by lack of formulas and differently named coefficients in Enlight
+                        if constant_name == "K":  # beta is sometimes called K
+                            constant_name = "beta"
+                        elif constant_name == "St":  # Also record St in tmp sensor row
+                            tmp_uid = (
+                                session.query(package.metadata_table)
+                                .filter(package.metadata_table.name == name)
+                                .first()
+                                .corresponding_sensor
+                            )
+                            session.query(package.metadata_table).filter(
+                                package.metadata_table.uid == tmp_uid
+                            ).update({"coeffs": {"St": constant_value}})
+
                         coeffs[constant_name] = constant_value
 
                 if coeffs:
