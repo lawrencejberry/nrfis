@@ -23,7 +23,10 @@ def BA_SF_Strain(uid, row, metadata):
     Str_W = getattr(row, uid)
     Str_W0 = metadata[uid].initial_wavelength
     Fg = metadata[uid].coeffs["Fg"]
-    eta = metadata[uid].coeffs["eta"]
+    try:
+        eta = metadata[uid].coeffs["eta"]
+    except KeyError:
+        eta = 6.3 * 10 ** -6
 
     tmp_uid = metadata[uid].corresponding_sensor
     Tmp_W = getattr(row, tmp_uid)
