@@ -19,11 +19,42 @@ def error_handler(func):
 
 
 @error_handler
-def BA_SF_Strain(uid, row, metadata):
+def BA_Strain(uid, row, metadata):
     Str_W = getattr(row, uid)
     Str_W0 = metadata[uid].initial_wavelength
     Fg = metadata[uid].coeffs["Fg"]
-    eta = metadata[uid].coeffs["eta"]
+    try:
+        eta = metadata[uid].coeffs["eta"]
+    except KeyError:
+        eta = 6.3 * 10 ** -6
+
+    tmp_uid = metadata[uid].corresponding_sensor
+    delta_T = BA_Temperature(tmp_uid, row, metadata)
+
+    Str_WN = (Str_W - Str_W0) / Str_W0
+    return 1e6 * (Str_WN - (eta * delta_T)) / Fg
+
+
+@error_handler
+def BA_Temperature(uid, row, metadata):
+    Tmp_W = getattr(row, uid)
+    Tmp_W0 = metadata[uid].initial_wavelength
+    TS1 = metadata[uid].coeffs["TS1"]
+    TS2 = metadata[uid].coeffs["TS2"]
+
+    Tmp_WN = (Tmp_W - Tmp_W0) / Tmp_W0
+    return (TS1 * (Tmp_WN ** 2)) + (TS2 * Tmp_WN)
+
+
+@error_handler
+def SF_Strain(uid, row, metadata):
+    Str_W = getattr(row, uid)
+    Str_W0 = metadata[uid].initial_wavelength
+    Fg = metadata[uid].coeffs["Fg"]
+    try:
+        eta = metadata[uid].coeffs["eta"]
+    except KeyError:
+        eta = 6.3 * 10 ** -6
 
     tmp_uid = metadata[uid].corresponding_sensor
     Tmp_W = getattr(row, tmp_uid)
@@ -36,7 +67,7 @@ def BA_SF_Strain(uid, row, metadata):
 
 
 @error_handler
-def BA_SF_Temperature(uid, row, metadata):
+def SF_Temperature(uid, row, metadata):
     Tmp_W = getattr(row, uid)
     Tmp_W0 = metadata[uid].initial_wavelength
     beta = metadata[uid].coeffs["beta"]
@@ -74,12 +105,12 @@ def FR_Temperature(uid, row, metadata):
 
 Calculations = {
     Packages.basement: {
-        DataType.strain: BA_SF_Strain,
-        DataType.temperature: BA_SF_Temperature,
+        DataType.strain: BA_Strain,
+        DataType.temperature: BA_Temperature,
     },
     Packages.strong_floor: {
-        DataType.strain: BA_SF_Strain,
-        DataType.temperature: BA_SF_Temperature,
+        DataType.strain: SF_Strain,
+        DataType.temperature: SF_Temperature,
     },
     Packages.steel_frame: {
         DataType.strain: FR_Strain,
