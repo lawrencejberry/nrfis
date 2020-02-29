@@ -4,7 +4,7 @@ import { Asset } from "expo-asset";
 import * as THREE from "three";
 import { Canvas } from "react-three-fiber";
 
-import LoadingIndicator from "./models/LoadingIndicator";
+import { LoadingIndicator } from "./models";
 
 window.performance = {
   clearMeasures: () => {},

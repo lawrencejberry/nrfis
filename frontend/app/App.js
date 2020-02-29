@@ -1,10 +1,10 @@
-import React, { Suspense } from "react";
+import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import { Text, View } from "react-native";
 import Model from "./src/Model";
-import SteelFrame from "./src/models/SteelFrame";
+import { SteelFrame } from "./src/models";
 
 function BasementScreen() {
   return (
