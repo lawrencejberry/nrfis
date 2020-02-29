@@ -1,24 +1,28 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Canvas } from "react-three-fiber";
 
-import { Text, View } from "react-native";
 import Model from "./src/Model";
-import { SteelFrame } from "./src/models";
+import { SteelFrame, LoadingIndicator } from "./src/models";
 
 function BasementScreen() {
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Basement!</Text>
-    </View>
+    <Canvas camera={{ position: [0, 0, 50] }}>
+      <ambientLight intensity={0.5} />
+      <spotLight intensity={0.8} position={[300, 300, 400]} />
+      <LoadingIndicator />
+    </Canvas>
   );
 }
 
 function StrongFloorScreen() {
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Strong Floor!</Text>
-    </View>
+    <Canvas camera={{ position: [0, 0, 50] }}>
+      <ambientLight intensity={0.5} />
+      <spotLight intensity={0.8} position={[300, 300, 400]} />
+      <LoadingIndicator />
+    </Canvas>
   );
 }
 
