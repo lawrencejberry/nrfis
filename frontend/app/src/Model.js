@@ -15,6 +15,7 @@ window.performance = {
 };
 
 export default function Model(props) {
+  const { children, file, ...rest } = props;
   const [localUri, setLocalUri] = useState("");
   const [rotation, setRotation] = useState(new THREE.Euler(0, 0));
 
@@ -38,6 +39,7 @@ export default function Model(props) {
       style={{ flex: 1 }}
       onMoveShouldSetResponder={event => true}
       onResponderMove={event => handleResponderMove(event)}
+      {...rest}
     >
       <Canvas camera={{ position: [0, 0, 50] }}>
         <ambientLight intensity={0.5} />
