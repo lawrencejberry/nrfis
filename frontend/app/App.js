@@ -34,28 +34,32 @@ function SteelFrameScreen() {
     <View style={{ flex: 1, flexDirection: "row" }}>
       <Model
         file={require("./assets/models/steel-frame.glb")}
-        styles={{ flex: 1 }}
+        style={{ flex: 5 }}
       >
         {({ localUri, rotation }) => (
           <SteelFrame localUri={localUri} rotation={rotation} />
         )}
       </Model>
-      <Menu styles={{ flex: 10 }} />
+      <Menu />
     </View>
   );
 }
 
 const Tab = createBottomTabNavigator();
 
+const theme = {
+  Text: { style: { fontSize: 20, fontFamily: "Helvetica" } }
+};
 export default function App() {
   return (
-    <ThemeProvider>
+    <ThemeProvider theme={theme}>
       <Header
         containerStyle={{
           height: 80,
           paddingBottom: 5,
           paddingLeft: 20,
-          paddingRight: 20
+          paddingRight: 20,
+          borderBottomColor: "#404040"
         }}
         placement="left"
         barStyle="light-content"
