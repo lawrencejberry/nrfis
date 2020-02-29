@@ -1,9 +1,10 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import { Text, View } from "react-native";
 import Model from "./src/Model";
+import SteelFrame from "./src/models/SteelFrame";
 
 function BasementScreen() {
   return (
@@ -23,9 +24,11 @@ function StrongFloorScreen() {
 
 function SteelFrameScreen() {
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Steel Frame!</Text>
-    </View>
+    <Model file={require("./assets/models/steel-frame.glb")}>
+      {({ localUri, rotation }) => (
+        <SteelFrame localUri={localUri} rotation={rotation} />
+      )}
+    </Model>
   );
 }
 

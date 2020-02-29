@@ -4,7 +4,6 @@ import { Asset } from "expo-asset";
 import * as THREE from "three";
 import { Canvas } from "react-three-fiber";
 
-import SteelFrame from "./models/SteelFrame";
 import LoadingIndicator from "./models/LoadingIndicator";
 
 window.performance = {
@@ -15,19 +14,17 @@ window.performance = {
   now: () => {}
 };
 
-export default function Model() {
+export default function Model(props) {
   const [localUri, setLocalUri] = useState("");
   const [rotation, setRotation] = useState(new THREE.Euler(0, 0));
 
   useEffect(() => {
-    (async () => {
-      const asset = Asset.fromModule(
-        require("../assets/models/steel-frame.glb")
-      );
+    (async file => {
+      const asset = Asset.fromModule(file);
       await asset.downloadAsync();
       setLocalUri(asset.localUri);
-    })();
-  }, []);
+    })(props.file);
+  }, [props.file]);
 
   function handleResponderMove(event) {
     const touchBank = event.touchHistory.touchBank[1];
@@ -46,9 +43,7 @@ export default function Model() {
         <ambientLight intensity={0.5} />
         <spotLight intensity={0.8} position={[300, 300, 400]} />
         <Suspense fallback={<LoadingIndicator />}>
-          {localUri ? (
-            <SteelFrame localUri={localUri} rotation={rotation} />
-          ) : null}
+          {props.children({ localUri, rotation })}
         </Suspense>
       </Canvas>
     </View>
