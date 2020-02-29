@@ -28,8 +28,8 @@ export default function Model(props) {
 
   function handleResponderMove(event) {
     const touchBank = event.touchHistory.touchBank[1];
-    const changeX = (touchBank.currentPageX - touchBank.startPageX) / 2000;
-    const changeY = (touchBank.currentPageY - touchBank.startPageY) / 2000;
+    const changeX = (touchBank.currentPageX - touchBank.previousPageX) / 200;
+    const changeY = (touchBank.currentPageY - touchBank.previousPageY) / 200;
     setRotation(new THREE.Euler(rotation.x + changeY, rotation.y + changeX));
   }
 
