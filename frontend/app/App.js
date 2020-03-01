@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Image } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -30,6 +30,25 @@ function StrongFloorScreen() {
 }
 
 function SteelFrameScreen() {
+  const [mode, setMode] = useState(0);
+  const [dataType, setDataType] = useState("str");
+  const [averagingWindow, setAveragingWindow] = useState(null);
+  const [startTime, setStartTime] = useState(new Date());
+  const [endTime, setEndTime] = useState(new Date());
+
+  const menuProps = {
+    mode,
+    setMode,
+    dataType,
+    setDataType,
+    averagingWindow,
+    setAveragingWindow,
+    startTime,
+    setStartTime,
+    endTime,
+    setEndTime
+  };
+
   return (
     <View style={{ flex: 1, flexDirection: "row" }}>
       <Model file={require("./assets/models/steel-frame.glb")}>
@@ -37,7 +56,7 @@ function SteelFrameScreen() {
           <SteelFrame localUri={localUri} rotation={rotation} />
         )}
       </Model>
-      <Menu />
+      <Menu {...menuProps} />
     </View>
   );
 }

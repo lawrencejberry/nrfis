@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Picker } from "react-native";
-import { Divider, Text, Button, ButtonGroup } from "react-native-elements";
+import { Divider, Button, ButtonGroup } from "react-native-elements";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 export default function Menu(props) {
@@ -11,7 +11,12 @@ export default function Menu(props) {
       case "dt":
         return (
           <>
-            <Picker selectedValue={props.dataType}>
+            <Picker
+              selectedValue={props.dataType}
+              onValueChange={(itemValue, itemIndex) =>
+                props.setDataType(itemValue)
+              }
+            >
               <Picker.Item label="Raw" value="raw" />
               <Picker.Item label="Strain" value="str" />
               <Picker.Item label="Temperature" value="tmp" />
@@ -20,8 +25,13 @@ export default function Menu(props) {
         );
       case "aw":
         return (
-          <Picker selectedValue={props.averagingWindow}>
-            <Picker.Item label="---" value="" />
+          <Picker
+            selectedValue={props.averagingWindow}
+            onValueChange={(itemValue, itemIndex) =>
+              props.setAveragingWindow(itemValue)
+            }
+          >
+            <Picker.Item label="---" value={null} />
             <Picker.Item label="Millisecond" value="milliseconds" />
             <Picker.Item label="Second" value="second" />
             <Picker.Item label="Minute" value="minute" />
@@ -35,20 +45,22 @@ export default function Menu(props) {
         return (
           <DateTimePicker
             timeZoneOffsetInMinutes={0}
-            value={new Date()}
+            value={props.startTime}
             mode="datetime"
             is24Hour={true}
             display="default"
+            onChange={(event, date) => props.setStartTime(date)}
           />
         );
       case "et":
         return (
           <DateTimePicker
             timeZoneOffsetInMinutes={0}
-            value={new Date()}
+            value={props.endTime}
             mode="datetime"
             is24Hour={true}
             display="default"
+            onChange={(event, date) => props.setEndTime(date)}
           />
         );
     }
@@ -64,7 +76,8 @@ export default function Menu(props) {
     >
       <ButtonGroup
         buttons={["Model", "Plot"]}
-        selectedIndex={0}
+        selectedIndex={props.mode}
+        onPress={index => props.setMode(index)}
         textStyle={{ fontWeight: "normal" }}
       />
       <Divider />
