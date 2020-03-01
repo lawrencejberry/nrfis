@@ -35,6 +35,14 @@ function SteelFrameScreen() {
   const [averagingWindow, setAveragingWindow] = useState(null);
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
+  const [isLoading, setIsLoading] = useState(false);
+
+  function fetchData() {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+  }
 
   const menuProps = {
     mode,
@@ -46,7 +54,9 @@ function SteelFrameScreen() {
     startTime,
     setStartTime,
     endTime,
-    setEndTime
+    setEndTime,
+    isLoading,
+    fetchData
   };
 
   return (

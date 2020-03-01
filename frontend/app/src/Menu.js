@@ -105,7 +105,16 @@ export default function Menu(props) {
         onPress={() => setShownElement("et")}
       />
       <Divider />
-      <Button title="Refresh" />
+      <Button
+        title="Refresh"
+        onPress={() => {
+          setShownElement("");
+          props.fetchData();
+        }}
+        type="outline"
+        loading={props.isLoading}
+        loadingProps={{ size: 16 }}
+      />
       <Divider />
       {renderSelector(shownElement)}
     </View>
