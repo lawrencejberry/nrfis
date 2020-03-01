@@ -32,10 +32,7 @@ function StrongFloorScreen() {
 function SteelFrameScreen() {
   return (
     <View style={{ flex: 1, flexDirection: "row" }}>
-      <Model
-        file={require("./assets/models/steel-frame.glb")}
-        style={{ flex: 5 }}
-      >
+      <Model file={require("./assets/models/steel-frame.glb")}>
         {({ localUri, rotation }) => (
           <SteelFrame localUri={localUri} rotation={rotation} />
         )}
@@ -48,8 +45,23 @@ function SteelFrameScreen() {
 const Tab = createBottomTabNavigator();
 
 const theme = {
-  Text: { style: { fontSize: 20, fontFamily: "Helvetica" } }
+  Text: { style: { fontSize: 20, fontFamily: "Helvetica" } },
+  Divider: { style: { margin: 4 } },
+  Button: {
+    containerStyle: {
+      paddingTop: 5,
+      paddingBottom: 5,
+      paddingLeft: 10,
+      paddingRight: 10
+    },
+    buttonStyle: { borderWidth: 1 },
+    titleStyle: {
+      fontSize: 16
+    }
+  },
+  ButtonGroup: { textStyle: { fontSize: 16 } }
 };
+
 export default function App() {
   return (
     <ThemeProvider theme={theme}>

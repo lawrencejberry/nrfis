@@ -36,7 +36,7 @@ export default function Model(props) {
 
   return (
     <View
-      style={{ flex: 1 }}
+      style={{ flex: 5 }}
       onMoveShouldSetResponder={event => true}
       onResponderMove={event => handleResponderMove(event)}
       {...rest}
