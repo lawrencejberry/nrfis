@@ -54,7 +54,7 @@ export default function Model(props) {
       const colours = Object.fromEntries(
         Object.entries(props.data[index]).map(([k, v]) => [
           k,
-          mapColour("str", v)
+          mapColour(props.dataType, v)
         ])
       );
       setSensorColours(colours);

@@ -54,44 +54,45 @@ async function fetchData(
 function SteelFrameScreen() {
   const [data, setData] = useState([]);
   const [mode, setMode] = useState(0);
+  const [modelModeEnabled, setModelModeEnabled] = useState(true);
   const [dataType, setDataType] = useState("str");
-  const [averagingWindow, setAveragingWindow] = useState("");
-  const [startTime, setStartTime] = useState(new Date());
-  const [endTime, setEndTime] = useState(new Date());
   const [isLoading, setIsLoading] = useState(false);
 
-  async function refresh() {
+  async function refresh(dataType, averagingWindow, startTime, endTime) {
     setIsLoading(true);
-    setData(
-      await fetchData(
-        "steel-frame",
-        dataType,
-        averagingWindow,
-        startTime.toISOString(),
-        endTime.toISOString()
-      )
-    );
+    // Try fetching data
+    try {
+      setData(
+        await fetchData(
+          "steel-frame",
+          dataType,
+          averagingWindow,
+          startTime.toISOString(),
+          endTime.toISOString()
+        )
+      );
+      // Set the type of the fetched data
+      setDataType(dataType);
+      // Enable/disable the model mode button
+      if (dataType == "raw") {
+        setMode(1);
+        setModelModeEnabled(false);
+      } else {
+        setModelModeEnabled(true);
+      }
+    } catch (error) {
+      console.error(error);
+    }
     setIsLoading(false);
   }
 
-  const menuProps = {
-    mode,
-    setMode,
-    dataType,
-    setDataType,
-    averagingWindow,
-    setAveragingWindow,
-    startTime,
-    setStartTime,
-    endTime,
-    setEndTime,
-    isLoading,
-    refresh
-  };
-
   return (
     <View style={{ flex: 1, flexDirection: "row" }}>
-      <Model file={require("./assets/models/steel-frame.glb")} data={data}>
+      <Model
+        file={require("./assets/models/steel-frame.glb")}
+        data={data}
+        dataType={dataType}
+      >
         {({ localUri, rotation, sensorColours }) => (
           <SteelFrame
             localUri={localUri}
@@ -100,7 +101,13 @@ function SteelFrameScreen() {
           />
         )}
       </Model>
-      <Menu {...menuProps} />
+      <Menu
+        mode={mode}
+        setMode={setMode}
+        modelModeEnabled={modelModeEnabled}
+        isLoading={isLoading}
+        refresh={refresh}
+      />
     </View>
   );
 }

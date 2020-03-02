@@ -5,17 +5,10 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 
 export default function Menu(props) {
   const [shownElement, setShownElement] = useState("");
-  const [modelModeEnabled, setModelModeEnabled] = useState(true);
-
-  function handleDataTypeChange(itemValue, itemIndex) {
-    props.setDataType(itemValue);
-    if (itemValue == "raw") {
-      props.setMode(1);
-      setModelModeEnabled(false);
-    } else {
-      setModelModeEnabled(true);
-    }
-  }
+  const [dataType, setDataType] = useState("str");
+  const [averagingWindow, setAveragingWindow] = useState("");
+  const [startTime, setStartTime] = useState(new Date());
+  const [endTime, setEndTime] = useState(new Date());
 
   function renderSelector(shownElement) {
     switch (shownElement) {
@@ -23,8 +16,8 @@ export default function Menu(props) {
         return (
           <>
             <Picker
-              selectedValue={props.dataType}
-              onValueChange={handleDataTypeChange}
+              selectedValue={dataType}
+              onValueChange={(itemValue, itemIndex) => setDataType(itemValue)}
             >
               <Picker.Item label="Raw" value="raw" />
               <Picker.Item label="Strain" value="str" />
@@ -35,9 +28,9 @@ export default function Menu(props) {
       case "aw":
         return (
           <Picker
-            selectedValue={props.averagingWindow}
+            selectedValue={averagingWindow}
             onValueChange={(itemValue, itemIndex) =>
-              props.setAveragingWindow(itemValue)
+              setAveragingWindow(itemValue)
             }
           >
             <Picker.Item label="---" value="" />
@@ -54,22 +47,22 @@ export default function Menu(props) {
         return (
           <DateTimePicker
             timeZoneOffsetInMinutes={0}
-            value={props.startTime}
+            value={startTime}
             mode="datetime"
             is24Hour={true}
             display="default"
-            onChange={(event, date) => props.setStartTime(date)}
+            onChange={(event, date) => setStartTime(date)}
           />
         );
       case "et":
         return (
           <DateTimePicker
             timeZoneOffsetInMinutes={0}
-            value={props.endTime}
+            value={endTime}
             mode="datetime"
             is24Hour={true}
             display="default"
-            onChange={(event, date) => props.setEndTime(date)}
+            onChange={(event, date) => setEndTime(date)}
           />
         );
     }
@@ -86,7 +79,7 @@ export default function Menu(props) {
       <ButtonGroup
         buttons={["Model", "Plot"]}
         selectedIndex={props.mode}
-        disabled={modelModeEnabled ? [] : [0]}
+        disabled={props.modelModeEnabled ? [] : [0]}
         onPress={index => props.setMode(index)}
         textStyle={{ fontWeight: "normal" }}
       />
@@ -119,7 +112,7 @@ export default function Menu(props) {
         title="Refresh"
         onPress={() => {
           setShownElement("");
-          props.refresh();
+          props.refresh(dataType, averagingWindow, startTime, endTime);
         }}
         type="outline"
         loading={props.isLoading}
