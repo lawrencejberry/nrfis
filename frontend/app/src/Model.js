@@ -15,6 +15,25 @@ window.performance = {
   now: () => {}
 };
 
+function mapColour(dataType, v) {
+  if (dataType == "str") {
+    const absV = abs(v);
+    if (absV < 1e6) return "hsl(90,100%,50%)";
+    else if (absV > 1000e6) return "hsl(0,100%,50%)";
+    else {
+      const hue = (1 - (absV - 1e6) / 999e6) * 90;
+      return `hsl(${hue},100%,50%)`;
+    }
+  } else if (dataType == "tmp") {
+    if (v < -25.0) return "hsl(270,100%,50%)";
+    else if (v > 25.0) return "hsl(0,100%,50%)";
+    else {
+      const hue = (1 - (v + 25) / 50.0) * 270;
+      return `hsl(${hue},100%,50%)`;
+    }
+  }
+}
+
 export default function Model(props) {
   const { children, file, ...rest } = props;
   const [localUri, setLocalUri] = useState("");
@@ -33,7 +52,7 @@ export default function Model(props) {
   useEffect(() => {
     if (props.data.length > 0) {
       const colours = Object.fromEntries(
-        Object.entries(props.data[index]).map(([k, v]) => [k, "red"])
+        Object.entries(props.data[index]).map(([k, v]) => [k, mapColour(v)])
       );
       setSensorColours(colours);
     }
@@ -56,7 +75,7 @@ export default function Model(props) {
       <Slider
         value={index}
         onValueChange={value => setIndex(value)}
-        maximumValue={props.data.length}
+        maximumValue={props.data.length ? props.data.length - 1 : 0}
         step={1}
         style={{
           marginLeft: 20,
