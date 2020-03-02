@@ -50,7 +50,7 @@ export default function Model(props) {
   }, [props.file]);
 
   useEffect(() => {
-    if (props.data.length > 0) {
+    if (Array.isArray(props.data) && props.data.length) {
       const colours = Object.fromEntries(
         Object.entries(props.data[index]).map(([k, v]) => [
           k,
