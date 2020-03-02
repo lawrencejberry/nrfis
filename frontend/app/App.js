@@ -86,21 +86,31 @@ function SteelFrameScreen() {
     setIsLoading(false);
   }
 
+  function renderVisualisation() {
+    if (mode == 0) {
+      return (
+        <Model
+          file={require("./assets/models/steel-frame.glb")}
+          data={data}
+          dataType={dataType}
+        >
+          {({ localUri, rotation, sensorColours }) => (
+            <SteelFrame
+              localUri={localUri}
+              rotation={rotation}
+              sensorColours={sensorColours}
+            />
+          )}
+        </Model>
+      );
+    } else if (mode == 1) {
+      return <View style={{ flex: 5 }} />;
+    } else return null;
+  }
+
   return (
     <View style={{ flex: 1, flexDirection: "row" }}>
-      <Model
-        file={require("./assets/models/steel-frame.glb")}
-        data={data}
-        dataType={dataType}
-      >
-        {({ localUri, rotation, sensorColours }) => (
-          <SteelFrame
-            localUri={localUri}
-            rotation={rotation}
-            sensorColours={sensorColours}
-          />
-        )}
-      </Model>
+      {renderVisualisation()}
       <Menu
         mode={mode}
         setMode={setMode}
