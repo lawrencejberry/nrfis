@@ -5,6 +5,17 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 
 export default function Menu(props) {
   const [shownElement, setShownElement] = useState("");
+  const [modelModeEnabled, setModelModeEnabled] = useState(true);
+
+  function handleDataTypeChange(itemValue, itemIndex) {
+    props.setDataType(itemValue);
+    if (itemValue == "raw") {
+      props.setMode(1);
+      setModelModeEnabled(false);
+    } else {
+      setModelModeEnabled(true);
+    }
+  }
 
   function renderSelector(shownElement) {
     switch (shownElement) {
@@ -13,9 +24,7 @@ export default function Menu(props) {
           <>
             <Picker
               selectedValue={props.dataType}
-              onValueChange={(itemValue, itemIndex) =>
-                props.setDataType(itemValue)
-              }
+              onValueChange={handleDataTypeChange}
             >
               <Picker.Item label="Raw" value="raw" />
               <Picker.Item label="Strain" value="str" />
@@ -77,6 +86,7 @@ export default function Menu(props) {
       <ButtonGroup
         buttons={["Model", "Plot"]}
         selectedIndex={props.mode}
+        disabled={modelModeEnabled ? [] : [0]}
         onPress={index => props.setMode(index)}
         textStyle={{ fontWeight: "normal" }}
       />
