@@ -17,7 +17,7 @@ window.performance = {
 
 function mapColour(dataType, v) {
   if (dataType == "str") {
-    const absV = abs(v);
+    const absV = Math.abs(v);
     if (absV < 1e6) return "hsl(90,100%,50%)";
     else if (absV > 1000e6) return "hsl(0,100%,50%)";
     else {
@@ -52,7 +52,10 @@ export default function Model(props) {
   useEffect(() => {
     if (props.data.length > 0) {
       const colours = Object.fromEntries(
-        Object.entries(props.data[index]).map(([k, v]) => [k, mapColour(v)])
+        Object.entries(props.data[index]).map(([k, v]) => [
+          k,
+          mapColour("str", v)
+        ])
       );
       setSensorColours(colours);
     }
