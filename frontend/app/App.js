@@ -29,19 +29,49 @@ function StrongFloorScreen() {
   );
 }
 
+async function fetchData(
+  sensorPackage,
+  dataType,
+  averagingWindow,
+  startTime,
+  endTime
+) {
+  try {
+    const response = await fetch(
+      `http://172.21.170.253/fbg/${sensorPackage}/${dataType}/?averaging-window=${averagingWindow}&start-time=${startTime}&end-time=${endTime}`,
+      {
+        method: "GET",
+        headers: { "media-type": "application/json" }
+      }
+    );
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 function SteelFrameScreen() {
+  const [data, setData] = useState([]);
   const [mode, setMode] = useState(0);
   const [dataType, setDataType] = useState("str");
-  const [averagingWindow, setAveragingWindow] = useState(null);
+  const [averagingWindow, setAveragingWindow] = useState("");
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
   const [isLoading, setIsLoading] = useState(false);
 
-  function fetchData() {
+  async function refresh() {
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+    setData(
+      await fetchData(
+        "steel-frame",
+        dataType,
+        averagingWindow,
+        startTime.toISOString(),
+        endTime.toISOString()
+      )
+    );
+    setIsLoading(false);
   }
 
   const menuProps = {
@@ -56,7 +86,7 @@ function SteelFrameScreen() {
     endTime,
     setEndTime,
     isLoading,
-    fetchData
+    refresh
   };
 
   return (

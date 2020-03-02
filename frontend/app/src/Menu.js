@@ -31,7 +31,7 @@ export default function Menu(props) {
               props.setAveragingWindow(itemValue)
             }
           >
-            <Picker.Item label="---" value={null} />
+            <Picker.Item label="---" value="" />
             <Picker.Item label="Millisecond" value="milliseconds" />
             <Picker.Item label="Second" value="second" />
             <Picker.Item label="Minute" value="minute" />
@@ -109,7 +109,7 @@ export default function Menu(props) {
         title="Refresh"
         onPress={() => {
           setShownElement("");
-          props.fetchData();
+          props.refresh();
         }}
         type="outline"
         loading={props.isLoading}
