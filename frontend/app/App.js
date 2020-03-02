@@ -91,9 +91,13 @@ function SteelFrameScreen() {
 
   return (
     <View style={{ flex: 1, flexDirection: "row" }}>
-      <Model file={require("./assets/models/steel-frame.glb")}>
-        {({ localUri, rotation }) => (
-          <SteelFrame localUri={localUri} rotation={rotation} />
+      <Model file={require("./assets/models/steel-frame.glb")} data={data}>
+        {({ localUri, rotation, sensorColours }) => (
+          <SteelFrame
+            localUri={localUri}
+            rotation={rotation}
+            sensorColours={sensorColours}
+          />
         )}
       </Model>
       <Menu {...menuProps} />

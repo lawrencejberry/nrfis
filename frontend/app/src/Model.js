@@ -18,6 +18,7 @@ export default function Model(props) {
   const { children, file, ...rest } = props;
   const [localUri, setLocalUri] = useState("");
   const [rotation, setRotation] = useState(new THREE.Euler(0, 0));
+  const [sensorColours, setSensorColours] = useState({});
 
   useEffect(() => {
     (async file => {
@@ -26,6 +27,15 @@ export default function Model(props) {
       setLocalUri(asset.localUri);
     })(props.file);
   }, [props.file]);
+
+  useEffect(() => {
+    if (props.data.length > 0) {
+      const colours = Object.fromEntries(
+        Object.entries(props.data[0]).map(([k, v]) => [k, "red"])
+      );
+      setSensorColours(colours);
+    }
+  }, [props.data]);
 
   function handleResponderMove(event) {
     const touchBank = event.touchHistory.touchBank[1];
@@ -45,7 +55,7 @@ export default function Model(props) {
         <ambientLight intensity={0.5} />
         <spotLight intensity={0.8} position={[300, 300, 400]} />
         <Suspense fallback={<LoadingIndicator />}>
-          {props.children({ localUri, rotation })}
+          {props.children({ localUri, rotation, sensorColours })}
         </Suspense>
       </Canvas>
     </View>
