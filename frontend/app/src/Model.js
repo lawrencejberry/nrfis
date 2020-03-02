@@ -88,7 +88,7 @@ export default function Model(props) {
         }}
         thumbStyle={{ backgroundColor: "grey" }}
       />
-      <Canvas camera={{ position: [0, 0, 50] }}>
+      <Canvas camera={{ position: [0, 0, 40] }}>
         <ambientLight intensity={0.5} />
         <spotLight intensity={0.8} position={[300, 300, 400]} />
         <Suspense fallback={<LoadingIndicator />}>
