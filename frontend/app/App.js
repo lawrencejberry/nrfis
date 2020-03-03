@@ -38,7 +38,7 @@ async function fetchData(
 ) {
   try {
     const response = await fetch(
-      `http://172.21.170.253/fbg/${sensorPackage}/${dataType}/?averaging-window=${averagingWindow}&start-time=${startTime}&end-time=${endTime}`,
+      `http://129.169.72.175/fbg/${sensorPackage}/${dataType}/?averaging-window=${averagingWindow}&start-time=${startTime}&end-time=${endTime}`,
       {
         method: "GET",
         headers: { "media-type": "application/json" }
