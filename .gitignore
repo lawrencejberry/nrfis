@@ -111,3 +111,6 @@ logs/
 
 # Test database
 .test.db
+
+# Expo
+.expo
