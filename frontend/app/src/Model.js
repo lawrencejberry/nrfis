@@ -17,18 +17,17 @@ window.performance = {
 
 function mapColour(dataType, v) {
   if (dataType == "str") {
-    const absV = Math.abs(v);
-    if (absV < 1e6) return "hsl(90,100%,50%)";
-    else if (absV > 1000e6) return "hsl(0,100%,50%)";
+    if (v < -200) return "grey";
+    else if (v > 200) return "grey";
     else {
-      const hue = (1 - (absV - 1e6) / 999e6) * 90;
+      const hue = (1 - (v + 200) / 400) * 270;
       return `hsl(${hue},100%,50%)`;
     }
   } else if (dataType == "tmp") {
-    if (v < -25.0) return "hsl(270,100%,50%)";
-    else if (v > 25.0) return "hsl(0,100%,50%)";
+    if (v < -10) return "grey";
+    else if (v > 10) return "grey";
     else {
-      const hue = (1 - (v + 25) / 50.0) * 270;
+      const hue = (1 - (v + 10) / 20) * 270;
       return `hsl(${hue},100%,50%)`;
     }
   }
