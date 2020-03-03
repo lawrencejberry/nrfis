@@ -175,7 +175,7 @@ class Configuration:
                 coeffs = {}
                 for constant in transducer.iter("TransducerConstant"):
                     constant_name = constant.find("Name").text
-                    constant_value = constant.find("Value").text
+                    constant_value = float(constant.find("Value").text)
 
                     if constant_name.startswith("FBG") and constant_name.endswith("0"):
                         uid = re.search("_([^;]*)_", constant_name)[1]
