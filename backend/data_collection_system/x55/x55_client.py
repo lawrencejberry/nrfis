@@ -188,15 +188,12 @@ class Configuration:
                         if constant_name == "K":  # beta is sometimes called K
                             constant_name = "beta"
                         elif constant_name == "St":  # Also record St in tmp sensor row
-                            tmp_uid = (
-                                session.query(package.metadata_table)
-                                .filter(package.metadata_table.name == name)
-                                .first()
-                                .corresponding_sensor
-                            )
-                            session.query(package.metadata_table).filter(
-                                package.metadata_table.uid == tmp_uid
-                            ).update({"coeffs": {"St": constant_value}})
+                            sensor = session.query(package.metadata_table).filter(package.metadata_table.name == name).first()
+                            if sensor and sensor.type == "str":
+                                tmp_uid = sensor.corresponding_sensor
+                                session.query(package.metadata_table).filter(
+                                    package.metadata_table.uid == tmp_uid
+                                ).update({"coeffs": {"St": constant_value}})
 
                         coeffs[constant_name] = constant_value
 
