@@ -187,6 +187,8 @@ class Configuration:
                         # Handle edge cases caused by lack of formulas and differently named coefficients in Enlight
                         if constant_name == "K":  # beta is sometimes called K
                             constant_name = "beta"
+                        elif constant_name == "CTEt":  # CTEt is in units 10^-6/C in Enlight
+                            constant_value /= 1e6
                         elif constant_name == "St":  # Also record St in tmp sensor row
                             sensor = session.query(package.metadata_table).filter(package.metadata_table.name == name).first()
                             if sensor and sensor.type == "str":
