@@ -14,7 +14,7 @@ Please note that the si255 instrument obtains the time from NRFIS Ubuntu compute
 
 ```
 source venv/bin/activate  # Activate virtual environment
-pip install -r backend/requirements.txt -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-18.04
+pip install -r backend/requirements.txt -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04
 ```
 
 ### To run in development and production:
@@ -38,7 +38,7 @@ pytest backend/data_collection_system
 
 ## Web Server
 
-The _Web Server_ is a Python [FastAPI](https://fastapi.tiangolo.com) application which allows users to access past sensor data via a REST API.
+The _Web Server_ is a Python [FastAPI](https://fastapi.tiangolo.com) application which allows users to access past sensor data via a REST API and accompanying website. The API can be accessed from within the Enginering network at: http://129.169.72.175, and the website at: http://129.169.72.175/docs.
 
 ### To install:
 
@@ -69,3 +69,23 @@ export DATABASE_URL="sqlite:///./backend/web_server/tests/.test.db"
 source venv/bin/activate  # Activate virtual environment
 pytest backend/web_server
 ```
+
+## App
+
+The _App_ is a Javascript [React Native](http://reactnative.dev) iOS and Android app which allows users to visualise FBG sensor data on 3D models of the building and through graphical plots.
+
+### To install:
+
+```
+cd frontend/app
+npm install -g
+```
+
+### To run in development:
+
+```
+cd frontend/app
+expo start
+```
+
+The app can then be tested on the iOS simulator on a Mac, or on a real iOS or Android device by installing the Expo app and following the QR link in the terminal and Expo web interface.
