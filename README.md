@@ -78,7 +78,7 @@ The _App_ is a Javascript [React Native](http://reactnative.dev) iOS and Android
 
 ```
 cd frontend/app
-npm install -g
+npm install
 ```
 
 ### To run in development:
