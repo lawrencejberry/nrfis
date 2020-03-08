@@ -1,5 +1,6 @@
 import io
 import csv
+import json
 from enum import Enum
 from datetime import datetime
 from typing import List
@@ -13,7 +14,7 @@ from sqlalchemy.sql import func
 from .. import Package, Packages
 from ..dependencies import get_db
 from ..calculations.fbg import Calculations
-from ..schemas.fbg import DataType, Schemas
+from ..schemas.fbg import DataType, Schemas, Status
 
 router = APIRouter()
 
@@ -335,3 +336,16 @@ def get_steel_frame_tmp_data(
     Fetch temperature FBG sensor data from the steel frame for a particular time period.
     """
     return formatter(data)
+
+
+@router.get(
+    "/live-status/", response_model=Status,
+)
+def get_live_status():
+    """
+    Fetch temperature FBG sensor data from the steel frame for a particular time period.
+    """
+    with open("/var/status.json") as f:
+        status = json.load(f)
+
+    return status

@@ -59,7 +59,7 @@ To run against a local test database substitute in your own `DATABASE_URL`. This
 ### To run in production:
 
 ```
-sudo docker run -d --name web_server_container -p 80:80 --restart always --network="host" --env DATABASE_URL=postgresql+psycopg2://postgres:fourth-year@127.0.0.1/nrfisdb web_server_image
+sudo docker run -d --name web_server_container -p 80:80 --restart always --network="host" -v ~/nrfis/backend/data_collection_system:/var --env DATABASE_URL=postgresql+psycopg2://postgres:fourth-year@127.0.0.1/nrfisdb web_server_image
 ```
 
 ### To run tests locally:

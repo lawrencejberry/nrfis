@@ -3,6 +3,7 @@ import re
 import xml.etree.ElementTree as ET
 import string
 import json
+import os
 from itertools import count
 from struct import unpack
 from enum import IntEnum
@@ -10,7 +11,7 @@ from typing import List
 from ipaddress import IPv4Address
 from datetime import datetime
 
-from .. import logger, Session, Base, Packages
+from .. import logger, Session, Base, Packages, ROOT_DIR
 from .x55_protocol import (
     Request,
     GetFirmwareVersion,
@@ -428,14 +429,14 @@ class x55Client:
             len(buffer),
         )
 
-    async def set_live_status(self, status: bool):
-        data = {
-            "live": status,
+    async def set_live_status(self, live: bool):
+        status = {
+            "live": live,
             "packages": self.configuration.packages,
             "sampling_rate": self.effective_sampling_rate,
         }
-        with open("data.json", "w") as f:
-            json.dump(data, f)
+        with open(os.path.join(ROOT_DIR, "status.json"), "w") as f:
+            json.dump(status, f)
 
     async def record(self):
         session = Session()

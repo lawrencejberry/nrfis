@@ -1,17 +1,22 @@
-from enum import Enum
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Tuple
 
 from pydantic import BaseModel, create_model
 from sqlalchemy.inspection import inspect
 
-from .. import Session, Packages
+from .. import Session, Packages, Package
 
 
 class DataType(str, Enum):
     raw = "raw"
     strain = "str"
     temperature = "tmp"
+
+
+class Status(BaseModel):
+    live: bool
+    packages: Tuple[Package]
+    sampling_rate: int
 
 
 class Response(BaseModel):
