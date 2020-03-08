@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { Canvas } from "react-three-fiber";
 import { Slider } from "react-native-elements";
 
-import { LoadingIndicator } from "./models";
+import { LoadingIndicator } from "../models";
 
 window.performance = {
   clearMeasures: () => {},
