@@ -31,4 +31,3 @@ class Packages:
     basement = Package(Basement, BasementMetadata)
     strong_floor = Package(StrongFloor, StrongFloorMetadata)
     steel_frame = Package(SteelFrame, SteelFrameMetadata)
-

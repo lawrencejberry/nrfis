@@ -1,6 +1,6 @@
-from enum import Enum
 from datetime import datetime
-from typing import Optional
+from enum import Enum
+from typing import Optional, Tuple, Any
 
 from pydantic import BaseModel, create_model
 from sqlalchemy.inspection import inspect
@@ -12,6 +12,12 @@ class DataType(str, Enum):
     raw = "raw"
     strain = "str"
     temperature = "tmp"
+
+
+class Status(BaseModel):
+    live: bool
+    packages: Tuple[Any]
+    sampling_rate: int
 
 
 class Response(BaseModel):

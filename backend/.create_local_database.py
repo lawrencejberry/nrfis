@@ -60,4 +60,3 @@ with db.connect() as conn:
 
 session.commit()
 session.close()
-

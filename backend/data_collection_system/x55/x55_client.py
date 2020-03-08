@@ -2,6 +2,8 @@ import asyncio
 import re
 import xml.etree.ElementTree as ET
 import string
+import json
+import os
 from itertools import count
 from struct import unpack
 from enum import IntEnum
@@ -9,7 +11,7 @@ from typing import List
 from ipaddress import IPv4Address
 from datetime import datetime
 
-from .. import logger, Session, Base, Packages
+from .. import logger, Session, Base, Packages, ROOT_DIR
 from .x55_protocol import (
     Request,
     GetFirmwareVersion,
@@ -187,10 +189,16 @@ class Configuration:
                         # Handle edge cases caused by lack of formulas and differently named coefficients in Enlight
                         if constant_name == "K":  # beta is sometimes called K
                             constant_name = "beta"
-                        elif constant_name == "CTEt":  # CTEt is in units 10^-6/C in Enlight
+                        elif (
+                            constant_name == "CTEt"
+                        ):  # CTEt is in units 10^-6/C in Enlight
                             constant_value /= 1e6
                         elif constant_name == "St":  # Also record St in tmp sensor row
-                            sensor = session.query(package.metadata_table).filter(package.metadata_table.name == name).first()
+                            sensor = (
+                                session.query(package.metadata_table)
+                                .filter(package.metadata_table.name == name)
+                                .first()
+                            )
                             if sensor and sensor.type == "str":
                                 tmp_uid = sensor.corresponding_sensor
                                 session.query(package.metadata_table).filter(
@@ -421,14 +429,34 @@ class x55Client:
             len(buffer),
         )
 
+    async def set_live_status(self, live: bool):
+        status = {
+            "live": live,
+            "packages": self.configuration.packages,
+            "sampling_rate": self.effective_sampling_rate,
+        }
+        with open(os.path.join(ROOT_DIR, "status.json"), "w") as f:
+            json.dump(status, f)
+
     async def record(self):
         session = Session()
         sample_count = 0
 
+        self.set_live_status(True)
+        publisher = await asyncio.start_server(
+            lambda: None, host="localhost", port=49008
+        )
+
         async for response in self.stream():
             for table in self.configuration.mapping:
                 peaks = self.configuration.map(response.content, table)
+
+                # Store data in database
                 session.add(table(timestamp=response.timestamp, **peaks))
+
+                # Send data directly to subscribers
+                for socket in publisher.sockets:
+                    socket.sendall(json.dumps({table: peaks}).encode("ascii"))
 
             # Commit every 2 seconds
             sample_count += 1
@@ -438,3 +466,6 @@ class x55Client:
 
         session.commit()
         session.close()
+
+        publisher.close()
+        self.set_live_status(False)
