@@ -1097,4 +1097,3 @@ def test_get_basement_tmp_data_in_csv_format(client):
         response.content
         == b"timestamp,BA_FBG_NN01_Tmp_wal05,BA_FBG_NN01_Tmp_wal06,BA_FBG_SS01_Tmp_wal06,BA_FBG_SS01_Tmp_wal05,BA_FBG_WW01_Tmp_wal05,BA_FBG_WW01_Tmp_wal06,BA_FBG_EE01_Tmp_wal05,BA_FBG_EE01_Tmp_wal06,BA_FBG_WW01_Tmp_thk05,BA_FBG_WW01_Tmp_thk06,BA_FBG_EE01_Tmp_thk05,BA_FBG_EE01_Tmp_thk06,BA_FBG_SS01_Tmp_thk05,BA_FBG_SS01_Tmp_thk06,BA_FBG_EW01_Tmp_bot03,BA_FBG_EW01_Tmp_top01,BA_FBG_EW01_Tmp_top02,BA_FBG_EW01_Tmp_top03\r\n2020-02-01 12:00:00,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75\r\n"
     )
-

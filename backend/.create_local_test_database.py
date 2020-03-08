@@ -81,4 +81,3 @@ with open(
 
 session.commit()
 session.close()
-
