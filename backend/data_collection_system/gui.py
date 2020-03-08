@@ -199,6 +199,17 @@ class Gui(wx.Frame):
         # Add tooltips
         self.connect.SetToolTip("Connect/disconnect to the specified host and port")
         self.stream.SetToolTip("Start/stop streaming data from specified analyser")
+        self.configuration.SetToolTip(
+            "Uploads and extracts sensor metadata from a .moi Enlight configuration file"
+        )
+        self.host.SetToolTip("Set the host name of the instrument")
+        self.setup.SetToolTip(
+            "Select the current package(s) that are connected to the instrument"
+        )
+        self.laser_scan_speed_choice.SetToolTip(
+            "Set the laser scan speed of the instrument"
+        )
+        self.divider.SetToolTip("Set the data rate divider of the instrument")
 
     def on_menu(self, event):
         """Handle the event when the user selects a menu item."""
