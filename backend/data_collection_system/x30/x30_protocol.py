@@ -463,4 +463,3 @@ class DATA(Response):
             "channel_3_peaks": channel_3_peaks,
             "channel_4_peaks": channel_4_peaks,
         }
-

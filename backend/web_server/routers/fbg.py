@@ -1,11 +1,14 @@
 import io
 import csv
+import json
+import asyncio
 from enum import Enum
 from datetime import datetime
 from typing import List
 
 from fastapi import APIRouter, Depends, Query, Header, HTTPException
 from starlette.responses import StreamingResponse
+from starlette.websockets import WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
@@ -13,7 +16,7 @@ from sqlalchemy.sql import func
 from .. import Package, Packages
 from ..dependencies import get_db
 from ..calculations.fbg import Calculations
-from ..schemas.fbg import DataType, Schemas
+from ..schemas.fbg import DataType, Schemas, Status
 
 router = APIRouter()
 
@@ -335,3 +338,37 @@ def get_steel_frame_tmp_data(
     Fetch temperature FBG sensor data from the steel frame for a particular time period.
     """
     return formatter(data)
+
+
+@router.get(
+    "/live-status/", response_model=Status,
+)
+def get_live_status():
+    """
+    Fetch the status of the data collection system.
+    """
+    with open("/var/status.json") as f:
+        status = json.load(f)
+
+    return status
+
+
+@router.websocket("/live-data/")
+async def websocket_endpoint(websocket: WebSocket):
+    """
+    Open a websocket to fetch live data.
+    """
+    await websocket.accept()
+    try:
+        reader, writer = await asyncio.wait_for(
+            asyncio.open_connection(host="127.0.0.1", port=49008), 2
+        )
+    except asyncio.TimeoutError:
+        await websocket.close(code=1011)
+
+    try:
+        while True:
+            data = await reader.read()
+            await websocket.send_bytes(data)
+    except WebSocketDisconnect:
+        writer.close()
