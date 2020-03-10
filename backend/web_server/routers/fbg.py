@@ -1,6 +1,7 @@
 import io
 import csv
 import pickle
+import json
 from enum import Enum
 from datetime import datetime
 from typing import List
@@ -379,7 +380,7 @@ async def websocket_endpoint(
                 response[package.values_table.__name__] = (
                     Schemas[package][DataType.raw].from_orm(row).dict()
                 )
-            await websocket.send_bytes(response)
-            await sleep(2)  # Data is stored to the database every 2s
+            await websocket.send_json(json.dumps(response))
+            await sleep(2)  # New data is stored to the database every 2s
     except WebSocketDisconnect:
         websocket.close()
