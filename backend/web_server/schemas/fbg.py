@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel, create_model
 from sqlalchemy.inspection import inspect
@@ -16,7 +16,7 @@ class DataType(str, Enum):
 
 class Status(BaseModel):
     live: bool
-    packages: str
+    packages: List[str]
     sampling_rate: int
 
 

@@ -1,10 +1,10 @@
 import io
 import csv
-import json
-import asyncio
+import pickle
 from enum import Enum
 from datetime import datetime
 from typing import List
+from asyncio import sleep
 
 from fastapi import APIRouter, Depends, Query, Header, HTTPException
 from starlette.responses import StreamingResponse
@@ -347,28 +347,39 @@ def get_live_status():
     """
     Fetch the status of the data collection system.
     """
-    with open("/var/status.json") as f:
-        status = json.load(f)
+    with open("/var/status.pickle") as f:
+        status = pickle.load(f)
+
+    status["packages"] = [p.values_table.__name__ for p in status["packages"]]
 
     return status
 
 
 @router.websocket("/live-data/")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(
+    websocket: WebSocket, session: Session = Depends(get_db),
+):
     """
     Open a websocket to fetch live data.
     """
     await websocket.accept()
-    try:
-        reader, writer = await asyncio.wait_for(
-            asyncio.open_connection(host="127.0.0.1", port=49008), 2
-        )
-    except asyncio.TimeoutError:
-        await websocket.close(code=1011)
+
+    with open("/var/status.pickle") as f:
+        status = pickle.load(f)
 
     try:
         while True:
-            data = await reader.read()
-            await websocket.send_bytes(data)
+            response = {}
+            for package in status["packages"]:
+                row = (
+                    session.query(package.values_table)
+                    .order_by(package.values_table.timestamp.desc())
+                    .first()
+                )
+                response[package.values_table.__name__] = (
+                    Schemas[package][DataType.raw].from_orm(row).dict()
+                )
+            await websocket.send_bytes(response)
+            await sleep(2)  # Data is stored to the database every 2s
     except WebSocketDisconnect:
-        writer.close()
+        websocket.close()

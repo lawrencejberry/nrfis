@@ -2,7 +2,7 @@ import asyncio
 import re
 import xml.etree.ElementTree as ET
 import string
-import json
+import pickle
 import os
 from itertools import count
 from struct import unpack
@@ -432,20 +432,17 @@ class x55Client:
     def set_live_status(self, live: bool):
         status = {
             "live": live,
-            "setup": str(self.configuration.setup),
+            "packages": self.configuration.packages,
             "sampling_rate": self.effective_sampling_rate,
         }
-        with open(os.path.join(ROOT_DIR, "status.json"), "w") as f:
-            json.dump(status, f)
+        with open(os.path.join(ROOT_DIR, "status.pickle"), "wb") as f:
+            pickle.dump(status, f)
 
     async def record(self):
         session = Session()
         sample_count = 0
 
         self.set_live_status(True)
-        publisher = await asyncio.start_server(
-            lambda: None, host="localhost", port=49008
-        )
 
         async for response in self.stream():
             for table in self.configuration.mapping:
@@ -453,10 +450,6 @@ class x55Client:
 
                 # Store data in database
                 session.add(table(timestamp=response.timestamp, **peaks))
-
-                # Send data directly to subscribers
-                for socket in publisher.sockets:
-                    socket.sendall(json.dumps({table.__name__: peaks}).encode("ascii"))
 
             # Commit every 2 seconds
             sample_count += 1
@@ -467,5 +460,4 @@ class x55Client:
         session.commit()
         session.close()
 
-        publisher.close()
         self.set_live_status(False)
