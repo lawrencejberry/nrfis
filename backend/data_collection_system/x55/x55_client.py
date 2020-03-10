@@ -2,7 +2,7 @@ import asyncio
 import re
 import xml.etree.ElementTree as ET
 import string
-import json
+import pickle
 import os
 from itertools import count
 from struct import unpack
@@ -432,11 +432,11 @@ class x55Client:
     def set_live_status(self, live: bool):
         status = {
             "live": live,
-            "setup": str(self.configuration.setup),
+            "packages": self.configuration.packages,
             "sampling_rate": self.effective_sampling_rate,
         }
-        with open(os.path.join(ROOT_DIR, "status.json"), "w") as f:
-            json.dump(status, f)
+        with open(os.path.join(ROOT_DIR, "status.pickle"), "wb") as f:
+            pickle.dump(status, f)
 
     async def record(self):
         session = Session()

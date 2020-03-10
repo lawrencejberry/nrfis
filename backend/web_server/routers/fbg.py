@@ -1,7 +1,6 @@
 import io
 import csv
-import json
-import asyncio
+import pickle
 from enum import Enum
 from datetime import datetime
 from typing import List
@@ -347,8 +346,10 @@ def get_live_status():
     """
     Fetch the status of the data collection system.
     """
-    with open("/var/status.json") as f:
-        status = json.load(f)
+    with open("/var/status.pickle") as f:
+        status = pickle.load(f)
+
+    status["packages"] = [p.values_table.__name__ for p in status["packages"]]
 
     return status
 
