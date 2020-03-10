@@ -358,17 +358,20 @@ async def websocket_endpoint(websocket: WebSocket):
     """
     Open a websocket to fetch live data.
     """
-    await websocket.accept()
-    try:
-        reader, writer = await asyncio.wait_for(
-            asyncio.open_connection(host="127.0.0.1", port=49008), 2
-        )
-    except asyncio.TimeoutError:
-        await websocket.close(code=1011)
+    # await websocket.accept()
 
-    try:
-        while True:
-            data = await reader.read()
-            await websocket.send_bytes(data)
-    except WebSocketDisconnect:
-        writer.close()
+    # try:
+    #     reader, writer = await asyncio.wait_for(
+    #         asyncio.open_connection(host="127.0.0.1", port=49008), 2
+    #     )
+    # except asyncio.TimeoutError:
+    #     await websocket.close(code=1011)
+
+    # try:
+    #     while True:
+    #         data = await reader.readuntil()
+    #         await websocket.send_bytes(data)
+    # except asyncio.IncompleteReadError:
+    #     websocket.close()
+    # except WebSocketDisconnect:
+    #     writer.write(b"CLOSE\n")

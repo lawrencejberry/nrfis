@@ -443,9 +443,6 @@ class x55Client:
         sample_count = 0
 
         self.set_live_status(True)
-        publisher = await asyncio.start_server(
-            lambda: None, host="localhost", port=49008
-        )
 
         async for response in self.stream():
             for table in self.configuration.mapping:
@@ -453,10 +450,6 @@ class x55Client:
 
                 # Store data in database
                 session.add(table(timestamp=response.timestamp, **peaks))
-
-                # Send data directly to subscribers
-                for socket in publisher.sockets:
-                    socket.sendall(json.dumps({table.__name__: peaks}).encode("ascii"))
 
             # Commit every 2 seconds
             sample_count += 1
@@ -467,5 +460,4 @@ class x55Client:
         session.commit()
         session.close()
 
-        publisher.close()
         self.set_live_status(False)
