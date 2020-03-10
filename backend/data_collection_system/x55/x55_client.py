@@ -429,10 +429,10 @@ class x55Client:
             len(buffer),
         )
 
-    async def set_live_status(self, live: bool):
+    def set_live_status(self, live: bool):
         status = {
             "live": live,
-            "packages": self.configuration.packages,
+            "setup": str(self.configuration.setup),
             "sampling_rate": self.effective_sampling_rate,
         }
         with open(os.path.join(ROOT_DIR, "status.json"), "w") as f:
@@ -456,7 +456,7 @@ class x55Client:
 
                 # Send data directly to subscribers
                 for socket in publisher.sockets:
-                    socket.sendall(json.dumps({table: peaks}).encode("ascii"))
+                    socket.sendall(json.dumps({table.__name__: peaks}).encode("ascii"))
 
             # Commit every 2 seconds
             sample_count += 1

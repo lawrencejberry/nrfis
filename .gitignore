@@ -114,3 +114,6 @@ logs/
 
 # Expo
 .expo
+
+# Server files
+status.json
