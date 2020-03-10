@@ -8,8 +8,10 @@ from typing import List
 from asyncio import sleep
 
 from fastapi import APIRouter, Depends, Query, Header, HTTPException
+from fastapi.encoders import jsonable_encoder
 from starlette.responses import StreamingResponse
-from starlette.websockets import WebSocket, WebSocketDisconnect
+from starlette.websockets import WebSocket
+from websockets.exceptions import ConnectionClosedError
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
@@ -365,7 +367,7 @@ async def websocket_endpoint(
     """
     await websocket.accept()
 
-    with open("/var/status.pickle") as f:
+    with open("/var/status.pickle", "rb") as f:
         status = pickle.load(f)
 
     try:
@@ -377,10 +379,19 @@ async def websocket_endpoint(
                     .order_by(package.values_table.timestamp.desc())
                     .first()
                 )
-                response[package.values_table.__name__] = (
-                    Schemas[package][DataType.raw].from_orm(row).dict()
-                )
-            await websocket.send_json(json.dumps(response))
+                if package.values_table.__name__=="SteelFrame":
+                    response[package.values_table.__name__] = (
+                        Schemas[Packages.steel_frame][DataType.raw].from_orm(row).dict()
+                    )
+                elif package.values_table.__name__=="Basement":
+                    response[package.values_table.__name__] = (
+                        Schemas[Packages.basement][DataType.raw].from_orm(row).dict()
+                    )
+                elif package.values_table.__name__=="StrongFloor":
+                    response[package.values_table.__name__] = (
+                        Schemas[Packages.strong_floor][DataType.raw].from_orm(row).dict()
+                    )
+            await websocket.send_json(jsonable_encoder(response))
             await sleep(2)  # New data is stored to the database every 2s
-    except WebSocketDisconnect:
-        websocket.close()
+    except ConnectionClosedError:
+        await websocket.close(code=1000)
