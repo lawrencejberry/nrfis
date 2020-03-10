@@ -115,5 +115,5 @@ logs/
 # Expo
 .expo
 
-# Server files
-status.json
+# Temporary files
+var/

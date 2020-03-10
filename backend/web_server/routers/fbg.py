@@ -348,7 +348,7 @@ def get_live_status():
     """
     Fetch the status of the data collection system.
     """
-    with open("/var/status.pickle") as f:
+    with open("/var/status.pickle", "rb") as f:
         status = pickle.load(f)
 
     status["packages"] = [p.values_table.__name__ for p in status["packages"]]

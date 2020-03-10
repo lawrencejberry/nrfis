@@ -20,9 +20,10 @@ pip install -r backend/requirements.txt -f https://extras.wxpython.org/wxPython4
 ### To run in development and production:
 
 ```
+export PYTHONPATH=`pwd`/backend
 export DATABASE_URL=postgresql+psycopg2://postgres:fourth-year@localhost/nrfisdb
 source venv/bin/activate  # Activate virtual environment
-python -m backend.data_collection_system
+python -m data_collection_system
 ```
 
 To run against a local test database substitute in your own `DATABASE_URL`. This environment variable can also be set automatically by placing it in your bash profile e.g. `~.profile`.
@@ -59,7 +60,7 @@ To run against a local test database substitute in your own `DATABASE_URL`. This
 ### To run in production:
 
 ```
-sudo docker run -d --name web_server_container -p 80:80 --restart always --network="host" -v ~/nrfis/backend/data_collection_system:/var --env DATABASE_URL=postgresql+psycopg2://postgres:fourth-year@127.0.0.1/nrfisdb web_server_image
+sudo docker run -d --name web_server_container -p 80:80 --restart always --network="host" -v ~/nrfis/backend/data_collection_system/var:/var --env DATABASE_URL=postgresql+psycopg2://postgres:fourth-year@127.0.0.1/nrfisdb web_server_image
 ```
 
 ### To run tests locally:

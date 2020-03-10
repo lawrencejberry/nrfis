@@ -435,7 +435,7 @@ class x55Client:
             "packages": self.configuration.packages,
             "sampling_rate": self.effective_sampling_rate,
         }
-        with open(os.path.join(ROOT_DIR, "status.pickle"), "wb") as f:
+        with open(os.path.join(ROOT_DIR, "var/status.pickle"), "wb") as f:
             pickle.dump(status, f)
 
     async def record(self):
