@@ -51,9 +51,9 @@ def _fields(p, d):
 Schemas = {}
 
 for package in (Packages.basement, Packages.strong_floor, Packages.steel_frame):
-    Schemas[package] = {
+    Schemas[str(package)] = {
         data_type: create_model(
-            f"{package.values_table.__name__}:{data_type}",
+            f"{str(package)}:{data_type}",
             **_fields(package, data_type),
             __base__=Response,
         )

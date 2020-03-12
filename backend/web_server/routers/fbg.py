@@ -1,7 +1,6 @@
 import io
 import csv
 import pickle
-import json
 from enum import Enum
 from datetime import datetime
 from typing import List
@@ -154,7 +153,7 @@ class ResponseFormatter:
 
 @router.get(
     "/basement/raw/",
-    response_model=List[Schemas[Packages.basement][DataType.raw]],
+    response_model=List[Schemas["Basement"][DataType.raw]],
     responses={
         200: {
             "description": "Return data in JSON or CSV format.",
@@ -164,18 +163,17 @@ class ResponseFormatter:
 )
 def get_basement_raw_data(
     data=Depends(DataCollector(Packages.basement, DataType.raw)),
-    formatter=Depends(ResponseFormatter(Schemas[Packages.basement][DataType.raw])),
+    formatter=Depends(ResponseFormatter(Schemas["Basement"][DataType.raw])),
 ):
     """
     Fetch raw FBG sensor data from the basement raft and perimeter walls for a particular time period.
     """
-    print(Schemas[Packages.basement][DataType.raw])
     return formatter(data)
 
 
 @router.get(
     "/basement/str/",
-    response_model=List[Schemas[Packages.basement][DataType.strain]],
+    response_model=List[Schemas["Basement"][DataType.strain]],
     responses={
         200: {
             "description": "Return data in JSON or CSV format.",
@@ -185,7 +183,7 @@ def get_basement_raw_data(
 )
 def get_basement_str_data(
     data=Depends(DataCollector(Packages.basement, DataType.strain)),
-    formatter=Depends(ResponseFormatter(Schemas[Packages.basement][DataType.strain])),
+    formatter=Depends(ResponseFormatter(Schemas["Basement"][DataType.strain])),
 ):
     """
     Fetch strain FBG sensor data from the basement raft and perimeter walls for a particular time period.
@@ -195,7 +193,7 @@ def get_basement_str_data(
 
 @router.get(
     "/basement/tmp/",
-    response_model=List[Schemas[Packages.basement][DataType.temperature]],
+    response_model=List[Schemas["Basement"][DataType.temperature]],
     responses={
         200: {
             "description": "Return data in JSON or CSV format.",
@@ -205,9 +203,7 @@ def get_basement_str_data(
 )
 def get_basement_tmp_data(
     data=Depends(DataCollector(Packages.basement, DataType.temperature)),
-    formatter=Depends(
-        ResponseFormatter(Schemas[Packages.basement][DataType.temperature])
-    ),
+    formatter=Depends(ResponseFormatter(Schemas["Basement"][DataType.temperature])),
 ):
     """
     Fetch temperature FBG sensor data from the basement raft and perimeter walls for a particular time period.
@@ -217,7 +213,7 @@ def get_basement_tmp_data(
 
 @router.get(
     "/strong-floor/raw/",
-    response_model=List[Schemas[Packages.strong_floor][DataType.raw]],
+    response_model=List[Schemas["StrongFloor"][DataType.raw]],
     responses={
         200: {
             "description": "Return data in JSON or CSV format.",
@@ -227,7 +223,7 @@ def get_basement_tmp_data(
 )
 def get_strong_floor_raw_data(
     data=Depends(DataCollector(Packages.strong_floor, DataType.raw)),
-    formatter=Depends(ResponseFormatter(Schemas[Packages.strong_floor][DataType.raw])),
+    formatter=Depends(ResponseFormatter(Schemas["StrongFloor"][DataType.raw])),
 ):
     """
     Fetch raw FBG sensor data from the strong floor for a particular time period.
@@ -237,7 +233,7 @@ def get_strong_floor_raw_data(
 
 @router.get(
     "/strong-floor/str/",
-    response_model=List[Schemas[Packages.strong_floor][DataType.strain]],
+    response_model=List[Schemas["StrongFloor"][DataType.strain]],
     responses={
         200: {
             "description": "Return data in JSON or CSV format.",
@@ -247,9 +243,7 @@ def get_strong_floor_raw_data(
 )
 def get_strong_floor_str_data(
     data=Depends(DataCollector(Packages.strong_floor, DataType.strain)),
-    formatter=Depends(
-        ResponseFormatter(Schemas[Packages.strong_floor][DataType.strain])
-    ),
+    formatter=Depends(ResponseFormatter(Schemas["StrongFloor"][DataType.strain])),
 ):
     """
     Fetch strain FBG sensor data from the strong floor for a particular time period.
@@ -259,7 +253,7 @@ def get_strong_floor_str_data(
 
 @router.get(
     "/strong-floor/tmp/",
-    response_model=List[Schemas[Packages.strong_floor][DataType.temperature]],
+    response_model=List[Schemas["StrongFloor"][DataType.temperature]],
     responses={
         200: {
             "description": "Return data in JSON or CSV format.",
@@ -269,9 +263,7 @@ def get_strong_floor_str_data(
 )
 def get_strong_floor_tmp_data(
     data=Depends(DataCollector(Packages.strong_floor, DataType.temperature)),
-    formatter=Depends(
-        ResponseFormatter(Schemas[Packages.strong_floor][DataType.temperature])
-    ),
+    formatter=Depends(ResponseFormatter(Schemas["StrongFloor"][DataType.temperature])),
 ):
     """
     Fetch temperature FBG sensor data from the strong floor for a particular time period.
@@ -281,7 +273,7 @@ def get_strong_floor_tmp_data(
 
 @router.get(
     "/steel-frame/raw/",
-    response_model=List[Schemas[Packages.steel_frame][DataType.raw]],
+    response_model=List[Schemas["SteelFrame"][DataType.raw]],
     responses={
         200: {
             "description": "Return data in JSON or CSV format.",
@@ -291,7 +283,7 @@ def get_strong_floor_tmp_data(
 )
 def get_steel_frame_raw_data(
     data=Depends(DataCollector(Packages.steel_frame, DataType.raw)),
-    formatter=Depends(ResponseFormatter(Schemas[Packages.steel_frame][DataType.raw])),
+    formatter=Depends(ResponseFormatter(Schemas["SteelFrame"][DataType.raw])),
 ):
     """
     Fetch raw FBG sensor data from the steel frame for a particular time period.
@@ -301,7 +293,7 @@ def get_steel_frame_raw_data(
 
 @router.get(
     "/steel-frame/str/",
-    response_model=List[Schemas[Packages.steel_frame][DataType.strain]],
+    response_model=List[Schemas["SteelFrame"][DataType.strain]],
     responses={
         200: {
             "description": "Return data in JSON or CSV format.",
@@ -311,9 +303,7 @@ def get_steel_frame_raw_data(
 )
 def get_steel_frame_str_data(
     data=Depends(DataCollector(Packages.steel_frame, DataType.strain)),
-    formatter=Depends(
-        ResponseFormatter(Schemas[Packages.steel_frame][DataType.strain])
-    ),
+    formatter=Depends(ResponseFormatter(Schemas["SteelFrame"][DataType.strain])),
 ):
     """
     Fetch strain FBG sensor data from the steel frame for a particular time period.
@@ -323,7 +313,7 @@ def get_steel_frame_str_data(
 
 @router.get(
     "/steel-frame/tmp/",
-    response_model=List[Schemas[Packages.steel_frame][DataType.temperature]],
+    response_model=List[Schemas["SteelFrame"][DataType.temperature]],
     responses={
         200: {
             "description": "Return data in JSON or CSV format.",
@@ -333,9 +323,7 @@ def get_steel_frame_str_data(
 )
 def get_steel_frame_tmp_data(
     data=Depends(DataCollector(Packages.steel_frame, DataType.temperature)),
-    formatter=Depends(
-        ResponseFormatter(Schemas[Packages.steel_frame][DataType.temperature])
-    ),
+    formatter=Depends(ResponseFormatter(Schemas["SteelFrame"][DataType.temperature])),
 ):
     """
     Fetch temperature FBG sensor data from the steel frame for a particular time period.
@@ -353,7 +341,7 @@ def get_live_status():
     with open("/var/status.pickle", "rb") as f:
         status = pickle.load(f)
 
-    status["packages"] = [p.values_table.__name__ for p in status["packages"]]
+    status["packages"] = [str(package) for package in status["packages"]]
 
     return status
 
@@ -379,18 +367,9 @@ async def websocket_endpoint(
                     .order_by(package.values_table.timestamp.desc())
                     .first()
                 )
-                if package.values_table.__name__=="SteelFrame":
-                    response[package.values_table.__name__] = (
-                        Schemas[Packages.steel_frame][DataType.raw].from_orm(row).dict()
-                    )
-                elif package.values_table.__name__=="Basement":
-                    response[package.values_table.__name__] = (
-                        Schemas[Packages.basement][DataType.raw].from_orm(row).dict()
-                    )
-                elif package.values_table.__name__=="StrongFloor":
-                    response[package.values_table.__name__] = (
-                        Schemas[Packages.strong_floor][DataType.raw].from_orm(row).dict()
-                    )
+                response[str(package)] = (
+                    Schemas[str(package)][DataType.raw].from_orm(row).dict()
+                )
             await websocket.send_json(jsonable_encoder(response))
             await sleep(2)  # New data is stored to the database every 2s
     except ConnectionClosedError:

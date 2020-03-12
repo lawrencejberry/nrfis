@@ -26,6 +26,9 @@ class Package:
         self.values_table = values_table
         self.metadata_table = metadata_table
 
+    def __str__(self):
+        return self.values_table.__name__
+
 
 class Packages:
     basement = Package(Basement, BasementMetadata)
