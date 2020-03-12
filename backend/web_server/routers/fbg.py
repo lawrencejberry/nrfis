@@ -359,6 +359,7 @@ async def websocket_endpoint(
         status = pickle.load(f)
 
     try:
+        previous_timestamp = None
         while True:
             response = {}
             for package in status["packages"]:
@@ -370,7 +371,15 @@ async def websocket_endpoint(
                 response[str(package)] = (
                     Schemas[str(package)][DataType.raw].from_orm(row).dict()
                 )
-            await websocket.send_json(jsonable_encoder(response))
-            await sleep(2)  # New data is stored to the database every 2s
+                current_timestamp = row.timestamp
+
+            if current_timestamp != previous_timestamp:
+                await websocket.send_json(jsonable_encoder(response))
+
+            previous_timestamp = current_timestamp
+
+            # Wait for the next sample to be written to the database
+            await sleep(1.0 / status["sampling_rate"])
+
     except ConnectionClosedError:
         await websocket.close(code=1000)
