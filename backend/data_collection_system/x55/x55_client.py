@@ -446,7 +446,7 @@ class x55Client:
     def database_writer(self):
         session = Session()
 
-        while self.recording:
+        while self.recording or not self.queue.empty():
             try:
                 row = self.queue.get(block=True, timeout=0.1)
             except queue.Empty:
