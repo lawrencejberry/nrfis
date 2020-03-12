@@ -4,6 +4,8 @@ import xml.etree.ElementTree as ET
 import string
 import pickle
 import os
+import threading
+import queue
 from itertools import count
 from struct import unpack
 from enum import IntEnum
@@ -298,6 +300,9 @@ class x55Client:
         # Configuration setting
         self.configuration = Configuration()
 
+        # Database writing queue
+        self.queue = queue.SimpleQueue()
+
     @property
     def effective_sampling_rate(self):
         if (self.laser_scan_speed and self.peak_data_streaming_divider) is None:
@@ -438,26 +443,36 @@ class x55Client:
         with open(os.path.join(ROOT_DIR, "var/status.pickle"), "wb") as f:
             pickle.dump(status, f)
 
-    async def record(self):
+    def database_writer(self):
         session = Session()
-        sample_count = 0
 
+        while self.recording:
+            try:
+                row = self.queue.get(block=True, timeout=0.1)
+            except queue.Empty:
+                continue
+
+            session.add(row)
+            session.commit()
+
+        session.close()
+
+    async def record(self):
         self.set_live_status(True)
+
+        writer_thread = threading.Thread(target=self.database_writer)
+        writer_thread.start()
+        self.recording = True
 
         async for response in self.stream():
             for table in self.configuration.mapping:
                 peaks = self.configuration.map(response.content, table)
 
-                # Store data in database
-                session.add(table(timestamp=response.timestamp, **peaks))
+                # Send row to the database writer thread
+                self.queue.put(table(timestamp=response.timestamp, **peaks))
 
-            # Commit every 2 seconds
-            sample_count += 1
-            if sample_count > (2 * self.effective_sampling_rate):
-                session.commit()
-                sample_count = 0
-
-        session.commit()
-        session.close()
+        # Toggle recording off and then wait for thread to finish
+        self.recording = False
+        writer_thread.join()
 
         self.set_live_status(False)
