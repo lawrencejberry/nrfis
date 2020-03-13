@@ -421,6 +421,7 @@ async def websocket_endpoint(
 
             # Wait for the next sample to be written to the database
             await sleep(1.0 / rate)
-
+    except HTTPException as e:
+        await websocket.send_text(f"Exception occured: {e.detail}")
     except ConnectionClosedError:
         await websocket.close(code=1000)
