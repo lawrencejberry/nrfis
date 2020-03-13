@@ -358,6 +358,10 @@ async def websocket_endpoint(
     with open("/var/status.pickle", "rb") as f:
         status = pickle.load(f)
 
+    # Live data is sent at a maximum rate of 10Hz, which is the COMMIT rate
+    # of the data collection system
+    rate = status["sampling_rate"] if status["sampling_rate"] < 10 else 10
+
     try:
         previous_timestamp = None
         while True:
@@ -379,7 +383,7 @@ async def websocket_endpoint(
             previous_timestamp = current_timestamp
 
             # Wait for the next sample to be written to the database
-            await sleep(1.0 / status["sampling_rate"])
+            await sleep(1.0 / rate)
 
     except ConnectionClosedError:
         await websocket.close(code=1000)
