@@ -34,5 +34,5 @@ logger.addHandler(consoleHandler)
 DATABASE_URL = os.getenv(
     "DATABASE_URL", "sqlite:///./backend/data_collection_system/tests/.test.db"
 )
-db = create_engine(DATABASE_URL, echo=False)
+db = create_engine(DATABASE_URL, echo=False, executemany_mode="batch")
 Session = sessionmaker(db)
