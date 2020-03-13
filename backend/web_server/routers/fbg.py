@@ -348,7 +348,13 @@ def get_live_status():
 
 @router.websocket("/live-data/")
 async def websocket_endpoint(
-    websocket: WebSocket, session: Session = Depends(get_db),
+    websocket: WebSocket,
+    session: Session = Depends(get_db),
+    data_type: DataType = Query(
+        DataType.raw,
+        alias="data-type",
+        description="Select the data type of the response.",
+    ),
 ):
     """
     Open a websocket to fetch live data.
@@ -362,19 +368,50 @@ async def websocket_endpoint(
     # of the data collection system
     rate = status["sampling_rate"] if status["sampling_rate"] < 10 else 10
 
+    if data_type != DataType.raw:
+        metadata = {}
+        selected_sensors = {}
+        for package in status["packages"]:
+            package_name = str(package)
+            metadata[package_name] = {
+                row.uid: row for row in session.query(package.metadata_table).all()
+            }
+
+            selected_sensors[package_name] = [
+                uid
+                for uid, sensor in metadata[package_name].items()
+                if sensor.type == data_type.value
+            ]
+
     try:
         previous_timestamp = None
         while True:
             response = {}
             for package in status["packages"]:
+                package_name = str(package)
                 row = (
                     session.query(package.values_table)
                     .order_by(package.values_table.timestamp.desc())
                     .first()
                 )
-                response[str(package)] = (
-                    Schemas[str(package)][DataType.raw].from_orm(row).dict()
-                )
+                if data_type == DataType.raw:
+                    response[package_name] = (
+                        Schemas[package_name][DataType.raw].from_orm(row).dict()
+                    )
+                else:
+                    data = {
+                        "timestamp": row.timestamp,
+                        **{
+                            (metadata[package_name][uid].name or uid): Calculations[
+                                package_name
+                            ][data_type](uid, row, metadata[package_name])
+                            for uid in selected_sensors[package_name]
+                        },
+                    }
+                    response[package_name] = Schemas[package_name][DataType.raw](
+                        **data
+                    ).dict()
+
                 current_timestamp = row.timestamp
 
             if current_timestamp != previous_timestamp:
