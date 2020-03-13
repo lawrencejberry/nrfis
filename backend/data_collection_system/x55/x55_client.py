@@ -12,6 +12,7 @@ from enum import IntEnum
 from typing import List
 from ipaddress import IPv4Address
 from datetime import datetime
+from collections import defaultdict
 
 from .. import logger, Session, Base, Packages, ROOT_DIR
 from .x55_protocol import (
@@ -301,7 +302,7 @@ class x55Client:
         self.configuration = Configuration()
 
         # Database writing queue
-        self.queue = queue.SimpleQueue()
+        self.queues = defaultdict(queue.SimpleQueue)
 
     @property
     def effective_sampling_rate(self):
@@ -443,36 +444,52 @@ class x55Client:
         with open(os.path.join(ROOT_DIR, "var/status.pickle"), "wb") as f:
             pickle.dump(status, f)
 
-    def database_writer(self):
+    def database_writer(self, q):
         session = Session()
 
-        while self.recording or not self.queue.empty():
+        rows = []
+
+        while self.recording or not q.empty():
             try:
-                row = self.queue.get(block=True, timeout=0.1)
+                rows.append(q.get(block=True, timeout=0.1))
             except queue.Empty:
                 continue
 
-            session.add(row)
-            session.commit()
+            # Bulk INSERT and COMMIT every 0.1s
+            if len(rows) > 0.1 * self.effective_sampling_rate:
+                session.bulk_save_objects(rows)
+                session.commit()
+                rows = []
 
+        session.bulk_save_objects(rows)
+        session.commit()
         session.close()
 
     async def record(self):
         self.set_live_status(True)
 
-        writer_thread = threading.Thread(target=self.database_writer)
-        writer_thread.start()
         self.recording = True
+        writer_threads = [
+            threading.Thread(target=self.database_writer, args=(self.queues[table],))
+            for table in self.configuration.mapping
+        ]
+        for writer_thread in writer_threads:
+            writer_thread.start()
+
+        logger.info("Started writer threads")
 
         async for response in self.stream():
             for table in self.configuration.mapping:
                 peaks = self.configuration.map(response.content, table)
 
                 # Send row to the database writer thread
-                self.queue.put(table(timestamp=response.timestamp, **peaks))
+                self.queues[table].put(table(timestamp=response.timestamp, **peaks))
 
         # Toggle recording off and then wait for thread to finish
         self.recording = False
-        writer_thread.join()
+        logger.info("Waiting for writer threads to join")
+        for writer_thread in writer_threads:
+            writer_thread.join()
+        logger.info("Writer threads joined")
 
         self.set_live_status(False)
