@@ -104,15 +104,15 @@ def FR_Temperature(uid, row, metadata):
 
 
 Calculations = {
-    Packages.basement: {
+    str(Packages.basement): {
         DataType.strain: BA_Strain,
         DataType.temperature: BA_Temperature,
     },
-    Packages.strong_floor: {
+    str(Packages.strong_floor): {
         DataType.strain: SF_Strain,
         DataType.temperature: SF_Temperature,
     },
-    Packages.steel_frame: {
+    str(Packages.steel_frame): {
         DataType.strain: FR_Strain,
         DataType.temperature: FR_Temperature,
     },

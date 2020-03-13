@@ -113,7 +113,7 @@ class DataCollector:
             {
                 "timestamp": row.timestamp,
                 **{
-                    (metadata[uid].name or uid): Calculations[self.package][
+                    (metadata[uid].name or uid): Calculations[str(self.package)][
                         self.data_type
                     ](uid, row, metadata)
                     for uid in selected_sensors
