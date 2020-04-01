@@ -1,8 +1,8 @@
 # National Research Facility for Infrastructure Sensing - Information System
 
-![](https://github.com/lawrence-b/nrfis/workflows/Data%20Collection%20System/badge.svg)
-![](https://github.com/lawrence-b/nrfis/workflows/Web%20Server/badge.svg)
-[![codecov](https://codecov.io/gh/lawrence-b/nrfis/branch/master/graph/badge.svg?token=yzF2kxTgQs)](https://codecov.io/gh/lawrence-b/nrfis)
+![](https://github.com/lawjb/nrfis/workflows/Data%20Collection%20System/badge.svg)
+![](https://github.com/lawjb/nrfis/workflows/Web%20Server/badge.svg)
+[![codecov](https://codecov.io/gh/lawjb/nrfis/branch/master/graph/badge.svg?token=yzF2kxTgQs)](https://codecov.io/gh/lawjb/nrfis)
 
 ## Data Collection System
 
@@ -21,10 +21,12 @@ pip install -r backend/requirements.txt -f https://extras.wxpython.org/wxPython4
 
 ```
 export PYTHONPATH=`pwd`/backend
-export DATABASE_URL=postgresql+psycopg2://postgres:fourth-year@localhost/nrfisdb
+export DATABASE_URL=postgresql+psycopg2://postgres:<password>@localhost/nrfisdb
 source venv/bin/activate  # Activate virtual environment
 python -m data_collection_system
 ```
+
+Substitute in the database password, currently known to Lawrence Berry and Paul Fidler.
 
 To run against a local test database substitute in your own `DATABASE_URL`. This environment variable can also be set automatically by placing it in your bash profile e.g. `~.profile`.
 
@@ -50,18 +52,22 @@ sudo docker build -t web_server_image -f backend/web_server/Dockerfile ./backend
 ### To run in development:
 
 ```
-export DATABASE_URL=postgresql+psycopg2://postgres:fourth-year@127.0.0.1/nrfisdb
+export DATABASE_URL=postgresql+psycopg2://postgres:<password>@127.0.0.1/nrfisdb
 cd backend
 uvicorn web_server.main:app --reload
 ```
+
+Substitute in the database password, currently known to Lawrence Berry and Paul Fidler.
 
 To run against a local test database substitute in your own `DATABASE_URL`. This environment variable can also be set automatically by placing it in your bash profile e.g. `~.profile`.
 
 ### To run in production:
 
 ```
-sudo docker run -d --name web_server_container -p 80:80 --restart always --network="host" -v ~/nrfis/backend/data_collection_system/var:/var --env DATABASE_URL=postgresql+psycopg2://postgres:fourth-year@127.0.0.1/nrfisdb web_server_image
+sudo docker run -d --name web_server_container -p 80:80 --restart always --network="host" -v ~/nrfis/backend/data_collection_system/var:/var --env DATABASE_URL=postgresql+psycopg2://postgres:<password>@127.0.0.1/nrfisdb web_server_image
 ```
+
+Substitute in the database password, currently known to Lawrence Berry and Paul Fidler.
 
 ### To run tests locally:
 
