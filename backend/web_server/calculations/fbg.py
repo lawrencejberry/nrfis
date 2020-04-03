@@ -4,6 +4,9 @@ from .. import Packages
 from ..schemas.fbg import DataType
 
 
+BASEMENT_WALL_TMP_SENSORS = ["C19", "C20", "D1", "D2", "E5", "E6", "F5", "F6"]
+
+
 def error_handler(func):
     def wrapper(*args, **kwargs):
         try:
@@ -37,6 +40,10 @@ def BA_Strain(uid, row, metadata):
 
 @error_handler
 def BA_Temperature(uid, row, metadata):
+    # Basement wall sensors follow the same temperature formula as the Strong Floor
+    if uid in BASEMENT_WALL_TMP_SENSORS:
+        return SF_Temperature(uid, row, metadata)
+
     Tmp_W = getattr(row, uid)
     Tmp_W0 = metadata[uid].initial_wavelength
     TS1 = metadata[uid].coeffs["TS1"]
