@@ -368,23 +368,10 @@ async def websocket_endpoint(
     # of the data collection system
     rate = status["sampling_rate"] if status["sampling_rate"] < 10 else 10
 
-    if data_type != DataType.raw:
-        metadata = {}
-        selected_sensors = {}
-        for package in status["packages"]:
-            package_name = str(package)
-            metadata[package_name] = {
-                row.uid: row for row in session.query(package.metadata_table).all()
-            }
-
-            selected_sensors[package_name] = [
-                uid
-                for uid, sensor in metadata[package_name].items()
-                if sensor.type == data_type.value
-            ]
-
     try:
         previous_timestamp = None
+        metadata = {}
+        selected_sensors = {}
         while True:
             response = {}
             for package in status["packages"]:
@@ -399,6 +386,15 @@ async def websocket_endpoint(
                         Schemas[package_name][DataType.raw].from_orm(row).dict()
                     )
                 else:
+                    metadata[package_name] = {
+                        row.uid: row
+                        for row in session.query(package.metadata_table).all()
+                    }
+                    selected_sensors[package_name] = [
+                        uid
+                        for uid, sensor in metadata[package_name].items()
+                        if sensor.type == data_type.value
+                    ]
                     data = {
                         "timestamp": row.timestamp,
                         **{
@@ -408,7 +404,7 @@ async def websocket_endpoint(
                             for uid in selected_sensors[package_name]
                         },
                     }
-                    response[package_name] = Schemas[package_name][DataType.raw](
+                    response[package_name] = Schemas[package_name][data_type](
                         **data
                     ).dict()
 
