@@ -4,7 +4,22 @@ from .. import Packages
 from ..schemas.fbg import DataType
 
 
-BASEMENT_WALL_TMP_SENSORS = ["C19", "C20", "D1", "D2", "E5", "E6", "F5", "F6"]
+BASEMENT_WALL_THK_TMP_SENSORS = [
+    "C19",
+    "C20",
+    "D1",
+    "D2",
+    "E5",
+    "E6",
+    "F5",
+    "F6",
+    "H5",
+    "H6",
+    "G5",
+    "G6",
+    "I5",
+    "I6",
+]
 
 
 def error_handler(func):
@@ -40,8 +55,8 @@ def BA_Strain(uid, row, metadata):
 
 @error_handler
 def BA_Temperature(uid, row, metadata):
-    # Basement wall sensors follow the same temperature formula as the Strong Floor
-    if uid in BASEMENT_WALL_TMP_SENSORS:
+    # Basement wall and thk sensors follow the same temperature formula as the Strong Floor
+    if uid in BASEMENT_WALL_THK_TMP_SENSORS:
         return SF_Temperature(uid, row, metadata)
 
     Tmp_W = getattr(row, uid)

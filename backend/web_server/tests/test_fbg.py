@@ -232,18 +232,18 @@ def test_get_basement_strain_data(client):
             "BA_FBG_EE01_Str_wal02": 0,
             "BA_FBG_EE01_Str_wal04": 0,
             "BA_FBG_EE01_Str_wal03": 0,
-            "BA_FBG_WW01_Str_thk01": 16002250000,
-            "BA_FBG_WW01_Str_thk02": 16002250000,
-            "BA_FBG_WW01_Str_thk04": 16002250000,
-            "BA_FBG_WW01_Str_thk03": 16002250000,
-            "BA_FBG_EE01_Str_thk01": 16002250000,
-            "BA_FBG_EE01_Str_thk02": 16002250000,
-            "BA_FBG_EE01_Str_thk04": 16002250000,
-            "BA_FBG_EE01_Str_thk03": 16002250000,
-            "BA_FBG_SS01_Str_thk01": 16002250000,
-            "BA_FBG_SS01_Str_thk02": 16002250000,
-            "BA_FBG_SS01_Str_thk04": 16002250000,
-            "BA_FBG_SS01_Str_thk03": 16002250000,
+            "BA_FBG_WW01_Str_thk01": 0,
+            "BA_FBG_WW01_Str_thk02": 0,
+            "BA_FBG_WW01_Str_thk04": 0,
+            "BA_FBG_WW01_Str_thk03": 0,
+            "BA_FBG_EE01_Str_thk01": 0,
+            "BA_FBG_EE01_Str_thk02": 0,
+            "BA_FBG_EE01_Str_thk04": 0,
+            "BA_FBG_EE01_Str_thk03": 0,
+            "BA_FBG_SS01_Str_thk01": 0,
+            "BA_FBG_SS01_Str_thk02": 0,
+            "BA_FBG_SS01_Str_thk04": 0,
+            "BA_FBG_SS01_Str_thk03": 0,
         }
     ]
 
@@ -265,12 +265,12 @@ def test_get_basement_temperature_data(client):
             "BA_FBG_WW01_Tmp_wal06": 126.5,
             "BA_FBG_EE01_Tmp_wal05": 126.5,
             "BA_FBG_EE01_Tmp_wal06": 126.5,
-            "BA_FBG_WW01_Tmp_thk05": -15875.75,
-            "BA_FBG_WW01_Tmp_thk06": -15875.75,
-            "BA_FBG_EE01_Tmp_thk05": -15875.75,
-            "BA_FBG_EE01_Tmp_thk06": -15875.75,
-            "BA_FBG_SS01_Tmp_thk05": -15875.75,
-            "BA_FBG_SS01_Tmp_thk06": -15875.75,
+            "BA_FBG_WW01_Tmp_thk05": 126.5,
+            "BA_FBG_WW01_Tmp_thk06": 126.5,
+            "BA_FBG_EE01_Tmp_thk05": 126.5,
+            "BA_FBG_EE01_Tmp_thk06": 126.5,
+            "BA_FBG_SS01_Tmp_thk05": 126.5,
+            "BA_FBG_SS01_Tmp_thk06": 126.5,
             "BA_FBG_EW01_Tmp_bot03": -15875.75,
             "BA_FBG_EW01_Tmp_top01": -15875.75,
             "BA_FBG_EW01_Tmp_top02": -15875.75,
@@ -1095,5 +1095,5 @@ def test_get_basement_tmp_data_in_csv_format(client):
     assert response.status_code == 200
     assert (
         response.content
-        == b"timestamp,BA_FBG_NN01_Tmp_wal05,BA_FBG_NN01_Tmp_wal06,BA_FBG_SS01_Tmp_wal06,BA_FBG_SS01_Tmp_wal05,BA_FBG_WW01_Tmp_wal05,BA_FBG_WW01_Tmp_wal06,BA_FBG_EE01_Tmp_wal05,BA_FBG_EE01_Tmp_wal06,BA_FBG_WW01_Tmp_thk05,BA_FBG_WW01_Tmp_thk06,BA_FBG_EE01_Tmp_thk05,BA_FBG_EE01_Tmp_thk06,BA_FBG_SS01_Tmp_thk05,BA_FBG_SS01_Tmp_thk06,BA_FBG_EW01_Tmp_bot03,BA_FBG_EW01_Tmp_top01,BA_FBG_EW01_Tmp_top02,BA_FBG_EW01_Tmp_top03\r\n2020-02-01 12:00:00,126.5,126.5,126.5,126.5,126.5,126.5,126.5,126.5,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75,-15875.75\r\n"
+        == b"timestamp,BA_FBG_NN01_Tmp_wal05,BA_FBG_NN01_Tmp_wal06,BA_FBG_SS01_Tmp_wal06,BA_FBG_SS01_Tmp_wal05,BA_FBG_WW01_Tmp_wal05,BA_FBG_WW01_Tmp_wal06,BA_FBG_EE01_Tmp_wal05,BA_FBG_EE01_Tmp_wal06,BA_FBG_WW01_Tmp_thk05,BA_FBG_WW01_Tmp_thk06,BA_FBG_EE01_Tmp_thk05,BA_FBG_EE01_Tmp_thk06,BA_FBG_SS01_Tmp_thk05,BA_FBG_SS01_Tmp_thk06,BA_FBG_EW01_Tmp_bot03,BA_FBG_EW01_Tmp_top01,BA_FBG_EW01_Tmp_top02,BA_FBG_EW01_Tmp_top03\r\n2020-02-01 12:00:00,126.5,126.5,126.5,126.5,126.5,126.5,126.5,126.5,126.5,126.5,126.5,126.5,126.5,126.5,-15875.75,-15875.75,-15875.75,-15875.75\r\n"
     )
