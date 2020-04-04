@@ -408,7 +408,7 @@ async def websocket_endpoint(
                             for uid in selected_sensors[package_name]
                         },
                     }
-                    response[package_name] = Schemas[package_name][DataType.raw](
+                    response[package_name] = Schemas[package_name][data_type](
                         **data
                     ).dict()
 
