@@ -28,6 +28,13 @@
         }
       }
     },
+    "android": { "package": "com.nrfis.nrfisapp", "versionCode": 1 },
+    "androidStatusBar": {
+      "hidden": true
+    },
+    "androidNavigationBar": {
+      "visible": "sticky-immersive"
+    },
     "packagerOpts": {
       "config": "metro.config.js"
     }
