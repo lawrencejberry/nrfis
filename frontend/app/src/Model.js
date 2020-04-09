@@ -1,5 +1,5 @@
 import React, { Suspense, useState, useEffect } from "react";
-import { View } from "react-native";
+import { View, Platform } from "react-native";
 import { Asset } from "expo-asset";
 import * as THREE from "three";
 import { Canvas } from "react-three-fiber";
@@ -12,7 +12,7 @@ window.performance = {
   clearMarks: () => {},
   measure: () => {},
   mark: () => {},
-  now: () => {}
+  now: () => {},
 };
 
 function mapColour(dataType, v) {
@@ -41,7 +41,7 @@ export default function Model(props) {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    (async file => {
+    (async (file) => {
       const asset = Asset.fromModule(file);
       await asset.downloadAsync();
       setLocalUri(asset.localUri);
@@ -53,7 +53,7 @@ export default function Model(props) {
       const colours = Object.fromEntries(
         Object.entries(props.data[index]).map(([k, v]) => [
           k,
-          mapColour(props.dataType, v)
+          mapColour(props.dataType, v),
         ])
       );
       setSensorColours(colours);
@@ -61,7 +61,8 @@ export default function Model(props) {
   }, [props.data, index]);
 
   function handleResponderMove(event) {
-    const touchBank = event.touchHistory.touchBank[1];
+    const touchBank =
+      event.touchHistory.touchBank[Platform.select({ default: 0, ios: 1 })];
     const changeX = (touchBank.currentPageX - touchBank.previousPageX) / 200;
     const changeY = (touchBank.currentPageY - touchBank.previousPageY) / 200;
     setRotation(new THREE.Euler(rotation.x + changeY, rotation.y + changeX));
@@ -70,20 +71,20 @@ export default function Model(props) {
   return (
     <View
       style={{ flex: 5 }}
-      onMoveShouldSetResponder={event => true}
-      onResponderMove={event => handleResponderMove(event)}
+      onMoveShouldSetResponder={(event) => true}
+      onResponderMove={(event) => handleResponderMove(event)}
       {...rest}
     >
       <Slider
         value={index}
-        onValueChange={value => setIndex(value)}
+        onValueChange={(value) => setIndex(value)}
         maximumValue={props.data.length ? props.data.length - 1 : 0}
         step={1}
         style={{
           marginLeft: 20,
           marginRight: 20,
           marginTop: 10,
-          marginBottom: 10
+          marginBottom: 10,
         }}
         thumbStyle={{ backgroundColor: "grey" }}
       />
