@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "Blank Template",
-    "slug": "app",
+    "name": "NRFIS",
+    "slug": "nrfis-app",
     "privacy": "public",
     "platforms": ["ios", "android", "web"],
-    "version": "1.0.0",
+    "version": "0.1.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "splash": {
