@@ -21,7 +21,7 @@
       "infoPlist": {
         "NSAppTransportSecurity": {
           "NSExceptionDomains": {
-            "127.0.0.1:8000": {
+            "129.169.72.175": {
               "NSTemporaryExceptionAllowsInsecureHTTPLoads": true
             }
           }
