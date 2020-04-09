@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Image } from "react-native";
+import { View, Image, Platform } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Canvas } from "react-three-fiber";
@@ -41,7 +41,7 @@ async function fetchData(
       `http://129.169.72.175/fbg/${sensorPackage}/${dataType}/?averaging-window=${averagingWindow}&start-time=${startTime}&end-time=${endTime}`,
       {
         method: "GET",
-        headers: { "media-type": "application/json" }
+        headers: { "media-type": "application/json" },
       }
     );
     const data = await response.json();
@@ -125,21 +125,26 @@ function SteelFrameScreen() {
 const Tab = createBottomTabNavigator();
 
 const theme = {
-  Text: { style: { fontSize: 20, fontFamily: "Helvetica" } },
+  Text: {
+    style: {
+      fontSize: 20,
+      fontFamily: Platform.select({ default: "Roboto", ios: "Helvetica" }),
+    },
+  },
   Divider: { style: { margin: 4 } },
   Button: {
     containerStyle: {
       paddingTop: 5,
       paddingBottom: 5,
       paddingLeft: 10,
-      paddingRight: 10
+      paddingRight: 10,
     },
     buttonStyle: { borderWidth: 1 },
     titleStyle: {
-      fontSize: 16
-    }
+      fontSize: 16,
+    },
   },
-  ButtonGroup: { textStyle: { fontSize: 16 } }
+  ButtonGroup: { textStyle: { fontSize: 16 } },
 };
 
 export default function App() {
@@ -151,7 +156,7 @@ export default function App() {
           paddingBottom: 5,
           paddingLeft: 20,
           paddingRight: 20,
-          borderBottomColor: "#404040"
+          borderBottomColor: "#404040",
         }}
         placement="left"
         barStyle="light-content"
