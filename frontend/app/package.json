@@ -8,10 +8,10 @@
     "eject": "expo eject"
   },
   "dependencies": {
-    "@react-native-community/datetimepicker": "^2.2.2",
+    "@react-native-community/datetimepicker": "^2.3.2",
     "@react-native-community/masked-view": "0.1.5",
-    "@react-navigation/bottom-tabs": "^5.1.0",
-    "@react-navigation/native": "^5.0.8",
+    "@react-navigation/bottom-tabs": "^5.2.6",
+    "@react-navigation/native": "^5.1.5",
     "expo": "~36.0.0",
     "expo-asset": "~8.0.0",
     "expo-gl": "~8.0.0",
@@ -25,11 +25,11 @@
     "react-native-safe-area-context": "0.6.0",
     "react-native-screens": "2.0.0-alpha.12",
     "react-native-web": "~0.11.7",
-    "react-three-fiber": "^4.0.17",
+    "react-three-fiber": "^4.0.27",
     "three": "^0.113.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0",
+    "@babel/core": "^7.9.0",
     "babel-preset-expo": "~8.0.0",
     "prettier": "^1.19.1"
   },
