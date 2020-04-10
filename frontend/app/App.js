@@ -152,14 +152,15 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <Header
         containerStyle={{
-          height: 80,
-          paddingBottom: 5,
-          paddingLeft: 20,
-          paddingRight: 20,
+          height: 70,
+          paddingVertical: 20,
+          paddingHorizontal: 20,
           borderBottomColor: "#404040",
         }}
+        statusBarProps={{
+          hidden: true,
+        }}
         placement="left"
-        barStyle="light-content"
         backgroundColor="#404040"
         leftComponent={
           <Image
