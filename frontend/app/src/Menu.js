@@ -1,8 +1,34 @@
 import React, { useState } from "react";
-import { View, Picker } from "react-native";
+import { View, Picker as ReactNativePicker } from "react-native";
 import { Divider, Button, ButtonGroup } from "react-native-elements";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 import Modal from "./Modal";
+
+const Picker = ({ value, setValue, options }) => (
+  <ReactNativePicker
+    selectedValue={value}
+    onValueChange={(itemValue, _) => setValue(itemValue)}
+  >
+    {options.map(option => (
+      <ReactNativePicker.Item
+        label={option.label}
+        value={option.value}
+        key={option.value}
+      />
+    ))}
+  </ReactNativePicker>
+);
+
+const TimePicker = ({ time, setTime }) => (
+  <DateTimePicker
+    timeZoneOffsetInMinutes={0}
+    value={time}
+    mode="datetime"
+    is24Hour={true}
+    onChange={(_, date) => setTime(date)}
+  />
+);
 
 export default function Menu(props) {
   const [dataType, setDataType] = useState("str");
@@ -22,57 +48,39 @@ export default function Menu(props) {
 
   function renderSelector(shownElement) {
     switch (shownElement) {
-      case "dt":
-        return (
-          <>
-            <Picker
-              selectedValue={dataType}
-              onValueChange={(itemValue, _) => setDataType(itemValue)}
-            >
-              <Picker.Item label="Raw" value="raw" />
-              <Picker.Item label="Strain" value="str" />
-              <Picker.Item label="Temperature" value="tmp" />
-            </Picker>
-          </>
-        );
-      case "aw":
+      case "dataType":
         return (
           <Picker
-            selectedValue={averagingWindow}
-            onValueChange={(itemValue, _) => setAveragingWindow(itemValue)}
-          >
-            <Picker.Item label="---" value="" />
-            <Picker.Item label="Millisecond" value="milliseconds" />
-            <Picker.Item label="Second" value="second" />
-            <Picker.Item label="Minute" value="minute" />
-            <Picker.Item label="Hour" value="hour" />
-            <Picker.Item label="Day" value="day" />
-            <Picker.Item label="Week" value="week" />
-            <Picker.Item label="Month" value="month" />
-          </Picker>
-        );
-      case "st":
-        return (
-          <DateTimePicker
-            timeZoneOffsetInMinutes={0}
-            value={startTime}
-            mode="datetime"
-            is24Hour={true}
-            display="default"
-            onChange={(_, date) => setStartTime(date)}
+            value={dataType}
+            setValue={setDataType}
+            options={[
+              { label: "Raw", value: "raw" },
+              { label: "Strain", value: "str" },
+              { label: "Temperature", value: "tmp" }
+            ]}
           />
         );
-      case "et":
+      case "averagingWindow":
         return (
-          <DateTimePicker
-            timeZoneOffsetInMinutes={0}
-            value={endTime}
-            mode="datetime"
-            is24Hour={true}
-            display="default"
-            onChange={(_, date) => setEndTime(date)}
+          <Picker
+            value={averagingWindow}
+            setValue={setAveragingWindow}
+            options={[
+              { label: "---", value: "" },
+              { label: "Millisecond", value: "milliseconds" },
+              { label: "Second", value: "second" },
+              { label: "Minute", value: "minute" },
+              { label: "Hour", value: "hour" },
+              { label: "Day", value: "day" },
+              { label: "Week", value: "week" },
+              { label: "Month", value: "month" }
+            ]}
           />
         );
+      case "startTime":
+        return <TimePicker time={startTime} setTime={setStartTime} />;
+      case "endTime":
+        return <TimePicker time={endTime} setTime={setEndTime} />;
     }
   }
 
@@ -99,26 +107,26 @@ export default function Menu(props) {
       <Divider />
       <Button
         title="Data Type"
-        type={shownElement == "dt" ? "outline" : "solid"}
-        onPress={() => showSelector("dt")}
+        type={shownElement == "dataType" ? "outline" : "solid"}
+        onPress={() => showSelector("dataType")}
       />
       <Divider />
       <Button
         title="Averaging Window"
-        type={shownElement == "aw" ? "outline" : "solid"}
-        onPress={() => showSelector("aw")}
+        type={shownElement == "averagingWindow" ? "outline" : "solid"}
+        onPress={() => showSelector("averagingWindow")}
       />
       <Divider />
       <Button
         title="Start Time"
-        type={shownElement == "st" ? "outline" : "solid"}
-        onPress={() => showSelector("st")}
+        type={shownElement == "startTime" ? "outline" : "solid"}
+        onPress={() => showSelector("startTime")}
       />
       <Divider />
       <Button
         title="End Time"
-        type={shownElement == "et" ? "outline" : "solid"}
-        onPress={() => showSelector("et")}
+        type={shownElement == "endTime" ? "outline" : "solid"}
+        onPress={() => showSelector("endTime")}
       />
       <Divider />
       <Button
