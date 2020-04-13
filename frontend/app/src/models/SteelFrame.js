@@ -9,7 +9,13 @@ import { renderSensorColour } from "./utils";
 
 export default function SteelFrame(props) {
   const group = useRef();
-  const { nodes, materials } = useLoader(GLTFLoader, props.localUri);
+  const { nodes, materials } = useLoader(
+    GLTFLoader,
+    Platform.select({
+      default: "http://192.168.1.253:8000/steel-frame.glb", // Static file served by FastAPI web server
+      ios: props.localUri,
+    })
+  );
 
   return (
     <group ref={group} {...props} dispose={null}>

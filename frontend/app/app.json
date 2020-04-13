@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Blank Template",
-    "slug": "app",
+    "name": "NRFIS",
+    "slug": "nrfis-app",
     "privacy": "public",
     "platforms": ["ios", "android", "web"],
-    "version": "1.0.0",
-    "orientation": "portrait",
+    "version": "0.1.0",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
@@ -15,7 +15,7 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["assets/models/*"],
+    "assetBundlePatterns": ["assets/*"],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
@@ -27,6 +27,10 @@
           }
         }
       }
+    },
+    "android": { "package": "com.nrfis.nrfisapp", "versionCode": 1 },
+    "androidNavigationBar": {
+      "visible": "sticky-immersive"
     },
     "packagerOpts": {
       "config": "metro.config.js"
