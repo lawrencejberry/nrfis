@@ -1,34 +1,71 @@
 import React, { useState } from "react";
-import { View, Picker as ReactNativePicker } from "react-native";
-import { Divider, Button, ButtonGroup } from "react-native-elements";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import { Platform, View, Picker as WheelPickerIOS } from "react-native";
+import { Divider, Button, ButtonGroup, ListItem } from "react-native-elements";
+import { DateTimePicker as DateTimePickerIOS } from "@react-native-community/datetimepicker";
+import { DateTimePickerModal as DateTimePickerAndroid } from "react-native-modal-datetime-picker";
 
 import Modal from "./Modal";
 
-const Picker = ({ value, setValue, options }) => (
-  <ReactNativePicker
-    selectedValue={value}
-    onValueChange={(itemValue, _) => setValue(itemValue)}
-  >
-    {options.map(option => (
-      <ReactNativePicker.Item
-        label={option.label}
-        value={option.value}
-        key={option.value}
-      />
-    ))}
-  </ReactNativePicker>
-);
+const Picker = ({ value, setValue, options }) => {
+  if (Platform.OS === "ios") {
+    return (
+      <WheelPickerIOS
+        selectedValue={value}
+        onValueChange={(itemValue, _) => setValue(itemValue)}
+      >
+        {options.map(option => (
+          <WheelPickerIOS.Item
+            label={option.label}
+            value={option.value}
+            key={option.value}
+          />
+        ))}
+      </WheelPickerIOS>
+    );
+  } else if (Platform.OS === "android") {
+    return (
+      <>
+        {options.map((option, _) => (
+          <ListItem
+            key={option.value}
+            title={option.label}
+            onPress={() => setValue(option.value)}
+            checkmark={option.value === value}
+          />
+        ))}
+      </>
+    );
+  }
+};
 
-const TimePicker = ({ time, setTime }) => (
-  <DateTimePicker
-    timeZoneOffsetInMinutes={0}
-    value={time}
-    mode="datetime"
-    is24Hour={true}
-    onChange={(_, date) => setTime(date)}
-  />
-);
+const DateTimePicker = ({ datetime, setDatetime, ...dialogProps }) => {
+  if (Platform.OS === "ios") {
+    return (
+      <DateTimePickerIOS
+        mode="datetime"
+        timeZoneOffsetInMinutes={0}
+        value={datetime}
+        onChange={(_, dt) => setDatetime(dt)}
+      />
+    );
+  } else if (Platform.OS === "android") {
+    return (
+      <DateTimePickerAndroid
+        mode="datetime"
+        date={datetime}
+        isVisible={dialogProps.isActive}
+        onCancel={() => null}
+        onConfirm={dt => {
+          dialogProps.handleConfirm();
+          setDatetime(dt);
+        }}
+        is24hour={true}
+      />
+    );
+  }
+};
+
+const Dialog = ({ children, ...props }) => children(props);
 
 export default function Menu(props) {
   const [dataType, setDataType] = useState("str");
@@ -37,16 +74,25 @@ export default function Menu(props) {
   const [endTime, setEndTime] = useState(new Date());
 
   const [shownElement, setShownElement] = useState("");
-  const [isActive, setIsActive] = useState(false);
+  const [isModalActive, setIsModalActive] = useState(false);
+  const [isDialogActive, setIsDialogActive] = useState(false);
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
 
   function showSelector(shownElement) {
     setShownElement(shownElement);
-    setIsActive(true);
+    // Set dialog or modal active depending on platform and selector
+    if (
+      Platform.OS === "android" &&
+      ["startTime", "endTime"].includes(shownElement)
+    ) {
+      setIsDialogActive(true);
+    } else {
+      setIsModalActive(true);
+    }
   }
 
-  function renderSelector(shownElement) {
+  function renderModalSelector(shownElement) {
     switch (shownElement) {
       case "dataType":
         return (
@@ -78,9 +124,37 @@ export default function Menu(props) {
           />
         );
       case "startTime":
-        return <TimePicker time={startTime} setTime={setStartTime} />;
+        return (
+          <DateTimePicker datetime={startTime} setDatetime={setStartTime} />
+        );
       case "endTime":
-        return <TimePicker time={endTime} setTime={setEndTime} />;
+        return <DateTimePicker datetime={endTime} setDatetime={setEndTime} />;
+      default:
+        return null;
+    }
+  }
+
+  function renderDialogSelector(shownElement, dialogProps) {
+    switch (shownElement) {
+      case "startTime":
+        return (
+          <DateTimePicker
+            {...dialogProps}
+            datetime={startTime}
+            setDatetime={setStartTime}
+          />
+        );
+
+      case "endTime":
+        return (
+          <DateTimePicker
+            {...dialogProps}
+            datetime={endTime}
+            setDatetime={setEndTime}
+          />
+        );
+      default:
+        return null;
     }
   }
 
@@ -142,14 +216,23 @@ export default function Menu(props) {
       <Modal
         width={width}
         height={height}
-        isActive={isActive}
+        isActive={isModalActive}
         handleConfirm={() => {
-          setIsActive(false);
+          setIsModalActive(false);
           setShownElement("");
         }}
       >
-        {renderSelector(shownElement)}
+        {renderModalSelector(shownElement)}
       </Modal>
+      <Dialog
+        isActive={isDialogActive}
+        handleConfirm={() => {
+          setIsDialogActive(false);
+          setShownElement("");
+        }}
+      >
+        {dialogProps => renderDialogSelector(shownElement, dialogProps)}
+      </Dialog>
     </View>
   );
 }
