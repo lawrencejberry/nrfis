@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Platform, View, Picker as WheelPickerIOS } from "react-native";
 import { Divider, Button, ButtonGroup, ListItem } from "react-native-elements";
-import { DateTimePicker as DateTimePickerIOS } from "@react-native-community/datetimepicker";
+import DateTimePickerIOS from "@react-native-community/datetimepicker";
 import { DateTimePickerModal as DateTimePickerAndroid } from "react-native-modal-datetime-picker";
 
 import Modal from "./Modal";
