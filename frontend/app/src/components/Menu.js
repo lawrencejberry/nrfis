@@ -98,9 +98,20 @@ export default function Menu(props) {
     }
   }
 
+  function renderButton(element) {
+    return (
+      <Button
+        key={element}
+        title={element}
+        type={shownElement == element ? "outline" : "solid"}
+        onPress={() => showSelector(element)}
+      />
+    );
+  }
+
   function renderModalSelector(shownElement) {
     switch (shownElement) {
-      case "dataType":
+      case "Data Type":
         return (
           <Picker
             value={dataType}
@@ -112,7 +123,7 @@ export default function Menu(props) {
             ]}
           />
         );
-      case "averagingWindow":
+      case "Averaging Window":
         return (
           <Picker
             value={averagingWindow}
@@ -129,11 +140,11 @@ export default function Menu(props) {
             ]}
           />
         );
-      case "startTime":
+      case "Start Time":
         return (
           <DateTimePicker datetime={startTime} setDatetime={setStartTime} />
         );
-      case "endTime":
+      case "End Time":
         return <DateTimePicker datetime={endTime} setDatetime={setEndTime} />;
       default:
         return null;
@@ -142,7 +153,7 @@ export default function Menu(props) {
 
   function renderDialogSelector(shownElement, dialogProps) {
     switch (shownElement) {
-      case "startTime":
+      case "Start Time":
         return (
           <DateTimePicker
             {...dialogProps}
@@ -151,7 +162,7 @@ export default function Menu(props) {
           />
         );
 
-      case "endTime":
+      case "End Time":
         return (
           <DateTimePicker
             {...dialogProps}
@@ -183,32 +194,16 @@ export default function Menu(props) {
         disabled={props.modelModeEnabled ? [] : [0]}
         onPress={index => props.setMode(index)}
         textStyle={{ fontWeight: "normal" }}
+        selectedTextStyle={{ fontWeight: "500" }}
+        containerStyle={{ borderColor: "#737f8a", borderWidth: 1 }}
       />
       <Divider />
-      <Button
-        title="Data Type"
-        type={shownElement == "dataType" ? "outline" : "solid"}
-        onPress={() => showSelector("dataType")}
-      />
-      <Divider />
-      <Button
-        title="Averaging Window"
-        type={shownElement == "averagingWindow" ? "outline" : "solid"}
-        onPress={() => showSelector("averagingWindow")}
-      />
-      <Divider />
-      <Button
-        title="Start Time"
-        type={shownElement == "startTime" ? "outline" : "solid"}
-        onPress={() => showSelector("startTime")}
-      />
-      <Divider />
-      <Button
-        title="End Time"
-        type={shownElement == "endTime" ? "outline" : "solid"}
-        onPress={() => showSelector("endTime")}
-      />
-      <Divider />
+      {[
+        "Data Type",
+        "Averaging Window",
+        "Start Time",
+        "End Time"
+      ].map(element => renderButton(element))}
       <Button
         title="Refresh"
         onPress={() => {

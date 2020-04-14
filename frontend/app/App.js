@@ -13,6 +13,9 @@ import { Header } from "./src/components";
 const Tab = createBottomTabNavigator();
 
 const theme = {
+  colors: {
+    primary: "#737f8a"
+  },
   Text: {
     style: {
       fontSize: 20,
