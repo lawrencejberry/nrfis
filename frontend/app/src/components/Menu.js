@@ -65,7 +65,13 @@ const DateTimePicker = ({ datetime, setDatetime, ...dialogProps }) => {
   }
 };
 
-const Dialog = ({ children, ...props }) => children(props);
+const Dialog = ({ children, ...props }) => {
+  if (props.isActive) {
+    return children(props);
+  } else {
+    return null;
+  }
+};
 
 export default function Menu(props) {
   const [dataType, setDataType] = useState("str");
