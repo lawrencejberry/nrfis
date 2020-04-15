@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { View } from "react-native";
 
-import { Menu, Model } from "../components";
+import { Menu, Model, Chart } from "../components";
 import { SteelFrame } from "../models";
-import { fetchData } from "../utils";
+import { fetchData, theme } from "../utils";
 
 export default function SteelFrameScreen() {
   const [data, setData] = useState([]);
@@ -57,14 +57,14 @@ export default function SteelFrameScreen() {
           )}
         </Model>
       );
-    } else if (mode == 1) {
-      return <View style={{ flex: 5 }} />;
-    } else return null;
+    } else {
+      return <Chart />;
+    }
   }
 
   return (
     <View style={{ flex: 1, flexDirection: "row" }}>
-      {renderVisualisation()}
+      <View style={{ flex: 5 }}>{renderVisualisation()}</View>
       <Menu
         mode={mode}
         setMode={setMode}

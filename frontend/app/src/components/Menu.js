@@ -14,7 +14,7 @@ const Picker = ({ value, setValue, options }) => {
         selectedValue={value}
         onValueChange={(itemValue, _) => setValue(itemValue)}
       >
-        {options.map(option => (
+        {options.map((option) => (
           <WheelPickerIOS.Item
             label={option.label}
             value={option.value}
@@ -56,7 +56,7 @@ const DateTimePicker = ({ datetime, setDatetime, ...dialogProps }) => {
         date={datetime}
         isVisible={dialogProps.isActive}
         onCancel={() => null}
-        onConfirm={dt => {
+        onConfirm={(dt) => {
           dialogProps.handleConfirm();
           setDatetime(dt);
         }}
@@ -120,7 +120,7 @@ export default function Menu(props) {
             options={[
               { label: "Raw", value: "raw" },
               { label: "Strain", value: "str" },
-              { label: "Temperature", value: "tmp" }
+              { label: "Temperature", value: "tmp" },
             ]}
           />
         );
@@ -137,7 +137,7 @@ export default function Menu(props) {
               { label: "Hour", value: "hour" },
               { label: "Day", value: "day" },
               { label: "Week", value: "week" },
-              { label: "Month", value: "month" }
+              { label: "Month", value: "month" },
             ]}
           />
         );
@@ -180,11 +180,12 @@ export default function Menu(props) {
     <View
       style={{
         flex: 2,
-        borderLeftWidth: 1,
+        borderLeftWidth: 2,
         borderColor: theme.colors.border,
-        padding: 10
+        padding: 10,
+        backgroundColor: theme.colors.background,
       }}
-      onLayout={event => {
+      onLayout={(event) => {
         setWidth(event.nativeEvent.layout.width);
         setHeight(event.nativeEvent.layout.height);
       }}
@@ -193,7 +194,7 @@ export default function Menu(props) {
         buttons={["Model", "Plot"]}
         selectedIndex={props.mode}
         disabled={props.modelModeEnabled ? [] : [0]}
-        onPress={index => props.setMode(index)}
+        onPress={(index) => props.setMode(index)}
         textStyle={{ fontWeight: "normal" }}
         selectedTextStyle={{ fontWeight: "500" }}
         containerStyle={{ borderColor: theme.colors.primary, borderWidth: 1 }}
@@ -203,8 +204,8 @@ export default function Menu(props) {
         "Data Type",
         "Averaging Window",
         "Start Time",
-        "End Time"
-      ].map(element => renderButton(element))}
+        "End Time",
+      ].map((element) => renderButton(element))}
       <Button
         title="Refresh"
         onPress={() => {
@@ -235,7 +236,7 @@ export default function Menu(props) {
           setShownElement("");
         }}
       >
-        {dialogProps => renderDialogSelector(shownElement, dialogProps)}
+        {(dialogProps) => renderDialogSelector(shownElement, dialogProps)}
       </Dialog>
     </View>
   );
