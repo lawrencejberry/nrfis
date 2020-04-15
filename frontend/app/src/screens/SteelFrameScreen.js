@@ -58,7 +58,7 @@ export default function SteelFrameScreen() {
         </Model>
       );
     } else {
-      return <Chart />;
+      return <Chart data={data} />;
     }
   }
 

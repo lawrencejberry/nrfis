@@ -1,14 +1,83 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View } from "react-native";
+import { Text } from "react-native-elements";
+import { TSpan } from "react-native-svg";
+import { LineChart, Grid, YAxis, XAxis } from "react-native-svg-charts";
+import * as D3 from "d3-shape";
 
-export default function Chart() {
-  const [width, setWidth] = useState(0);
+export default function Chart(props) {
+  const [datasets, setDatasets] = useState([]);
+  const [timestamps, setTimestamps] = useState([]);
+  const [range, setRange] = useState([0, 10]);
+
+  useEffect(() => {
+    const { timestamp, ...readings } = props.data[0]; // Extract sensor readings for the first sample
+    const sensors = Object.keys(readings); // Extract the sensor names
+    setDatasets(
+      sensors.map((sensor) => ({
+        data: props.data.map((reading) => reading[sensor]),
+        svg: { stroke: "purple" },
+      }))
+    );
+    setTimestamps(props.data.map((reading) => Date.parse(reading.timestamp))); // Store times as Unix timestamps
+    setRange([timestamps[0], timestamps[props.data.length - 1]]);
+  }, [props.data]);
+
+  // If no data is currently set
+  if (!datasets.length) {
+    return (
+      <Text style={{ alignSelf: "center", marginTop: "40%" }}>
+        Click Refresh to load data
+      </Text>
+    );
+  }
+
+  const formatTimestampLabel = (value) => {
+    const datetime = new Date(value).toUTCString();
+    const date = datetime.slice(5, 16);
+    const time = datetime.slice(17, -4);
+    return (
+      <>
+        <TSpan>{time}</TSpan>
+        <TSpan dx="-4.3em" dy="1.2em">
+          {date}
+        </TSpan>
+      </>
+    );
+  };
 
   return (
-    <View
-      onLayout={(event) => {
-        setWidth(event.nativeEvent.layout.width);
-      }}
-    ></View>
+    <View style={{ flex: 1, flexDirection: "row", padding: 20 }}>
+      <YAxis
+        data={datasets.reduce((acc, dataset) => acc.concat(dataset.data), [])}
+        // min={-46.7}
+        // max={-30}
+        contentInset={{ top: 10, bottom: 10 }}
+        svg={{ fontSize: 10, fill: "grey" }}
+        numberOfTicks={10}
+        formatLabel={(value) => `${value}ºC`}
+      />
+      <View style={{ flex: 1, marginLeft: 10 }}>
+        <LineChart
+          style={{ flex: 1 }}
+          data={datasets}
+          svg={{ stroke: "rgb(134, 65, 244)" }}
+          xAccessor={({ index }) => timestamps[index]}
+          contentInset={{ top: 10, bottom: 10 }}
+          // curve={D3.curveBasis}
+        >
+          <Grid direction={Grid.Direction.BOTH} />
+        </LineChart>
+        <XAxis
+          style={{ marginHorizontal: -10 }}
+          data={timestamps}
+          xAccessor={({ item }) => item}
+          formatLabel={formatTimestampLabel}
+          contentInset={{ left: 10, right: 10 }}
+          svg={{ fontSize: 10, fill: "grey" }}
+          numberOfTicks={5}
+        />
+      </View>
+    </View>
   );
 }
