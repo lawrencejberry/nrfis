@@ -185,13 +185,7 @@ export default function Menu(props) {
 
   return (
     <View
-      style={{
-        flex: 2,
-        borderLeftWidth: 2,
-        borderColor: theme.colors.border,
-        padding: 10,
-        backgroundColor: theme.colors.background,
-      }}
+      style={props.style}
       onLayout={(event) => {
         setWidth(event.nativeEvent.layout.width);
         setHeight(event.nativeEvent.layout.height);

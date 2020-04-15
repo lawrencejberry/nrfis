@@ -66,6 +66,13 @@ export default function SteelFrameScreen() {
     <View style={{ flex: 1, flexDirection: "row" }}>
       <View style={{ flex: 5 }}>{renderVisualisation()}</View>
       <Menu
+        style={{
+          flex: 2,
+          borderLeftWidth: 2,
+          borderColor: theme.colors.border,
+          padding: 10,
+          backgroundColor: theme.colors.background,
+        }}
         mode={mode}
         setMode={setMode}
         modelModeEnabled={modelModeEnabled}
