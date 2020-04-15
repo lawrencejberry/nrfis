@@ -217,6 +217,7 @@ export default function Menu(props) {
       />
       <Divider />
       <Modal
+        label={shownElement}
         width={width}
         height={height}
         isActive={isModalActive}
