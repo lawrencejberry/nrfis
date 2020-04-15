@@ -104,8 +104,15 @@ export default function Menu(props) {
       <Button
         key={element}
         title={element}
-        type={shownElement == element ? "outline" : "solid"}
+        type={shownElement == element ? "solid" : "outline"}
         onPress={() => showSelector(element)}
+        titleStyle={{
+          fontWeight: "normal",
+          color:
+            shownElement == element
+              ? theme.colors.background
+              : theme.colors.primary,
+        }}
       />
     );
   }
@@ -195,9 +202,6 @@ export default function Menu(props) {
         selectedIndex={props.mode}
         disabled={props.modelModeEnabled ? [] : [0]}
         onPress={(index) => props.setMode(index)}
-        textStyle={{ fontWeight: "normal" }}
-        selectedTextStyle={{ fontWeight: "500" }}
-        containerStyle={{ borderColor: theme.colors.primary, borderWidth: 1 }}
       />
       <Divider />
       {[
