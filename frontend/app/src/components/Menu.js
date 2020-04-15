@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Platform, View, Picker as WheelPickerIOS } from "react-native";
 import { Divider, Button, ButtonGroup, ListItem } from "react-native-elements";
-import { DateTimePicker as DateTimePickerIOS } from "@react-native-community/datetimepicker";
+import DateTimePickerIOS from "@react-native-community/datetimepicker";
 import { DateTimePickerModal as DateTimePickerAndroid } from "react-native-modal-datetime-picker";
 
 import Modal from "./Modal";
+import { theme } from "../utils";
 
 const Picker = ({ value, setValue, options }) => {
   if (Platform.OS === "ios") {
@@ -65,7 +66,13 @@ const DateTimePicker = ({ datetime, setDatetime, ...dialogProps }) => {
   }
 };
 
-const Dialog = ({ children, ...props }) => children(props);
+const Dialog = ({ children, ...props }) => {
+  if (props.isActive) {
+    return children(props);
+  } else {
+    return null;
+  }
+};
 
 export default function Menu(props) {
   const [dataType, setDataType] = useState("str");
@@ -92,9 +99,20 @@ export default function Menu(props) {
     }
   }
 
+  function renderButton(element) {
+    return (
+      <Button
+        key={element}
+        title={element}
+        type={shownElement == element ? "outline" : "solid"}
+        onPress={() => showSelector(element)}
+      />
+    );
+  }
+
   function renderModalSelector(shownElement) {
     switch (shownElement) {
-      case "dataType":
+      case "Data Type":
         return (
           <Picker
             value={dataType}
@@ -106,7 +124,7 @@ export default function Menu(props) {
             ]}
           />
         );
-      case "averagingWindow":
+      case "Averaging Window":
         return (
           <Picker
             value={averagingWindow}
@@ -123,11 +141,11 @@ export default function Menu(props) {
             ]}
           />
         );
-      case "startTime":
+      case "Start Time":
         return (
           <DateTimePicker datetime={startTime} setDatetime={setStartTime} />
         );
-      case "endTime":
+      case "End Time":
         return <DateTimePicker datetime={endTime} setDatetime={setEndTime} />;
       default:
         return null;
@@ -136,7 +154,7 @@ export default function Menu(props) {
 
   function renderDialogSelector(shownElement, dialogProps) {
     switch (shownElement) {
-      case "startTime":
+      case "Start Time":
         return (
           <DateTimePicker
             {...dialogProps}
@@ -145,7 +163,7 @@ export default function Menu(props) {
           />
         );
 
-      case "endTime":
+      case "End Time":
         return (
           <DateTimePicker
             {...dialogProps}
@@ -162,8 +180,8 @@ export default function Menu(props) {
     <View
       style={{
         flex: 2,
-        borderLeftWidth: 2,
-        borderColor: "#404040",
+        borderLeftWidth: 1,
+        borderColor: theme.colors.border,
         padding: 10
       }}
       onLayout={event => {
@@ -177,38 +195,24 @@ export default function Menu(props) {
         disabled={props.modelModeEnabled ? [] : [0]}
         onPress={index => props.setMode(index)}
         textStyle={{ fontWeight: "normal" }}
+        selectedTextStyle={{ fontWeight: "500" }}
+        containerStyle={{ borderColor: theme.colors.primary, borderWidth: 1 }}
       />
       <Divider />
-      <Button
-        title="Data Type"
-        type={shownElement == "dataType" ? "outline" : "solid"}
-        onPress={() => showSelector("dataType")}
-      />
-      <Divider />
-      <Button
-        title="Averaging Window"
-        type={shownElement == "averagingWindow" ? "outline" : "solid"}
-        onPress={() => showSelector("averagingWindow")}
-      />
-      <Divider />
-      <Button
-        title="Start Time"
-        type={shownElement == "startTime" ? "outline" : "solid"}
-        onPress={() => showSelector("startTime")}
-      />
-      <Divider />
-      <Button
-        title="End Time"
-        type={shownElement == "endTime" ? "outline" : "solid"}
-        onPress={() => showSelector("endTime")}
-      />
-      <Divider />
+      {[
+        "Data Type",
+        "Averaging Window",
+        "Start Time",
+        "End Time"
+      ].map(element => renderButton(element))}
       <Button
         title="Refresh"
         onPress={() => {
           props.refresh(dataType, averagingWindow, startTime, endTime);
         }}
         type="outline"
+        titleStyle={{ color: theme.colors.actionable }}
+        buttonStyle={{ borderColor: theme.colors.actionable }}
         loading={props.isLoading}
         loadingProps={{ size: 16 }}
       />

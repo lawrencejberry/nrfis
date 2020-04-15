@@ -11,12 +11,14 @@ import {
   TouchableHighlight
 } from "react-native";
 
+import { theme } from "../utils";
+
 const BORDER_RADIUS = 13;
-const BACKGROUND_COLOR_LIGHT = "white";
-const BORDER_COLOR = "#d5d5d5";
+const BACKGROUND_COLOR_LIGHT = theme.colors.background;
+const BORDER_COLOR = theme.colors.border;
 const TITLE_FONT_SIZE = 20;
 const TITLE_COLOR = "#8f8f8f";
-const BUTTON_FONT_COLOR = "#007ff9";
+const BUTTON_FONT_COLOR = theme.colors.actionable;
 const BUTTON_FONT_SIZE = 20;
 const HIGHLIGHT_COLOR_LIGHT = "#ebebeb";
 
@@ -152,7 +154,8 @@ export default function Modal(props) {
               borderRadius: BORDER_RADIUS,
               marginBottom: 8,
               overflow: "hidden",
-              backgroundColor: BACKGROUND_COLOR_LIGHT
+              backgroundColor: BACKGROUND_COLOR_LIGHT,
+              paddingHorizontal: 12
             }}
           >
             <Header label={label} />
