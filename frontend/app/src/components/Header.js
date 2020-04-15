@@ -2,6 +2,8 @@ import React from "react";
 import { Image } from "react-native";
 import { Header as HeaderBar } from "react-native-elements";
 
+import { theme } from "../utils";
+
 export default function Header() {
   return (
     <HeaderBar
@@ -9,13 +11,13 @@ export default function Header() {
         height: 70,
         paddingVertical: 20,
         paddingHorizontal: 20,
-        borderBottomColor: "#404040"
+        borderBottomColor: theme.colors.secondary
       }}
       statusBarProps={{
         hidden: true
       }}
       placement="left"
-      backgroundColor="#404040"
+      backgroundColor={theme.colors.secondary}
       leftComponent={
         <Image
           source={require("../../assets/images/logo.png")}

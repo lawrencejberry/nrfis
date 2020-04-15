@@ -5,6 +5,7 @@ import DateTimePickerIOS from "@react-native-community/datetimepicker";
 import { DateTimePickerModal as DateTimePickerAndroid } from "react-native-modal-datetime-picker";
 
 import Modal from "./Modal";
+import { theme } from "../utils";
 
 const Picker = ({ value, setValue, options }) => {
   if (Platform.OS === "ios") {
@@ -179,8 +180,8 @@ export default function Menu(props) {
     <View
       style={{
         flex: 2,
-        borderLeftWidth: 2,
-        borderColor: "#404040",
+        borderLeftWidth: 1,
+        borderColor: theme.colors.border,
         padding: 10
       }}
       onLayout={event => {
@@ -195,7 +196,7 @@ export default function Menu(props) {
         onPress={index => props.setMode(index)}
         textStyle={{ fontWeight: "normal" }}
         selectedTextStyle={{ fontWeight: "500" }}
-        containerStyle={{ borderColor: "#737f8a", borderWidth: 1 }}
+        containerStyle={{ borderColor: theme.colors.primary, borderWidth: 1 }}
       />
       <Divider />
       {[
@@ -210,6 +211,8 @@ export default function Menu(props) {
           props.refresh(dataType, averagingWindow, startTime, endTime);
         }}
         type="outline"
+        titleStyle={{ color: theme.colors.actionable }}
+        buttonStyle={{ borderColor: theme.colors.actionable }}
         loading={props.isLoading}
         loadingProps={{ size: 16 }}
       />

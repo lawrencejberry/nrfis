@@ -6,13 +6,14 @@ import { Canvas } from "react-three-fiber";
 import { Slider } from "react-native-elements";
 
 import { LoadingIndicator } from "../models";
+import { theme } from "../utils";
 
 window.performance = {
   clearMeasures: () => {},
   clearMarks: () => {},
   measure: () => {},
   mark: () => {},
-  now: () => {},
+  now: () => {}
 };
 
 function mapColour(dataType, v) {
@@ -41,7 +42,7 @@ export default function Model(props) {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    (async (file) => {
+    (async file => {
       const asset = Asset.fromModule(file);
       await asset.downloadAsync();
       setLocalUri(asset.localUri);
@@ -53,7 +54,7 @@ export default function Model(props) {
       const colours = Object.fromEntries(
         Object.entries(props.data[index]).map(([k, v]) => [
           k,
-          mapColour(props.dataType, v),
+          mapColour(props.dataType, v)
         ])
       );
       setSensorColours(colours);
@@ -71,22 +72,22 @@ export default function Model(props) {
   return (
     <View
       style={{ flex: 5 }}
-      onMoveShouldSetResponder={(event) => true}
-      onResponderMove={(event) => handleResponderMove(event)}
+      onMoveShouldSetResponder={event => true}
+      onResponderMove={event => handleResponderMove(event)}
       {...rest}
     >
       <Slider
         value={index}
-        onValueChange={(value) => setIndex(value)}
+        onValueChange={value => setIndex(value)}
         maximumValue={props.data.length ? props.data.length - 1 : 0}
         step={1}
         style={{
           marginLeft: 20,
           marginRight: 20,
           marginTop: 10,
-          marginBottom: 10,
+          marginBottom: 10
         }}
-        thumbStyle={{ backgroundColor: "grey" }}
+        thumbStyle={{ backgroundColor: theme.colors.primary }}
       />
       <Canvas camera={{ position: [0, 0, 40] }}>
         <ambientLight intensity={0.5} />
