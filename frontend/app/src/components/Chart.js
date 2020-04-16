@@ -57,7 +57,7 @@ export default function Chart(props) {
       />
       <View style={{ flex: 1, marginLeft: 10 }}>
         <LineChart
-          style={{ flex: 1 }}
+          style={{ flex: 30 }}
           data={datasets}
           svg={{ stroke: "rgb(134, 65, 244)" }}
           xAccessor={({ index }) => timestamps[index]}
@@ -67,7 +67,7 @@ export default function Chart(props) {
           <Grid direction={Grid.Direction.BOTH} />
         </LineChart>
         <XAxis
-          style={{ marginHorizontal: -10 }}
+          style={{ flex: 1, marginHorizontal: -10 }}
           data={timestamps}
           xAccessor={({ item }) => item}
           formatLabel={formatTimestampLabel}
