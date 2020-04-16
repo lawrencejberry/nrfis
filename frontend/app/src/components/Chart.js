@@ -7,6 +7,8 @@ import * as D3 from "d3-shape";
 
 import { theme } from "../utils";
 
+const contentInset = { top: 10, bottom: 10, left: 5, right: 5 };
+
 const Decorator = ({ x, y, data: datasets, timestamps }) =>
   datasets.map(({ data, svg, label }) =>
     data.map((value, index) => (
@@ -69,29 +71,29 @@ export default function Chart(props) {
   return (
     <View style={{ flex: 1, flexDirection: "row", padding: 20 }}>
       <YAxis
+        style={{ flex: 1 }}
         data={datasets.reduce((acc, dataset) => acc.concat(dataset.data), [])}
-        contentInset={{ top: 10, bottom: 10 }}
+        contentInset={contentInset}
         svg={{ fontSize: 10, fill: theme.colors.primary }}
         numberOfTicks={10}
-        formatLabel={(value) => `${value}ºC`}
       />
-      <View style={{ flex: 1, marginLeft: 10 }}>
+      <View style={{ flex: 30, marginLeft: 10 }}>
         <LineChart
           style={{ flex: 30 }}
           data={datasets}
           xAccessor={({ index }) => timestamps[index]}
-          contentInset={{ top: 10, bottom: 10 }}
+          contentInset={contentInset}
           curve={D3.curveBasis}
         >
-          <Grid direction={Grid.Direction.BOTH} />
+          <Grid direction={Grid.Direction.HORIZONTAL} />
           <Decorator timestamps={timestamps} />
         </LineChart>
         <XAxis
-          style={{ flex: 1, marginHorizontal: -10 }}
+          style={{ flex: 1 }}
           data={timestamps}
           xAccessor={({ item }) => item}
           formatLabel={formatTimestampLabel}
-          contentInset={{ left: 10, right: 10 }}
+          contentInset={contentInset}
           svg={{ fontSize: 10, fill: theme.colors.primary }}
           numberOfTicks={5}
         />
