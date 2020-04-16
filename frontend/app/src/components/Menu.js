@@ -7,6 +7,28 @@ import { DateTimePickerModal as DateTimePickerAndroid } from "react-native-modal
 import Modal from "./Modal";
 import { theme } from "../utils";
 
+const MultiSelect = ({ options, setOptions }) => (
+  <>
+    {options.map(({ name, isSelected }, index) => {
+      return (
+        <ListItem
+          contentContainerStyle={{ padding: 2 }}
+          key={name}
+          title={name}
+          onPress={() =>
+            setOptions(
+              options.map((option, i) =>
+                i === index ? { ...option, isSelected: !isSelected } : option
+              )
+            )
+          }
+          checkmark={isSelected}
+        />
+      );
+    })}
+  </>
+);
+
 const Picker = ({ value, setValue, options }) => {
   if (Platform.OS === "ios") {
     return (
@@ -154,6 +176,10 @@ export default function Menu(props) {
         );
       case "End Time":
         return <DateTimePicker datetime={endTime} setDatetime={setEndTime} />;
+      case "Select Sensors":
+        return (
+          <MultiSelect options={props.sensors} setOptions={props.setSensors} />
+        );
       default:
         return null;
     }
@@ -215,6 +241,8 @@ export default function Menu(props) {
         loading={props.isLoading}
         loadingProps={{ size: 16 }}
       />
+      <Divider />
+      {["Select Sensors"].map((element) => renderButton(element))}
       <Divider />
       <Modal
         label={shownElement}

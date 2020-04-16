@@ -11,15 +11,13 @@ export default function Chart(props) {
   const [range, setRange] = useState([0, 10]);
 
   useEffect(() => {
-    const { timestamp, ...readings } = props.data[0]; // Extract sensor readings for the first sample
-    const sensors = Object.keys(readings); // Extract the sensor names
     setDatasets(
-      sensors.map((sensor) => ({
-        data: props.data.map((reading) => reading[sensor]),
+      props.sensors.map(({ name }) => ({
+        data: props.data.map((sample) => sample[name]),
         svg: { stroke: "purple" },
       }))
     );
-    setTimestamps(props.data.map((reading) => Date.parse(reading.timestamp))); // Store times as Unix timestamps
+    setTimestamps(props.data.map((sample) => Date.parse(sample.timestamp))); // Store times as Unix timestamps
     setRange([timestamps[0], timestamps[props.data.length - 1]]);
   }, [props.data]);
 

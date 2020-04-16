@@ -10,6 +10,7 @@ export default function SteelFrameScreen() {
   const [mode, setMode] = useState(0); // 0 for Model, 1 for Chart
   const [dataType, setDataType] = useState("str");
   const [isLoading, setIsLoading] = useState(false);
+  const [sensors, setSensors] = useState([]); // [{ name: sensorName, isSelected: true}, ... }]
 
   async function refresh(dataType, averagingWindow, startTime, endTime) {
     setIsLoading(true);
@@ -30,6 +31,12 @@ export default function SteelFrameScreen() {
       if (dataType == "raw") {
         setMode(1); // Chart mode
       }
+      // Set the array of sensors, with all sensors selected
+      const { timestamp, ...readings } = props.data[0]; // Extract sensor readings for the first sample
+      const sensors = Object.keys(readings); // Extract the sensor names
+      setSensors(
+        sensors.map((sensor) => ({ label: sensor, isSelected: true }))
+      );
     } catch (error) {
       console.error(error);
     }
@@ -56,7 +63,7 @@ export default function SteelFrameScreen() {
       );
     } else {
       // Chart
-      return <Chart data={data} />;
+      return <Chart data={data} sensors={sensors} />;
     }
   }
 
@@ -74,6 +81,8 @@ export default function SteelFrameScreen() {
         mode={mode}
         setMode={setMode}
         modelModeEnabled={dataType !== "raw"} // Model mode only enabled for str or tmp
+        sensors={sensors}
+        setSensors={setSensors}
         isLoading={isLoading}
         refresh={refresh}
       />
