@@ -5,6 +5,8 @@ import { TSpan } from "react-native-svg";
 import { LineChart, Grid, YAxis, XAxis } from "react-native-svg-charts";
 import * as D3 from "d3-shape";
 
+import { chartColours } from "../utils";
+
 export default function Chart(props) {
   const [datasets, setDatasets] = useState([]);
   const [timestamps, setTimestamps] = useState([]);
@@ -12,11 +14,17 @@ export default function Chart(props) {
 
   useEffect(() => {
     setDatasets(
-      props.sensors.map(({ name }) => ({
-        data: props.data.map((sample) => sample[name]),
-        svg: { stroke: "purple" },
-      }))
+      props.sensors
+        .filter(({ isSelected }) => isSelected)
+        .map(({ name }, index) => ({
+          data: props.data.map((sample) => sample[name]),
+          svg: { stroke: chartColours[index % chartColours.length] },
+          label: name,
+        }))
     );
+  }, [props.data, props.sensors]);
+
+  useEffect(() => {
     setTimestamps(props.data.map((sample) => Date.parse(sample.timestamp))); // Store times as Unix timestamps
     setRange([timestamps[0], timestamps[props.data.length - 1]]);
   }, [props.data]);
