@@ -7,8 +7,7 @@ import { fetchData, theme } from "../utils";
 
 export default function SteelFrameScreen() {
   const [data, setData] = useState([]);
-  const [mode, setMode] = useState(0);
-  const [modelModeEnabled, setModelModeEnabled] = useState(true);
+  const [mode, setMode] = useState(0); // 0 for Model, 1 for Chart
   const [dataType, setDataType] = useState("str");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -30,9 +29,6 @@ export default function SteelFrameScreen() {
       // Enable/disable the model mode button
       if (dataType == "raw") {
         setMode(1); // Chart mode
-        setModelModeEnabled(false);
-      } else {
-        setModelModeEnabled(true);
       }
     } catch (error) {
       console.error(error);
@@ -42,6 +38,7 @@ export default function SteelFrameScreen() {
 
   function renderVisualisation() {
     if (mode == 0) {
+      // Model
       return (
         <Model
           file={require("../../assets/models/steel-frame.glb")}
@@ -58,6 +55,7 @@ export default function SteelFrameScreen() {
         </Model>
       );
     } else {
+      // Chart
       return <Chart data={data} />;
     }
   }
@@ -75,7 +73,7 @@ export default function SteelFrameScreen() {
         }}
         mode={mode}
         setMode={setMode}
-        modelModeEnabled={modelModeEnabled}
+        modelModeEnabled={dataType !== "raw"} // Model mode only enabled for str or tmp
         isLoading={isLoading}
         refresh={refresh}
       />
