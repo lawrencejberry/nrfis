@@ -37,7 +37,7 @@ export default function SteelFrameScreen() {
       setSensors(
         sensors.map((sensor, index) => ({
           label: sensor,
-          isSelected: true,
+          isSelected: index < 3, // By default display only the first three sensors on the chart
           colour: chartColours[index % chartColours.length],
         }))
       );
