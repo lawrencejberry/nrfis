@@ -192,7 +192,7 @@ export default function Menu(props) {
       }}
     >
       <ButtonGroup
-        buttons={["Model", "Plot"]}
+        buttons={["Model", "Chart"]}
         selectedIndex={props.mode}
         disabled={props.modelModeEnabled ? [] : [0]}
         onPress={(index) => props.setMode(index)}
