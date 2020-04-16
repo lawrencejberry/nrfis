@@ -1,9 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { View } from "react-native";
 import { Text } from "react-native-elements";
-import { TSpan } from "react-native-svg";
+import { TSpan, Circle } from "react-native-svg";
 import { LineChart, Grid, YAxis, XAxis } from "react-native-svg-charts";
 import * as D3 from "d3-shape";
+
+import { theme } from "../utils";
+
+const Decorator = ({ x, y, data: datasets, timestamps }) =>
+  datasets.map(({ data, svg, label }) =>
+    data.map((value, index) => (
+      <Circle
+        key={label + index}
+        cx={x(timestamps[index])}
+        cy={y(value)}
+        r={3}
+        stroke={svg.stroke}
+        fill={"white"}
+      />
+    ))
+  );
 
 export default function Chart(props) {
   const [datasets, setDatasets] = useState([]);
@@ -55,7 +71,7 @@ export default function Chart(props) {
       <YAxis
         data={datasets.reduce((acc, dataset) => acc.concat(dataset.data), [])}
         contentInset={{ top: 10, bottom: 10 }}
-        svg={{ fontSize: 10, fill: "grey" }}
+        svg={{ fontSize: 10, fill: theme.colors.primary }}
         numberOfTicks={10}
         formatLabel={(value) => `${value}ºC`}
       />
@@ -63,12 +79,12 @@ export default function Chart(props) {
         <LineChart
           style={{ flex: 30 }}
           data={datasets}
-          svg={{ stroke: "rgb(134, 65, 244)" }}
           xAccessor={({ index }) => timestamps[index]}
           contentInset={{ top: 10, bottom: 10 }}
-          // curve={D3.curveBasis}
+          curve={D3.curveBasis}
         >
           <Grid direction={Grid.Direction.BOTH} />
+          <Decorator timestamps={timestamps} />
         </LineChart>
         <XAxis
           style={{ flex: 1, marginHorizontal: -10 }}
@@ -76,7 +92,7 @@ export default function Chart(props) {
           xAccessor={({ item }) => item}
           formatLabel={formatTimestampLabel}
           contentInset={{ left: 10, right: 10 }}
-          svg={{ fontSize: 10, fill: "grey" }}
+          svg={{ fontSize: 10, fill: theme.colors.primary }}
           numberOfTicks={5}
         />
       </View>
