@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { Platform, View, Picker as WheelPickerIOS } from "react-native";
-import { Divider, Button, ButtonGroup, ListItem } from "react-native-elements";
+import {
+  Divider,
+  Button,
+  ButtonGroup,
+  ListItem,
+  Text,
+} from "react-native-elements";
 import DateTimePickerIOS from "@react-native-community/datetimepicker";
 import { DateTimePickerModal as DateTimePickerAndroid } from "react-native-modal-datetime-picker";
 
@@ -139,6 +145,48 @@ export default function Menu(props) {
     );
   }
 
+  const renderModelMenu = () => (
+    <>
+      <Text>MODEL OPTIONS</Text>
+    </>
+  );
+
+  const renderChartMenu = () => (
+    <>
+      <Text>CHART OPTIONS</Text>
+      {["Select Sensors"].map((element) => renderButton(element))}
+      <Divider />
+      <Text>LEGEND</Text>
+      <View
+        style={{
+          flex: 1,
+          flexWrap: "wrap",
+          alignItems: "flex-start",
+        }}
+      >
+        {props.sensors
+          .filter(({ isSelected }) => isSelected)
+          .map(({ name, colour }) => (
+            <ListItem
+              key={name}
+              containerStyle={{
+                width: "50%",
+                padding: 0,
+              }}
+              title={name}
+              titleStyle={{ fontSize: 12 }}
+              rightIcon={{
+                name: "minus",
+                type: "feather",
+                color: colour,
+                size: 20,
+              }}
+            />
+          ))}
+      </View>
+    </>
+  );
+
   function renderModalSelector(shownElement) {
     switch (shownElement) {
       case "Data Type":
@@ -224,6 +272,7 @@ export default function Menu(props) {
         onPress={(index) => props.setMode(index)}
       />
       <Divider />
+      <Text>DATA OPTIONS</Text>
       {[
         "Data Type",
         "Averaging Window",
@@ -242,8 +291,7 @@ export default function Menu(props) {
         loadingProps={{ size: 16 }}
       />
       <Divider />
-      {["Select Sensors"].map((element) => renderButton(element))}
-      <Divider />
+      {props.mode ? renderChartMenu() : renderModelMenu()}
       <Modal
         label={shownElement}
         width={width}

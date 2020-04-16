@@ -5,8 +5,6 @@ import { TSpan } from "react-native-svg";
 import { LineChart, Grid, YAxis, XAxis } from "react-native-svg-charts";
 import * as D3 from "d3-shape";
 
-import { chartColours } from "../utils";
-
 export default function Chart(props) {
   const [datasets, setDatasets] = useState([]);
   const [timestamps, setTimestamps] = useState([]);
@@ -16,9 +14,9 @@ export default function Chart(props) {
     setDatasets(
       props.sensors
         .filter(({ isSelected }) => isSelected)
-        .map(({ name }, index) => ({
+        .map(({ name, colour }) => ({
           data: props.data.map((sample) => sample[name]),
-          svg: { stroke: chartColours[index % chartColours.length] },
+          svg: { stroke: colour },
           label: name,
         }))
     );
@@ -56,8 +54,6 @@ export default function Chart(props) {
     <View style={{ flex: 1, flexDirection: "row", padding: 20 }}>
       <YAxis
         data={datasets.reduce((acc, dataset) => acc.concat(dataset.data), [])}
-        // min={-46.7}
-        // max={-30}
         contentInset={{ top: 10, bottom: 10 }}
         svg={{ fontSize: 10, fill: "grey" }}
         numberOfTicks={10}

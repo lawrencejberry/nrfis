@@ -14,11 +14,16 @@ const theme = {
   colors: colors,
   Text: {
     style: {
-      fontSize: 20,
+      fontSize: 16,
       fontFamily: font,
+      fontWeight: "200",
+      marginHorizontal: 16,
+      marginVertical: 6,
     },
   },
-  Divider: { style: { margin: 4, backgroundColor: colors.border } },
+  Divider: {
+    style: { margin: 4, backgroundColor: colors.border },
+  },
   Button: {
     containerStyle: {
       paddingTop: 5,

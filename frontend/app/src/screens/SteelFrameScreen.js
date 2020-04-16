@@ -3,7 +3,7 @@ import { View } from "react-native";
 
 import { Menu, Model, Chart } from "../components";
 import { SteelFrame } from "../models";
-import { fetchData, theme } from "../utils";
+import { fetchData, theme, chartColours } from "../utils";
 
 export default function SteelFrameScreen() {
   const [data, setData] = useState([]);
@@ -35,7 +35,11 @@ export default function SteelFrameScreen() {
       const { timestamp, ...readings } = props.data[0]; // Extract sensor readings for the first sample
       const sensors = Object.keys(readings); // Extract the sensor names
       setSensors(
-        sensors.map((sensor) => ({ label: sensor, isSelected: true }))
+        sensors.map((sensor, index) => ({
+          label: sensor,
+          isSelected: true,
+          colour: chartColours[index % chartColours.length],
+        }))
       );
     } catch (error) {
       console.error(error);
