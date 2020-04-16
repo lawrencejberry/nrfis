@@ -111,7 +111,7 @@ export default function Menu(props) {
           color:
             shownElement == element
               ? theme.colors.background
-              : theme.colors.primary,
+              : theme.colors.secondary,
         }}
       />
     );
