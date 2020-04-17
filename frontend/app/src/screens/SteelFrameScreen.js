@@ -11,6 +11,10 @@ export default function SteelFrameScreen() {
   const [dataType, setDataType] = useState("str");
   const [isLoading, setIsLoading] = useState(false);
   const [sensors, setSensors] = useState([]); // [{ name: sensorName, isSelected: true}, ... }]
+  const [chartOptions, setChartOptions] = useState({
+    showTemperature: true,
+    temperatureData: [], //[{temperature: x, timestamp: x}, ...]
+  });
 
   async function refresh(dataType, averagingWindow, startTime, endTime) {
     setIsLoading(true);
@@ -67,7 +71,9 @@ export default function SteelFrameScreen() {
       );
     } else {
       // Chart
-      return <Chart data={data} sensors={sensors} />;
+      return (
+        <Chart data={data} sensors={sensors} chartOptions={chartOptions} />
+      );
     }
   }
 
@@ -89,6 +95,8 @@ export default function SteelFrameScreen() {
         setSensors={setSensors}
         isLoading={isLoading}
         refresh={refresh}
+        chartOptions={chartOptions}
+        setChartOptions={setChartOptions}
       />
     </View>
   );

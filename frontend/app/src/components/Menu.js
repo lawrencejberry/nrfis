@@ -155,6 +155,26 @@ export default function Menu(props) {
     <>
       <Text>CHART OPTIONS</Text>
       {["Select Sensors"].map((element) => renderButton(element))}
+      <Button
+        title={
+          props.chartOptions.showTemperature
+            ? "Hide Outdoor Temperature"
+            : "Show Outdoor Temperature"
+        }
+        type={props.chartOptions.showTemperature ? "solid" : "outline"}
+        onPress={() =>
+          props.setChartOptions({
+            ...props.chartOptions,
+            showTemperature: !props.chartOptions.showTemperature,
+          })
+        }
+        titleStyle={{
+          fontWeight: "normal",
+          color: props.chartOptions.showTemperature
+            ? theme.colors.background
+            : theme.colors.secondary,
+        }}
+      />
       <Divider />
       <Text>LEGEND</Text>
       <View
@@ -183,6 +203,22 @@ export default function Menu(props) {
               }}
             />
           ))}
+        {props.chartOptions.showTemperature ? (
+          <ListItem
+            containerStyle={{
+              width: "50%",
+              padding: 0,
+            }}
+            title="OUTDOOR TEMP."
+            titleStyle={{ fontSize: 12 }}
+            rightIcon={{
+              name: "minus",
+              type: "feather",
+              color: "orange",
+              size: 20,
+            }}
+          />
+        ) : null}
       </View>
     </>
   );

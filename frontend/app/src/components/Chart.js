@@ -207,18 +207,46 @@ export default function Chart(props) {
               setWidth(event.nativeEvent.layout.width);
             }}
           >
-            <LineChart
-              style={{ flex: 30 }}
-              data={datasets}
-              xAccessor={({ index }) => timestamps[index]}
-              contentInset={contentInset}
-              curve={D3.curveBasis}
-              xMin={minX}
-              xMax={maxX}
-            >
-              <Grid direction={Grid.Direction.HORIZONTAL} />
-              <Decorators timestamps={timestamps} />
-            </LineChart>
+            <View style={{ flex: 30 }}>
+              <LineChart
+                style={{ position: "absolute", width: "100%", height: "100%" }}
+                data={datasets}
+                xAccessor={({ index }) => timestamps[index]}
+                contentInset={contentInset}
+                curve={D3.curveBasis}
+                xMin={minX}
+                xMax={maxX}
+              >
+                <Grid direction={Grid.Direction.HORIZONTAL} />
+                <Decorators timestamps={timestamps} />
+              </LineChart>
+              {props.chartOptions.showTemperature ? (
+                <LineChart
+                  style={{
+                    position: "absolute",
+                    width: "100%",
+                    height: "100%",
+                  }}
+                  data={props.chartOptions.temperatureData}
+                  xAccessor={({ item }) => Date.parse(item.timestamp)}
+                  yAccessor={({ item }) => item.temperature}
+                  contentInset={contentInset}
+                  curve={D3.curveBasis}
+                  svg={{ stroke: "orange" }}
+                  xMin={minX}
+                  xMax={maxX}
+                >
+                  {props.chartOptions.temperatureData.map((item, index) => (
+                    <Decorator
+                      key={index}
+                      value={item.temperature}
+                      timestamp={Date.parse(item.timestamp)}
+                      colour="orange"
+                    />
+                  ))}
+                </LineChart>
+              ) : null}
+            </View>
             <XAxis
               style={{ flex: 1 }}
               data={baseRange}
@@ -231,6 +259,14 @@ export default function Chart(props) {
           </View>
         </PanGestureHandler>
       </PinchGestureHandler>
+      <YAxis
+        style={{ flex: 1 }}
+        data={props.chartOptions.temperatureData}
+        yAccessor={({ item }) => item.temperature}
+        contentInset={contentInset}
+        svg={{ fontSize: 10, fill: theme.colors.primary }}
+        numberOfTicks={10}
+      />
     </View>
   );
 }
