@@ -16,6 +16,9 @@ export default async function fetchData(
       }
     );
     const data = await response.json();
+    data.forEach((sample) => {
+      sample.timestamp = Date.parse(sample.timestamp);
+    }); // Store times as Unix timestamps
     return data;
   } catch (error) {
     console.error(error);
@@ -45,9 +48,7 @@ export async function fetchTemperatureData(startTime, endTime) {
       const data = Papa.parse(await response.text()).slice(8);
       temperatureData.push(
         ...data.map((sample) => ({
-          timestamp: new Date(date)
-            .setHours(...sample[0].split(":"))
-            .toISOString(),
+          timestamp: date.setHours(...sample[0].split(":")),
           temperature: sample[1],
         }))
       );

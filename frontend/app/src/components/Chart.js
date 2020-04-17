@@ -102,7 +102,7 @@ export default function Chart(props) {
   }, [data, chartOptions]);
 
   useEffect(() => {
-    setTimestamps(data.map((sample) => Date.parse(sample.timestamp))); // Store times as Unix timestamps
+    setTimestamps(data.map((sample) => sample.timestamp));
     setMinX(timestamps[0]);
     setMaxX(timestamps[data.length - 1]);
     setBaseRange([minX, maxX]);
@@ -230,7 +230,7 @@ export default function Chart(props) {
                     height: "100%",
                   }}
                   data={chartOptions.temperatureData}
-                  xAccessor={({ item }) => Date.parse(item.timestamp)}
+                  xAccessor={({ item }) => item.timestamp}
                   yAccessor={({ item }) => item.temperature}
                   contentInset={contentInset}
                   curve={D3.curveBasis}
@@ -242,7 +242,7 @@ export default function Chart(props) {
                     <Decorator
                       key={index}
                       value={item.temperature}
-                      timestamp={Date.parse(item.timestamp)}
+                      timestamp={item.timestamp}
                       colour="orange"
                     />
                   ))}
