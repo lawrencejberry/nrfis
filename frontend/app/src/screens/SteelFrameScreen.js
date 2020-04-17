@@ -3,7 +3,7 @@ import { View } from "react-native";
 
 import { Menu, Model, Chart } from "../components";
 import { SteelFrame } from "../models";
-import { fetchData, theme, chartColours } from "../utils";
+import { fetchData, fetchTemperatureData, theme, chartColours } from "../utils";
 
 export default function SteelFrameScreen() {
   const [data, setData] = useState([]);
@@ -45,6 +45,14 @@ export default function SteelFrameScreen() {
           colour: chartColours[index % chartColours.length],
         }))
       );
+    } catch (error) {
+      console.error(error);
+    }
+    try {
+      setChartOptions({
+        ...chartOptions,
+        temperatureData: await fetchTemperatureData(startTime, endTime),
+      });
     } catch (error) {
       console.error(error);
     }
