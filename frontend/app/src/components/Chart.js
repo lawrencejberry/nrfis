@@ -11,6 +11,7 @@ import {
 } from "react-native-svg";
 import { LineChart, Grid, YAxis, XAxis } from "react-native-svg-charts";
 import * as D3 from "d3-shape";
+import { State, PinchGestureHandler } from "react-native-gesture-handler";
 
 import { theme } from "../utils";
 
@@ -74,9 +75,13 @@ const Decorators = ({ x, y, data: datasets, timestamps }) =>
   );
 
 export default function Chart(props) {
+  const [width, setWidth] = useState(0);
   const [datasets, setDatasets] = useState([]);
   const [timestamps, setTimestamps] = useState([]);
-  const [range, setRange] = useState([0, 10]);
+  const [minX, setMinX] = useState(0);
+  const [maxX, setMaxX] = useState(0);
+  const [baseRange, setBaseRange] = useState(0);
+  const [minInterval, setMinInterval] = useState(0);
 
   useEffect(() => {
     setDatasets(
@@ -92,7 +97,18 @@ export default function Chart(props) {
 
   useEffect(() => {
     setTimestamps(props.data.map((sample) => Date.parse(sample.timestamp))); // Store times as Unix timestamps
-    setRange([timestamps[0], timestamps[props.data.length - 1]]);
+    setMinX(timestamps[0]);
+    setMaxX(timestamps[props.data.length - 1]);
+    setBaseRange(maxX - minX);
+    setMinInterval(
+      Math.min(
+        ...timestamps
+          .map((timestamp, index) =>
+            index ? timestamp - timestamps[index - 1] : null
+          )
+          .slice(1)
+      )
+    );
   }, [props.data]);
 
   // If no data is currently set
@@ -118,36 +134,78 @@ export default function Chart(props) {
     );
   };
 
+  const handlePinchGestureEvent = ({ nativeEvent: event }) => {
+    const newRange = baseRange * (1 / event.scale);
+    const change = newRange - baseRange;
+    const focalPoint = event.focalX / width; // as a fraction from min to max
+    const newMinX = minX - change * focalPoint;
+    const newMaxX = maxX + change * (1 - focalPoint);
+
+    // Don't update if newRange is zoomed in beyond three points, or if there is less than a 1% change from the baseRange
+    if (
+      newMaxX - newMinX < 2 * minInterval ||
+      Math.abs(change) < baseRange / 100
+    ) {
+      return;
+    }
+    if (newMinX >= timestamps[0]) {
+      setMinX(newMinX);
+    }
+    if (newMaxX <= timestamps[timestamps.length - 1]) {
+      setMaxX(newMaxX);
+    }
+  };
+
+  const handlePinchHandlerStateChange = ({ nativeEvent: event }) => {
+    if (event.oldState === State.ACTIVE) {
+      setBaseRange(maxX - minX);
+    }
+  };
+
   return (
-    <View style={{ flex: 1, flexDirection: "row", padding: 20 }}>
-      <YAxis
-        style={{ flex: 1 }}
-        data={datasets.reduce((acc, dataset) => acc.concat(dataset.data), [])}
-        contentInset={contentInset}
-        svg={{ fontSize: 10, fill: theme.colors.primary }}
-        numberOfTicks={10}
-      />
-      <View style={{ flex: 30, marginLeft: 10 }}>
-        <LineChart
-          style={{ flex: 30 }}
-          data={datasets}
-          xAccessor={({ index }) => timestamps[index]}
-          contentInset={contentInset}
-          curve={D3.curveBasis}
-        >
-          <Grid direction={Grid.Direction.HORIZONTAL} />
-          <Decorators timestamps={timestamps} />
-        </LineChart>
-        <XAxis
+    <PinchGestureHandler
+      onGestureEvent={handlePinchGestureEvent}
+      onHandlerStateChange={handlePinchHandlerStateChange}
+    >
+      <View style={{ flex: 1, flexDirection: "row", padding: 20 }}>
+        <YAxis
           style={{ flex: 1 }}
-          data={timestamps}
-          xAccessor={({ item }) => item}
-          formatLabel={formatTimestampLabel}
+          data={datasets.reduce((acc, dataset) => acc.concat(dataset.data), [])}
           contentInset={contentInset}
           svg={{ fontSize: 10, fill: theme.colors.primary }}
-          numberOfTicks={5}
+          numberOfTicks={10}
         />
+        <View
+          style={{ flex: 30, marginLeft: 10 }}
+          onLayout={(event) => {
+            setWidth(event.nativeEvent.layout.width);
+          }}
+        >
+          <LineChart
+            style={{ flex: 30 }}
+            data={datasets}
+            xAccessor={({ index }) => timestamps[index]}
+            contentInset={contentInset}
+            curve={D3.curveBasis}
+            xMin={minX}
+            xMax={maxX}
+          >
+            <Grid direction={Grid.Direction.HORIZONTAL} />
+            <Decorators timestamps={timestamps} />
+          </LineChart>
+          <XAxis
+            style={{ flex: 1 }}
+            data={timestamps}
+            xAccessor={({ item }) => item}
+            formatLabel={formatTimestampLabel}
+            contentInset={contentInset}
+            svg={{ fontSize: 10, fill: theme.colors.primary }}
+            numberOfTicks={5}
+            xMin={minX}
+            xMax={maxX}
+          />
+        </View>
       </View>
-    </View>
+    </PinchGestureHandler>
   );
 }
