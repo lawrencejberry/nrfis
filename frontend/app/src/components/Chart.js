@@ -221,14 +221,12 @@ export default function Chart(props) {
             </LineChart>
             <XAxis
               style={{ flex: 1 }}
-              data={timestamps}
+              data={baseRange}
               xAccessor={({ item }) => item}
               formatLabel={formatTimestampLabel}
               contentInset={contentInset}
               svg={{ fontSize: 10, fill: theme.colors.primary }}
               numberOfTicks={5}
-              xMin={minX}
-              xMax={maxX}
             />
           </View>
         </PanGestureHandler>
