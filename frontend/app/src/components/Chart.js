@@ -204,7 +204,7 @@ export default function Chart(props) {
           maxPointers={1}
         >
           <View
-            style={{ flex: 30, marginLeft: 10 }}
+            style={{ flex: 30, marginLeft: 10, marginRight: 10 }}
             onLayout={(event) => {
               setWidth(event.nativeEvent.layout.width);
             }}
@@ -261,14 +261,18 @@ export default function Chart(props) {
           </View>
         </PanGestureHandler>
       </PinchGestureHandler>
-      <YAxis
-        style={{ flex: 1 }}
-        data={chartOptions.temperatureData}
-        yAccessor={({ item }) => item.temperature}
-        contentInset={contentInset}
-        svg={{ fontSize: 10, fill: theme.colors.primary }}
-        numberOfTicks={10}
-      />
+      {chartOptions.showTemperature ? (
+        <YAxis
+          style={{ flex: 1 }}
+          data={chartOptions.temperatureData}
+          yAccessor={({ item }) => item.temperature}
+          contentInset={contentInset}
+          svg={{ fontSize: 10, fill: theme.colors.primary }}
+          numberOfTicks={10}
+        />
+      ) : (
+        <View style={{ flex: 1 }} />
+      )}
     </View>
   );
 }
