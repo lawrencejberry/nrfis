@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { View } from "react-native";
 import { Text } from "react-native-elements";
-import { TSpan, Circle } from "react-native-svg";
+import {
+  TSpan,
+  Circle,
+  G,
+  Rect,
+  Line,
+  Text as SVGText,
+} from "react-native-svg";
 import { LineChart, Grid, YAxis, XAxis } from "react-native-svg-charts";
 import * as D3 from "d3-shape";
 
@@ -9,16 +16,59 @@ import { theme } from "../utils";
 
 const contentInset = { top: 10, bottom: 10, left: 5, right: 5 };
 
-const Decorator = ({ x, y, data: datasets, timestamps }) =>
+const Decorator = ({ x, y, value, timestamp, colour }) => {
+  const [showLabel, setShowLabel] = useState(false);
+  const [timeoutID, setTimeoutID] = useState(0);
+
+  const toggleLabel = () => {
+    setShowLabel(true);
+    clearTimeout(timeoutID);
+    setTimeoutID(setTimeout(() => setShowLabel(false), 3000));
+  };
+
+  return (
+    <G x={x(timestamp)} y={y(value)}>
+      {showLabel ? (
+        <>
+          <Rect
+            height={16}
+            width={32}
+            x={-16}
+            y={-32}
+            stroke={theme.colors.primary}
+            fill={theme.colors.background}
+            ry={6}
+            rx={6}
+          />
+          <SVGText
+            x={0}
+            y={-21.5}
+            fontSize={8}
+            fontWeight={300}
+            textAnchor="middle"
+            fill={theme.colors.secondary}
+          >
+            {value.toPrecision(3)}
+          </SVGText>
+          <Line y1={0} y2={-16} stroke={theme.colors.primary} strokeWidth={1} />
+        </>
+      ) : null}
+      <Circle r={12} fill={"transparent"} onPress={toggleLabel} />
+      <Circle r={3} stroke={colour} fill={"white"} />
+    </G>
+  );
+};
+
+const Decorators = ({ x, y, data: datasets, timestamps }) =>
   datasets.map(({ data, svg, label }) =>
     data.map((value, index) => (
-      <Circle
+      <Decorator
         key={label + index}
-        cx={x(timestamps[index])}
-        cy={y(value)}
-        r={3}
-        stroke={svg.stroke}
-        fill={"white"}
+        x={x}
+        y={y}
+        value={value}
+        timestamp={timestamps[index]}
+        colour={svg.stroke}
       />
     ))
   );
@@ -86,7 +136,7 @@ export default function Chart(props) {
           curve={D3.curveBasis}
         >
           <Grid direction={Grid.Direction.HORIZONTAL} />
-          <Decorator timestamps={timestamps} />
+          <Decorators timestamps={timestamps} />
         </LineChart>
         <XAxis
           style={{ flex: 1 }}
