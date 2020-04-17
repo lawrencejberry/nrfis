@@ -11,7 +11,11 @@ import {
 } from "react-native-svg";
 import { LineChart, Grid, YAxis, XAxis } from "react-native-svg-charts";
 import * as D3 from "d3-shape";
-import { State, PinchGestureHandler } from "react-native-gesture-handler";
+import {
+  State,
+  PinchGestureHandler,
+  PanGestureHandler,
+} from "react-native-gesture-handler";
 
 import { theme } from "../utils";
 
@@ -80,7 +84,7 @@ export default function Chart(props) {
   const [timestamps, setTimestamps] = useState([]);
   const [minX, setMinX] = useState(0);
   const [maxX, setMaxX] = useState(0);
-  const [baseRange, setBaseRange] = useState(0);
+  const [baseRange, setBaseRange] = useState([0, 0]);
   const [minInterval, setMinInterval] = useState(0);
 
   useEffect(() => {
@@ -99,7 +103,7 @@ export default function Chart(props) {
     setTimestamps(props.data.map((sample) => Date.parse(sample.timestamp))); // Store times as Unix timestamps
     setMinX(timestamps[0]);
     setMaxX(timestamps[props.data.length - 1]);
-    setBaseRange(maxX - minX);
+    setBaseRange([minX, maxX]);
     setMinInterval(
       Math.min(
         ...timestamps
@@ -135,8 +139,9 @@ export default function Chart(props) {
   };
 
   const handlePinchGestureEvent = ({ nativeEvent: event }) => {
-    const newRange = baseRange * (1 / event.scale);
-    const change = newRange - baseRange;
+    const oldRange = baseRange[1] - baseRange[0];
+    const newRange = oldRange * (1 / event.scale);
+    const change = newRange - oldRange;
     const focalPoint = event.focalX / width; // as a fraction from min to max
     const newMinX = minX - change * focalPoint;
     const newMaxX = maxX + change * (1 - focalPoint);
@@ -144,7 +149,7 @@ export default function Chart(props) {
     // Don't update if newRange is zoomed in beyond three points, or if there is less than a 1% change from the baseRange
     if (
       newMaxX - newMinX < 2 * minInterval ||
-      Math.abs(change) < baseRange / 100
+      Math.abs(change) < oldRange / 100
     ) {
       return;
     }
@@ -156,56 +161,78 @@ export default function Chart(props) {
     }
   };
 
-  const handlePinchHandlerStateChange = ({ nativeEvent: event }) => {
+  const handlePanGestureEvent = ({ nativeEvent: event }) => {
+    const oldRange = baseRange[1] - baseRange[0];
+    const change = 0.2 * (event.translationX / width) * oldRange;
+    const newMinX = minX - change;
+    const newMaxX = maxX - change;
+
+    if (
+      newMinX >= timestamps[0] &&
+      newMaxX <= timestamps[timestamps.length - 1] &&
+      Math.abs(change) > oldRange / 100
+    ) {
+      setMinX(newMinX);
+      setMaxX(newMaxX);
+    }
+  };
+
+  const handleStateChange = ({ nativeEvent: event }) => {
     if (event.oldState === State.ACTIVE) {
-      setBaseRange(maxX - minX);
+      setBaseRange([minX, maxX]);
     }
   };
 
   return (
-    <PinchGestureHandler
-      onGestureEvent={handlePinchGestureEvent}
-      onHandlerStateChange={handlePinchHandlerStateChange}
-    >
-      <View style={{ flex: 1, flexDirection: "row", padding: 20 }}>
-        <YAxis
-          style={{ flex: 1 }}
-          data={datasets.reduce((acc, dataset) => acc.concat(dataset.data), [])}
-          contentInset={contentInset}
-          svg={{ fontSize: 10, fill: theme.colors.primary }}
-          numberOfTicks={10}
-        />
-        <View
-          style={{ flex: 30, marginLeft: 10 }}
-          onLayout={(event) => {
-            setWidth(event.nativeEvent.layout.width);
-          }}
+    <View style={{ flex: 1, flexDirection: "row", padding: 20 }}>
+      <YAxis
+        style={{ flex: 1 }}
+        data={datasets.reduce((acc, dataset) => acc.concat(dataset.data), [])}
+        contentInset={contentInset}
+        svg={{ fontSize: 10, fill: theme.colors.primary }}
+        numberOfTicks={10}
+      />
+      <PinchGestureHandler
+        onGestureEvent={handlePinchGestureEvent}
+        onHandlerStateChange={handleStateChange}
+      >
+        <PanGestureHandler
+          onGestureEvent={handlePanGestureEvent}
+          onHandlerStateChange={handleStateChange}
+          maxPointers={1}
         >
-          <LineChart
-            style={{ flex: 30 }}
-            data={datasets}
-            xAccessor={({ index }) => timestamps[index]}
-            contentInset={contentInset}
-            curve={D3.curveBasis}
-            xMin={minX}
-            xMax={maxX}
+          <View
+            style={{ flex: 30, marginLeft: 10 }}
+            onLayout={(event) => {
+              setWidth(event.nativeEvent.layout.width);
+            }}
           >
-            <Grid direction={Grid.Direction.HORIZONTAL} />
-            <Decorators timestamps={timestamps} />
-          </LineChart>
-          <XAxis
-            style={{ flex: 1 }}
-            data={timestamps}
-            xAccessor={({ item }) => item}
-            formatLabel={formatTimestampLabel}
-            contentInset={contentInset}
-            svg={{ fontSize: 10, fill: theme.colors.primary }}
-            numberOfTicks={5}
-            xMin={minX}
-            xMax={maxX}
-          />
-        </View>
-      </View>
-    </PinchGestureHandler>
+            <LineChart
+              style={{ flex: 30 }}
+              data={datasets}
+              xAccessor={({ index }) => timestamps[index]}
+              contentInset={contentInset}
+              curve={D3.curveBasis}
+              xMin={minX}
+              xMax={maxX}
+            >
+              <Grid direction={Grid.Direction.HORIZONTAL} />
+              <Decorators timestamps={timestamps} />
+            </LineChart>
+            <XAxis
+              style={{ flex: 1 }}
+              data={timestamps}
+              xAccessor={({ item }) => item}
+              formatLabel={formatTimestampLabel}
+              contentInset={contentInset}
+              svg={{ fontSize: 10, fill: theme.colors.primary }}
+              numberOfTicks={5}
+              xMin={minX}
+              xMax={maxX}
+            />
+          </View>
+        </PanGestureHandler>
+      </PinchGestureHandler>
+    </View>
   );
 }
