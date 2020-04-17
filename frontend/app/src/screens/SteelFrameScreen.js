@@ -10,16 +10,16 @@ export default function SteelFrameScreen() {
   const [mode, setMode] = useState(0); // 0 for Model, 1 for Chart
   const [dataType, setDataType] = useState("str");
   const [isLoading, setIsLoading] = useState(false);
-  const [sensors, setSensors] = useState([]); // [{ name: sensorName, isSelected: true}, ... }]
   const [chartOptions, setChartOptions] = useState({
-    showTemperature: true,
-    temperatureData: [], //[{temperature: x, timestamp: x}, ...]
+    sensors: [], // [{ name: sensorName, isSelected: true}, ... }]
+    showTemperature: false,
+    temperatureData: [], // [{temperature: x, timestamp: x}, ...]
   });
 
   async function refresh(dataType, averagingWindow, startTime, endTime) {
     setIsLoading(true);
-    // Try fetching data
     try {
+      // Fetch sensor data
       setData(
         await fetchData(
           "steel-frame",
@@ -35,22 +35,16 @@ export default function SteelFrameScreen() {
       if (dataType == "raw") {
         setMode(1); // Chart mode
       }
-      // Set the array of sensors, with all sensors selected
+      // Set all sensors selected and fetch temperature data
       const { timestamp, ...readings } = props.data[0]; // Extract sensor readings for the first sample
-      const sensors = Object.keys(readings); // Extract the sensor names
-      setSensors(
-        sensors.map((sensor, index) => ({
-          label: sensor,
-          isSelected: index < 3, // By default display only the first three sensors on the chart
-          colour: chartColours[index % chartColours.length],
-        }))
-      );
-    } catch (error) {
-      console.error(error);
-    }
-    try {
+      const sensorNames = Object.keys(readings); // Extract the sensor names
       setChartOptions({
         ...chartOptions,
+        sensors: sensorNames.map((sensorName, index) => ({
+          name: sensorName,
+          isSelected: index < 3, // By default display only the first three sensors on the chart
+          colour: chartColours[index % chartColours.length],
+        })),
         temperatureData: await fetchTemperatureData(startTime, endTime),
       });
     } catch (error) {
@@ -79,9 +73,7 @@ export default function SteelFrameScreen() {
       );
     } else {
       // Chart
-      return (
-        <Chart data={data} sensors={sensors} chartOptions={chartOptions} />
-      );
+      return <Chart data={data} chartOptions={chartOptions} />;
     }
   }
 
@@ -99,8 +91,6 @@ export default function SteelFrameScreen() {
         mode={mode}
         setMode={setMode}
         modelModeEnabled={dataType !== "raw"} // Model mode only enabled for str or tmp
-        sensors={sensors}
-        setSensors={setSensors}
         isLoading={isLoading}
         refresh={refresh}
         chartOptions={chartOptions}

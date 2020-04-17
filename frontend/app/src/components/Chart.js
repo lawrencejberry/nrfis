@@ -79,6 +79,8 @@ const Decorators = ({ x, y, data: datasets, timestamps }) =>
   );
 
 export default function Chart(props) {
+  const { data, chartOptions } = props;
+
   const [width, setWidth] = useState(0);
   const [datasets, setDatasets] = useState([]);
   const [timestamps, setTimestamps] = useState([]);
@@ -89,20 +91,20 @@ export default function Chart(props) {
 
   useEffect(() => {
     setDatasets(
-      props.sensors
+      chartOptions.sensors
         .filter(({ isSelected }) => isSelected)
         .map(({ name, colour }) => ({
-          data: props.data.map((sample) => sample[name]),
+          data: data.map((sample) => sample[name]),
           svg: { stroke: colour },
           label: name,
         }))
     );
-  }, [props.data, props.sensors]);
+  }, [data, chartOptions]);
 
   useEffect(() => {
-    setTimestamps(props.data.map((sample) => Date.parse(sample.timestamp))); // Store times as Unix timestamps
+    setTimestamps(data.map((sample) => Date.parse(sample.timestamp))); // Store times as Unix timestamps
     setMinX(timestamps[0]);
-    setMaxX(timestamps[props.data.length - 1]);
+    setMaxX(timestamps[data.length - 1]);
     setBaseRange([minX, maxX]);
     setMinInterval(
       Math.min(
@@ -113,7 +115,7 @@ export default function Chart(props) {
           .slice(1)
       )
     );
-  }, [props.data]);
+  }, [data]);
 
   // If no data is currently set
   if (!datasets.length) {
@@ -220,14 +222,14 @@ export default function Chart(props) {
                 <Grid direction={Grid.Direction.HORIZONTAL} />
                 <Decorators timestamps={timestamps} />
               </LineChart>
-              {props.chartOptions.showTemperature ? (
+              {chartOptions.showTemperature ? (
                 <LineChart
                   style={{
                     position: "absolute",
                     width: "100%",
                     height: "100%",
                   }}
-                  data={props.chartOptions.temperatureData}
+                  data={chartOptions.temperatureData}
                   xAccessor={({ item }) => Date.parse(item.timestamp)}
                   yAccessor={({ item }) => item.temperature}
                   contentInset={contentInset}
@@ -236,7 +238,7 @@ export default function Chart(props) {
                   xMin={minX}
                   xMax={maxX}
                 >
-                  {props.chartOptions.temperatureData.map((item, index) => (
+                  {chartOptions.temperatureData.map((item, index) => (
                     <Decorator
                       key={index}
                       value={item.temperature}
@@ -261,7 +263,7 @@ export default function Chart(props) {
       </PinchGestureHandler>
       <YAxis
         style={{ flex: 1 }}
-        data={props.chartOptions.temperatureData}
+        data={chartOptions.temperatureData}
         yAccessor={({ item }) => item.temperature}
         contentInset={contentInset}
         svg={{ fontSize: 10, fill: theme.colors.primary }}

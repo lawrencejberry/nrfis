@@ -184,7 +184,7 @@ export default function Menu(props) {
           alignItems: "flex-start",
         }}
       >
-        {props.sensors
+        {props.chartOptions.sensors
           .filter(({ isSelected }) => isSelected)
           .map(({ name, colour }) => (
             <ListItem
@@ -262,7 +262,12 @@ export default function Menu(props) {
         return <DateTimePicker datetime={endTime} setDatetime={setEndTime} />;
       case "Select Sensors":
         return (
-          <MultiSelect options={props.sensors} setOptions={props.setSensors} />
+          <MultiSelect
+            options={props.chartOptions.sensors}
+            setOptions={(sensors) =>
+              props.setChartOptions({ ...props.chartOptions, sensors: sensors })
+            }
+          />
         );
       default:
         return null;
