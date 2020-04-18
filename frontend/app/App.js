@@ -6,7 +6,7 @@ import { ThemeProvider } from "react-native-elements";
 import {
   BasementScreen,
   StrongFloorScreen,
-  SteelFrameScreen
+  SteelFrameScreen,
 } from "./src/screens";
 import { Header } from "./src/components";
 import { theme } from "./src/utils";
@@ -20,7 +20,7 @@ export default function App() {
       <NavigationContainer>
         <Tab.Navigator
           tabBarOptions={{
-            activeTintColor: theme.colors.actionable
+            activeTintColor: theme.colors.actionable,
           }}
         >
           <Tab.Screen name="Basement" component={BasementScreen} />

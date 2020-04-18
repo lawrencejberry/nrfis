@@ -1,11 +1,39 @@
 import React, { useState } from "react";
 import { Platform, View, Picker as WheelPickerIOS } from "react-native";
-import { Divider, Button, ButtonGroup, ListItem } from "react-native-elements";
+import {
+  Divider,
+  Button,
+  ButtonGroup,
+  ListItem,
+  Text,
+} from "react-native-elements";
 import DateTimePickerIOS from "@react-native-community/datetimepicker";
 import { DateTimePickerModal as DateTimePickerAndroid } from "react-native-modal-datetime-picker";
 
 import Modal from "./Modal";
 import { theme } from "../utils";
+
+const MultiSelect = ({ options, setOptions }) => (
+  <>
+    {options.map(({ name, isSelected }, index) => {
+      return (
+        <ListItem
+          contentContainerStyle={{ padding: 2 }}
+          key={name}
+          title={name}
+          onPress={() =>
+            setOptions(
+              options.map((option, i) =>
+                i === index ? { ...option, isSelected: !isSelected } : option
+              )
+            )
+          }
+          checkmark={isSelected}
+        />
+      );
+    })}
+  </>
+);
 
 const Picker = ({ value, setValue, options }) => {
   if (Platform.OS === "ios") {
@@ -14,7 +42,7 @@ const Picker = ({ value, setValue, options }) => {
         selectedValue={value}
         onValueChange={(itemValue, _) => setValue(itemValue)}
       >
-        {options.map(option => (
+        {options.map((option) => (
           <WheelPickerIOS.Item
             label={option.label}
             value={option.value}
@@ -56,7 +84,7 @@ const DateTimePicker = ({ datetime, setDatetime, ...dialogProps }) => {
         date={datetime}
         isVisible={dialogProps.isActive}
         onCancel={() => null}
-        onConfirm={dt => {
+        onConfirm={(dt) => {
           dialogProps.handleConfirm();
           setDatetime(dt);
         }}
@@ -104,11 +132,96 @@ export default function Menu(props) {
       <Button
         key={element}
         title={element}
-        type={shownElement == element ? "outline" : "solid"}
+        type={shownElement == element ? "solid" : "outline"}
         onPress={() => showSelector(element)}
+        titleStyle={{
+          fontWeight: "normal",
+          color:
+            shownElement == element
+              ? theme.colors.background
+              : theme.colors.secondary,
+        }}
       />
     );
   }
+
+  const renderModelMenu = () => (
+    <>
+      <Text>MODEL OPTIONS</Text>
+    </>
+  );
+
+  const renderChartMenu = () => (
+    <>
+      <Text>CHART OPTIONS</Text>
+      {["Select Sensors"].map((element) => renderButton(element))}
+      <Button
+        title={
+          props.chartOptions.showTemperature
+            ? "Hide Outdoor Temperature"
+            : "Show Outdoor Temperature"
+        }
+        type={props.chartOptions.showTemperature ? "solid" : "outline"}
+        onPress={() =>
+          props.setChartOptions({
+            ...props.chartOptions,
+            showTemperature: !props.chartOptions.showTemperature,
+          })
+        }
+        titleStyle={{
+          fontWeight: "normal",
+          color: props.chartOptions.showTemperature
+            ? theme.colors.background
+            : theme.colors.secondary,
+        }}
+      />
+      <Divider />
+      <Text>LEGEND</Text>
+      <View
+        style={{
+          flex: 1,
+          flexWrap: "wrap",
+          alignItems: "flex-start",
+        }}
+      >
+        {props.chartOptions.sensors
+          .filter(({ isSelected }) => isSelected)
+          .map(({ name, colour }) => (
+            <ListItem
+              key={name}
+              containerStyle={{
+                width: "50%",
+                padding: 0,
+              }}
+              title={name}
+              titleStyle={{ fontSize: 12 }}
+              rightIcon={{
+                name: "minus",
+                type: "feather",
+                color: colour,
+                size: 20,
+              }}
+            />
+          ))}
+        {props.chartOptions.showTemperature ? (
+          <ListItem
+            containerStyle={{
+              width: "50%",
+              padding: 0,
+            }}
+            title="OUTDOOR TEMP."
+            titleStyle={{ fontSize: 12 }}
+            rightIcon={{
+              name: "minus",
+              type: "feather",
+              color: "orange",
+              size: 20,
+            }}
+          />
+        ) : null}
+      </View>
+    </>
+  );
 
   function renderModalSelector(shownElement) {
     switch (shownElement) {
@@ -120,7 +233,7 @@ export default function Menu(props) {
             options={[
               { label: "Raw", value: "raw" },
               { label: "Strain", value: "str" },
-              { label: "Temperature", value: "tmp" }
+              { label: "Temperature", value: "tmp" },
             ]}
           />
         );
@@ -137,7 +250,7 @@ export default function Menu(props) {
               { label: "Hour", value: "hour" },
               { label: "Day", value: "day" },
               { label: "Week", value: "week" },
-              { label: "Month", value: "month" }
+              { label: "Month", value: "month" },
             ]}
           />
         );
@@ -147,6 +260,15 @@ export default function Menu(props) {
         );
       case "End Time":
         return <DateTimePicker datetime={endTime} setDatetime={setEndTime} />;
+      case "Select Sensors":
+        return (
+          <MultiSelect
+            options={props.chartOptions.sensors}
+            setOptions={(sensors) =>
+              props.setChartOptions({ ...props.chartOptions, sensors: sensors })
+            }
+          />
+        );
       default:
         return null;
     }
@@ -178,33 +300,26 @@ export default function Menu(props) {
 
   return (
     <View
-      style={{
-        flex: 2,
-        borderLeftWidth: 1,
-        borderColor: theme.colors.border,
-        padding: 10
-      }}
-      onLayout={event => {
+      style={props.style}
+      onLayout={(event) => {
         setWidth(event.nativeEvent.layout.width);
         setHeight(event.nativeEvent.layout.height);
       }}
     >
       <ButtonGroup
-        buttons={["Model", "Plot"]}
+        buttons={["Model", "Chart"]}
         selectedIndex={props.mode}
         disabled={props.modelModeEnabled ? [] : [0]}
-        onPress={index => props.setMode(index)}
-        textStyle={{ fontWeight: "normal" }}
-        selectedTextStyle={{ fontWeight: "500" }}
-        containerStyle={{ borderColor: theme.colors.primary, borderWidth: 1 }}
+        onPress={(index) => props.setMode(index)}
       />
       <Divider />
+      <Text>DATA OPTIONS</Text>
       {[
         "Data Type",
         "Averaging Window",
         "Start Time",
-        "End Time"
-      ].map(element => renderButton(element))}
+        "End Time",
+      ].map((element) => renderButton(element))}
       <Button
         title="Refresh"
         onPress={() => {
@@ -217,7 +332,9 @@ export default function Menu(props) {
         loadingProps={{ size: 16 }}
       />
       <Divider />
+      {props.mode ? renderChartMenu() : renderModelMenu()}
       <Modal
+        label={shownElement}
         width={width}
         height={height}
         isActive={isModalActive}
@@ -235,7 +352,7 @@ export default function Menu(props) {
           setShownElement("");
         }}
       >
-        {dialogProps => renderDialogSelector(shownElement, dialogProps)}
+        {(dialogProps) => renderDialogSelector(shownElement, dialogProps)}
       </Dialog>
     </View>
   );
