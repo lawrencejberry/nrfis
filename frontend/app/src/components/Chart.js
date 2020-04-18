@@ -103,9 +103,12 @@ export default function Chart(props) {
 
   useEffect(() => {
     setTimestamps(data.map((sample) => sample.timestamp));
+  }, [data]);
+
+  useEffect(() => {
     setMinX(timestamps[0]);
-    setMaxX(timestamps[data.length - 1]);
-    setBaseRange([minX, maxX]);
+    setMaxX(timestamps[timestamps.length - 1]);
+    setBaseRange([timestamps[0], timestamps[timestamps.length - 1]]);
     setMinInterval(
       Math.min(
         ...timestamps
@@ -115,7 +118,7 @@ export default function Chart(props) {
           .slice(1)
       )
     );
-  }, [data]);
+  }, [timestamps]);
 
   // If no data is currently set
   if (!datasets.length) {
