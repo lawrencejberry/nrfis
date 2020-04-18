@@ -99,7 +99,7 @@ export default function Chart(props) {
           label: name,
         }))
     );
-  }, [data, chartOptions]);
+  }, [data, chartOptions.sensors]);
 
   useEffect(() => {
     setTimestamps(data.map((sample) => sample.timestamp));
