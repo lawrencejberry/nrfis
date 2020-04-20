@@ -15,6 +15,7 @@ export default function SteelFrameScreen() {
     showTemperature: false,
     temperatureData: [], // [{temperature: x, timestamp: x}, ...]
   });
+  const [modelOptions, setModelOptions] = useState({ showContext: true });
 
   async function refresh(dataType, averagingWindow, startTime, endTime) {
     setIsLoading(true);
@@ -59,7 +60,11 @@ export default function SteelFrameScreen() {
       return (
         <Model data={data} dataType={dataType}>
           {({ rotation, sensorColours }) => (
-            <SteelFrame rotation={rotation} sensorColours={sensorColours} />
+            <SteelFrame
+              rotation={rotation}
+              sensorColours={sensorColours}
+              showContext={modelOptions.showContext}
+            />
           )}
         </Model>
       );
@@ -87,6 +92,8 @@ export default function SteelFrameScreen() {
         refresh={refresh}
         chartOptions={chartOptions}
         setChartOptions={setChartOptions}
+        modelOptions={modelOptions}
+        setModelOptions={setModelOptions}
       />
     </View>
   );

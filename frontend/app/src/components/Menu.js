@@ -148,6 +148,22 @@ export default function Menu(props) {
   const renderModelMenu = () => (
     <>
       <Text>MODEL OPTIONS</Text>
+      <Button
+        title={props.modelOptions.showContext ? "Hide Context" : "Show Context"}
+        type={props.modelOptions.showContext ? "solid" : "outline"}
+        onPress={() =>
+          props.setModelOptions({
+            ...props.modelOptions,
+            showContext: !props.modelOptions.showContext,
+          })
+        }
+        titleStyle={{
+          fontWeight: "normal",
+          color: props.modelOptions.showContext
+            ? theme.colors.background
+            : theme.colors.secondary,
+        }}
+      />
     </>
   );
 
