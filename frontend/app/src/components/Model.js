@@ -1,9 +1,9 @@
 import React, { Suspense, useState, useEffect } from "react";
 import { View, Platform } from "react-native";
-import { Asset } from "expo-asset";
 import * as THREE from "three";
 import { Canvas } from "react-three-fiber";
 import { Slider } from "react-native-elements";
+import { State, PinchGestureHandler } from "react-native-gesture-handler";
 
 import { LoadingIndicator } from "../models";
 import { theme } from "../utils";
@@ -38,6 +38,8 @@ export default function Model(props) {
   const [rotation, setRotation] = useState(new THREE.Euler(0, 0));
   const [sensorColours, setSensorColours] = useState({});
   const [index, setIndex] = useState(0);
+  const [zoom, setZoom] = useState(1);
+  const [baseZoom, setBaseZoom] = useState(1);
 
   useEffect(() => {
     if (Array.isArray(props.data) && props.data.length) {
@@ -59,32 +61,50 @@ export default function Model(props) {
     setRotation(new THREE.Euler(rotation.x + changeY, rotation.y + changeX));
   }
 
+  const handlePinchGestureEvent = ({ nativeEvent: event }) => {
+    const newZoom = baseZoom * event.scale ** 0.5;
+    if (Math.abs(newZoom - zoom) > 0.02 && newZoom > 0.2 && newZoom < 5) {
+      setZoom(newZoom);
+    }
+  };
+
+  const handleStateChange = ({ nativeEvent: event }) => {
+    if (event.oldState === State.ACTIVE) {
+      setBaseZoom(zoom);
+    }
+  };
+
   return (
-    <View
-      style={{ flex: 1 }}
-      onMoveShouldSetResponder={(event) => true}
-      onResponderMove={(event) => handleResponderMove(event)}
+    <PinchGestureHandler
+      onGestureEvent={handlePinchGestureEvent}
+      onHandlerStateChange={handleStateChange}
     >
-      <Slider
-        value={index}
-        onValueChange={(value) => setIndex(value)}
-        maximumValue={props.data.length ? props.data.length - 1 : 0}
-        step={1}
-        style={{
-          marginLeft: 20,
-          marginRight: 20,
-          marginTop: 10,
-          marginBottom: 10,
-        }}
-        thumbStyle={{ backgroundColor: theme.colors.primary }}
-      />
-      <Canvas camera={{ position: [0, 0, 40] }}>
-        <ambientLight intensity={0.5} />
-        <spotLight intensity={0.8} position={[300, 300, 400]} />
-        <Suspense fallback={<LoadingIndicator />}>
-          {props.children({ rotation, sensorColours })}
-        </Suspense>
-      </Canvas>
-    </View>
+      <View
+        style={{ flex: 1 }}
+        onMoveShouldSetResponder={(_) => true}
+        onResponderMove={(event) => handleResponderMove(event)}
+      >
+        <Slider
+          value={index}
+          onValueChange={(value) => setIndex(value)}
+          maximumValue={props.data.length ? props.data.length - 1 : 0}
+          step={1}
+          style={{
+            marginLeft: 20,
+            marginRight: 20,
+            marginTop: 10,
+            marginBottom: 10,
+          }}
+          thumbStyle={{ backgroundColor: theme.colors.primary }}
+        />
+        <Canvas camera={{ position: [0, 0, 40] }}>
+          <ambientLight intensity={0.5} />
+          <spotLight intensity={0.8} position={[300, 300, 400]} />
+          <Suspense fallback={<LoadingIndicator />}>
+            {props.children({ rotation, zoom, sensorColours })}
+          </Suspense>
+        </Canvas>
+      </View>
+    </PinchGestureHandler>
   );
 }

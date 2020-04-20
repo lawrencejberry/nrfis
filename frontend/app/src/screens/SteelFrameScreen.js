@@ -59,9 +59,10 @@ export default function SteelFrameScreen() {
       // Model
       return (
         <Model data={data} dataType={dataType}>
-          {({ rotation, sensorColours }) => (
+          {({ rotation, zoom, sensorColours }) => (
             <SteelFrame
               rotation={rotation}
+              zoom={zoom}
               sensorColours={sensorColours}
               showContext={modelOptions.showContext}
             />
