@@ -57,17 +57,9 @@ export default function SteelFrameScreen() {
     if (mode == 0) {
       // Model
       return (
-        <Model
-          file={require("../../assets/models/steel-frame.glb")}
-          data={data}
-          dataType={dataType}
-        >
-          {({ localUri, rotation, sensorColours }) => (
-            <SteelFrame
-              localUri={localUri}
-              rotation={rotation}
-              sensorColours={sensorColours}
-            />
+        <Model data={data} dataType={dataType}>
+          {({ rotation, sensorColours }) => (
+            <SteelFrame rotation={rotation} sensorColours={sensorColours} />
           )}
         </Model>
       );

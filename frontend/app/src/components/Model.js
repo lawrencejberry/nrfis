@@ -35,19 +35,9 @@ function mapColour(dataType, v) {
 }
 
 export default function Model(props) {
-  const { children, file, ...rest } = props;
-  const [localUri, setLocalUri] = useState("");
   const [rotation, setRotation] = useState(new THREE.Euler(0, 0));
   const [sensorColours, setSensorColours] = useState({});
   const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    (async (file) => {
-      const asset = Asset.fromModule(file);
-      await asset.downloadAsync();
-      setLocalUri(asset.localUri);
-    })(props.file);
-  }, [props.file]);
 
   useEffect(() => {
     if (Array.isArray(props.data) && props.data.length) {
@@ -74,7 +64,6 @@ export default function Model(props) {
       style={{ flex: 1 }}
       onMoveShouldSetResponder={(event) => true}
       onResponderMove={(event) => handleResponderMove(event)}
-      {...rest}
     >
       <Slider
         value={index}
@@ -93,7 +82,7 @@ export default function Model(props) {
         <ambientLight intensity={0.5} />
         <spotLight intensity={0.8} position={[300, 300, 400]} />
         <Suspense fallback={<LoadingIndicator />}>
-          {props.children({ localUri, rotation, sensorColours })}
+          {props.children({ rotation, sensorColours })}
         </Suspense>
       </Canvas>
     </View>
