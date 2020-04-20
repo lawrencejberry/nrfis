@@ -10,16 +10,17 @@ import { renderSensorColour } from "./utils";
 export default function SteelFrame(props) {
   const group = useRef();
 
-  const { nodes, materials } = useLoader(
-    GLTFLoader,
-    "http://192.168.1.253:8000/steel-frame.glb" // Local static file server
-  );
+  const [{ nodes, materials }, background] = useLoader(GLTFLoader, [
+    "http://192.168.1.253:8000/steel-frame.glb",
+    "http://192.168.1.253:8000/steel-frame-background.glb", // Local static file server
+  ]);
 
   return (
     <group ref={group} {...props} dispose={null}>
       <scene name="Scene">
+        <primitive object={background.scene} dispose={null} />
         <group name="Z_UP">
-          <group name="Origin" position={[1.54, -19.88, 11.26]}>
+          <group name="Origin" position={[1.35, -25.6, 11.68]}>
             <mesh
               material={
                 materials["surface-style-196-metal---steel-43-275-fx.115"]
