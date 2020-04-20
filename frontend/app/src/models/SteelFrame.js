@@ -28,7 +28,7 @@ export default function SteelFrame(props) {
         <group name="Z_UP">
           <group
             name="Origin"
-            position={[1.35, -25.6, props.showContext ? -3.82 : 11.68]}
+            position={[1.35, -22.88, props.showContext ? -3.82 : 11.68]}
           >
             <mesh
               material={
