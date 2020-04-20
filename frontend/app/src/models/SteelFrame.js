@@ -19,11 +19,19 @@ export default function SteelFrame(props) {
     <group ref={group} {...props} dispose={null}>
       <scene name="Scene">
         {props.showContext ? (
-          <primitive
-            object={context.scene}
-            position={[0, 0, -15.5]}
-            dispose={null}
-          />
+          <mesh
+            geometry={context.nodes.rest_of_frame.geometry}
+            name="rest_of_frame"
+            position={[0, 2.77, 0.06]}
+            rotation={[Math.PI / 2, 0, -0.23]}
+          >
+            <meshBasicMaterial
+              attach="material"
+              color={"grey"}
+              transparent={true}
+              opacity={0.4}
+            />
+          </mesh>
         ) : null}
         <group name="Z_UP">
           <group
