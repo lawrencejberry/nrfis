@@ -4,8 +4,10 @@ import * as THREE from "three";
 import { Canvas } from "react-three-fiber";
 import { Slider } from "react-native-elements";
 import { State, PinchGestureHandler } from "react-native-gesture-handler";
+import { XAxis } from "react-native-svg-charts";
 
 import { LoadingIndicator } from "../models";
+import formatTimestampLabel from "./utils";
 import { theme } from "../utils";
 
 window.performance = {
@@ -84,26 +86,30 @@ export default function Model(props) {
         onMoveShouldSetResponder={(_) => true}
         onResponderMove={(event) => handleResponderMove(event)}
       >
-        <Slider
-          value={index}
-          onValueChange={(value) => setIndex(value)}
-          maximumValue={props.data.length ? props.data.length - 1 : 0}
-          step={1}
-          style={{
-            marginLeft: 20,
-            marginRight: 20,
-            marginTop: 10,
-            marginBottom: 10,
-          }}
-          thumbStyle={{ backgroundColor: theme.colors.primary }}
-        />
-        <Canvas camera={{ position: [0, 0, 40] }}>
+        <Canvas style={{ flex: 8 }} camera={{ position: [0, 0, 40] }}>
           <ambientLight intensity={0.5} />
           <spotLight intensity={0.8} position={[300, 300, 400]} />
           <Suspense fallback={<LoadingIndicator />}>
             {props.children({ rotation, zoom, sensorColours })}
           </Suspense>
         </Canvas>
+        <View style={{ flex: 1, marginHorizontal: 30, marginVertical: 5 }}>
+          <Slider
+            value={index}
+            onValueChange={(value) => setIndex(value)}
+            maximumValue={props.data.length ? props.data.length - 1 : 0}
+            step={1}
+            thumbStyle={{ backgroundColor: theme.colors.primary }}
+          />
+          <XAxis
+            style={{ flex: 1 }}
+            data={props.data}
+            xAccessor={({ item }) => item.timestamp}
+            formatLabel={formatTimestampLabel}
+            svg={{ fontSize: 10, fill: theme.colors.primary }}
+            numberOfTicks={5}
+          />
+        </View>
       </View>
     </PinchGestureHandler>
   );
