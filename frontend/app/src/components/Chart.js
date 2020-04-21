@@ -194,18 +194,6 @@ export default function Chart(props) {
             numberOfTicks={10}
           />
           <View style={{ flex: 1, marginHorizontal: 15 }}>
-            <LineChart
-              style={{ position: "absolute", width: "100%", height: "100%" }}
-              data={datasets}
-              xAccessor={({ index }) => timestamps[index]}
-              contentInset={contentInset}
-              curve={D3.curveBasis}
-              xMin={minX}
-              xMax={maxX}
-            >
-              <Grid direction={Grid.Direction.HORIZONTAL} />
-              <Decorators timestamps={timestamps} />
-            </LineChart>
             {chartOptions.showTemperature ? (
               <LineChart
                 style={{
@@ -232,6 +220,18 @@ export default function Chart(props) {
                 ))}
               </LineChart>
             ) : null}
+            <LineChart
+              style={{ position: "absolute", width: "100%", height: "100%" }}
+              data={datasets}
+              xAccessor={({ index }) => timestamps[index]}
+              contentInset={contentInset}
+              curve={D3.curveBasis}
+              xMin={minX}
+              xMax={maxX}
+            >
+              <Grid direction={Grid.Direction.HORIZONTAL} />
+              <Decorators timestamps={timestamps} />
+            </LineChart>
           </View>
           <View style={{ width: 35 }}>
             {chartOptions.showTemperature ? (
