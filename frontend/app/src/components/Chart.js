@@ -9,7 +9,7 @@ import { State, PinchGestureHandler } from "react-native-gesture-handler";
 import formatTimestampLabel from "./utils";
 import { theme } from "../utils";
 
-const contentInset = { top: 10, bottom: 10, left: 5, right: 5 };
+const contentInset = { top: 10, bottom: 10, left: 10, right: 10 };
 
 const Decorator = ({ x, y, value, timestamp, colour }) => {
   const [showLabel, setShowLabel] = useState(false);
@@ -172,24 +172,28 @@ export default function Chart(props) {
       onHandlerStateChange={handleStateChange}
     >
       <View
-        style={{ flex: 1, flexDirection: "row", padding: 20 }}
+        style={{ flex: 1, padding: 15 }}
         onMoveShouldSetResponder={(_) => true}
         onResponderMove={(event) => handleResponderMove(event)}
       >
-        <YAxis
-          style={{ flex: 1 }}
-          data={datasets.reduce((acc, dataset) => acc.concat(dataset.data), [])}
-          contentInset={contentInset}
-          svg={{ fontSize: 10, fill: theme.colors.primary }}
-          numberOfTicks={10}
-        />
         <View
-          style={{ flex: 30, marginLeft: 10, marginRight: 10 }}
+          style={{ flex: 1, flexDirection: "row" }}
           onLayout={(event) => {
             setWidth(event.nativeEvent.layout.width);
           }}
         >
-          <View style={{ flex: 30 }}>
+          <YAxis
+            style={{ width: 35 }}
+            data={datasets.reduce(
+              (acc, dataset) => acc.concat(dataset.data),
+              []
+            )}
+            formatLabel={(value) => value.toPrecision(4)}
+            contentInset={contentInset}
+            svg={{ fontSize: 10, fill: theme.colors.primary }}
+            numberOfTicks={10}
+          />
+          <View style={{ flex: 1, marginHorizontal: 15 }}>
             <LineChart
               style={{ position: "absolute", width: "100%", height: "100%" }}
               data={datasets}
@@ -229,28 +233,29 @@ export default function Chart(props) {
               </LineChart>
             ) : null}
           </View>
-          <XAxis
-            style={{ flex: 1 }}
-            data={baseRange}
-            xAccessor={({ item }) => item}
-            formatLabel={formatTimestampLabel}
-            contentInset={contentInset}
-            svg={{ fontSize: 10, fill: theme.colors.primary }}
-            numberOfTicks={5}
-          />
+          <View style={{ width: 35 }}>
+            {chartOptions.showTemperature ? (
+              <YAxis
+                style={{ flex: 1 }}
+                data={chartOptions.temperatureData}
+                yAccessor={({ item }) => item.temperature}
+                formatLabel={(value) => value.toPrecision(4)}
+                contentInset={contentInset}
+                svg={{ fontSize: 10, fill: theme.colors.primary }}
+                numberOfTicks={10}
+              />
+            ) : null}
+          </View>
         </View>
-        {chartOptions.showTemperature ? (
-          <YAxis
-            style={{ flex: 1 }}
-            data={chartOptions.temperatureData}
-            yAccessor={({ item }) => item.temperature}
-            contentInset={contentInset}
-            svg={{ fontSize: 10, fill: theme.colors.primary }}
-            numberOfTicks={10}
-          />
-        ) : (
-          <View style={{ flex: 1 }} />
-        )}
+        <XAxis
+          style={{ height: 25, marginHorizontal: 35, marginTop: 10 }}
+          data={[minX, maxX]}
+          xAccessor={({ item }) => item}
+          formatLabel={formatTimestampLabel}
+          contentInset={contentInset}
+          svg={{ fontSize: 10, fill: theme.colors.primary }}
+          numberOfTicks={5}
+        />
       </View>
     </PinchGestureHandler>
   );
