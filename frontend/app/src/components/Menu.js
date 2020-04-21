@@ -9,9 +9,11 @@ import {
 } from "react-native-elements";
 import DateTimePickerIOS from "@react-native-community/datetimepicker";
 import { DateTimePickerModal as DateTimePickerAndroid } from "react-native-modal-datetime-picker";
+import { LinearGradient } from "expo-linear-gradient";
+import { XAxis } from "react-native-svg-charts";
 
 import Modal from "./Modal";
-import { theme } from "../utils";
+import { theme, modelColourScale } from "../utils";
 
 const MultiSelect = ({ options, setOptions }) => (
   <>
@@ -148,6 +150,57 @@ export default function Menu(props) {
   const renderModelMenu = () => (
     <>
       <Text>MODEL OPTIONS</Text>
+      <Button
+        title={props.modelOptions.showContext ? "Hide Context" : "Show Context"}
+        type={props.modelOptions.showContext ? "solid" : "outline"}
+        onPress={() =>
+          props.setModelOptions({
+            ...props.modelOptions,
+            showContext: !props.modelOptions.showContext,
+          })
+        }
+        titleStyle={{
+          fontWeight: "normal",
+          color: props.modelOptions.showContext
+            ? theme.colors.background
+            : theme.colors.secondary,
+        }}
+      />
+      <Divider />
+      <Text>COLOUR SCALE</Text>
+      <ButtonGroup
+        buttons={["Adaptive", "Absolute"]}
+        selectedIndex={props.modelOptions.colourMode}
+        onPress={(index) =>
+          props.setModelOptions({
+            ...props.modelOptions,
+            colourMode: index,
+            scale: index ? modelColourScale[props.dataType] : props.dataRange,
+          })
+        }
+      />
+      <View style={{ flex: 1, paddingVertical: 5 }}>
+        <LinearGradient
+          style={{
+            height: 40,
+            marginHorizontal: 10,
+            borderRadius: 4,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+          }}
+          colors={["hsl(270,100%,50%)", "hsl(0,100%,50%)"]}
+          start={[0, 0.5]}
+          end={[1, 0.5]}
+        />
+        <XAxis
+          style={{ flex: 1, marginVertical: 8 }}
+          data={props.modelOptions.scale}
+          xAccessor={({ item }) => item}
+          contentInset={{ left: 18, right: 18 }}
+          svg={{ fontSize: 10, fill: theme.colors.primary }}
+          numberOfTicks={5}
+        />
+      </View>
     </>
   );
 
@@ -309,7 +362,7 @@ export default function Menu(props) {
       <ButtonGroup
         buttons={["Model", "Chart"]}
         selectedIndex={props.mode}
-        disabled={props.modelModeEnabled ? [] : [0]}
+        disabled={props.dataType !== "raw" ? [] : [0]} // Model mode only enabled for str or tmp
         onPress={(index) => props.setMode(index)}
       />
       <Divider />

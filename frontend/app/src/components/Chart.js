@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View } from "react-native";
 import { Text } from "react-native-elements";
-import {
-  TSpan,
-  Circle,
-  G,
-  Rect,
-  Line,
-  Text as SVGText,
-} from "react-native-svg";
+import { Circle, G, Rect, Line, Text as SVGText } from "react-native-svg";
 import { LineChart, Grid, YAxis, XAxis } from "react-native-svg-charts";
 import * as D3 from "d3-shape";
 import {
@@ -17,6 +10,7 @@ import {
   PanGestureHandler,
 } from "react-native-gesture-handler";
 
+import formatTimestampLabel from "./utils";
 import { theme } from "../utils";
 
 const contentInset = { top: 10, bottom: 10, left: 5, right: 5 };
@@ -128,20 +122,6 @@ export default function Chart(props) {
       </Text>
     );
   }
-
-  const formatTimestampLabel = (value) => {
-    const datetime = new Date(value).toUTCString();
-    const date = datetime.slice(5, 16);
-    const time = datetime.slice(17, -4);
-    return (
-      <>
-        <TSpan>{time}</TSpan>
-        <TSpan dx="-4.3em" dy="1.2em">
-          {date}
-        </TSpan>
-      </>
-    );
-  };
 
   const handlePinchGestureEvent = ({ nativeEvent: event }) => {
     const oldRange = baseRange[1] - baseRange[0];

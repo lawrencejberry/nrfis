@@ -3,11 +3,18 @@ import { View } from "react-native";
 
 import { Menu, Model, Chart } from "../components";
 import { SteelFrame } from "../models";
-import { fetchData, fetchTemperatureData, theme, chartColours } from "../utils";
+import {
+  fetchData,
+  fetchTemperatureData,
+  theme,
+  chartColours,
+  modelColourScale,
+} from "../utils";
 
 export default function SteelFrameScreen() {
   const [data, setData] = useState([]);
   const [mode, setMode] = useState(0); // 0 for Model, 1 for Chart
+  const [dataRange, setDataRange] = useState([]);
   const [dataType, setDataType] = useState("str");
   const [isLoading, setIsLoading] = useState(false);
   const [chartOptions, setChartOptions] = useState({
@@ -15,28 +22,40 @@ export default function SteelFrameScreen() {
     showTemperature: false,
     temperatureData: [], // [{temperature: x, timestamp: x}, ...]
   });
+  const [modelOptions, setModelOptions] = useState({
+    showContext: true,
+    colourMode: 0, // 0 = adaptive
+    scale: [],
+  });
 
   async function refresh(dataType, averagingWindow, startTime, endTime) {
     setIsLoading(true);
     try {
       // Fetch sensor data
-      setData(
-        await fetchData(
-          "steel-frame",
-          dataType,
-          averagingWindow,
-          startTime.toISOString(),
-          endTime.toISOString()
-        )
+      const data = await fetchData(
+        "steel-frame",
+        dataType,
+        averagingWindow,
+        startTime.toISOString(),
+        endTime.toISOString()
       );
-      // Set the type of the fetched data
+      setData(data);
       setDataType(dataType);
-      // Enable/disable the model mode button
-      if (dataType == "raw") {
+      const allReadings = data.reduce(
+        (acc, { timestamp, ...readings }) =>
+          acc.concat(Object.values(readings)),
+        []
+      );
+      const dataRange = [Math.min(...allReadings), Math.max(...allReadings)];
+      setDataRange(dataRange);
+
+      // Switch to chart mode if using raw data type
+      if (dataType === "raw") {
         setMode(1); // Chart mode
       }
-      // Set all sensors selected and fetch temperature data
-      const { timestamp, ...readings } = props.data[0]; // Extract sensor readings for the first sample
+
+      // Set chart options
+      const { timestamp, ...readings } = data[0]; // Extract sensor readings for the first sample
       const sensorNames = Object.keys(readings); // Extract the sensor names
       setChartOptions({
         ...chartOptions,
@@ -46,6 +65,12 @@ export default function SteelFrameScreen() {
           colour: chartColours[index % chartColours.length],
         })),
         temperatureData: await fetchTemperatureData(startTime, endTime),
+      });
+
+      // Set model options
+      setModelOptions({
+        ...modelOptions,
+        scale: modelOptions.colourMode ? modelColourScale[dataType] : dataRange,
       });
     } catch (error) {
       console.error(error);
@@ -57,16 +82,13 @@ export default function SteelFrameScreen() {
     if (mode == 0) {
       // Model
       return (
-        <Model
-          file={require("../../assets/models/steel-frame.glb")}
-          data={data}
-          dataType={dataType}
-        >
-          {({ localUri, rotation, sensorColours }) => (
+        <Model data={data} modelOptions={modelOptions}>
+          {({ rotation, zoom, sensorColours }) => (
             <SteelFrame
-              localUri={localUri}
               rotation={rotation}
+              zoom={zoom}
               sensorColours={sensorColours}
+              showContext={modelOptions.showContext}
             />
           )}
         </Model>
@@ -90,11 +112,14 @@ export default function SteelFrameScreen() {
         }}
         mode={mode}
         setMode={setMode}
-        modelModeEnabled={dataType !== "raw"} // Model mode only enabled for str or tmp
+        dataType={dataType}
+        dataRange={dataRange}
         isLoading={isLoading}
         refresh={refresh}
         chartOptions={chartOptions}
         setChartOptions={setChartOptions}
+        modelOptions={modelOptions}
+        setModelOptions={setModelOptions}
       />
     </View>
   );
