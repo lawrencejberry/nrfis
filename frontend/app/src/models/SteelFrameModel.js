@@ -7,7 +7,7 @@ import { useLoader, useThree } from "react-three-fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { renderSensorColour } from "./utils";
 
-export default function SteelFrame(props) {
+export default function SteelFrameModel(props) {
   const { camera } = useThree();
 
   const [{ nodes, materials }, context] = useLoader(GLTFLoader, [
