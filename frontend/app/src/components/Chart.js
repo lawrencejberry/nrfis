@@ -4,16 +4,12 @@ import { Text } from "react-native-elements";
 import { Circle, G, Rect, Line, Text as SVGText } from "react-native-svg";
 import { LineChart, Grid, YAxis, XAxis } from "react-native-svg-charts";
 import * as D3 from "d3-shape";
-import {
-  State,
-  PinchGestureHandler,
-  PanGestureHandler,
-} from "react-native-gesture-handler";
+import { State, PinchGestureHandler } from "react-native-gesture-handler";
 
 import formatTimestampLabel from "./utils";
 import { theme } from "../utils";
 
-const contentInset = { top: 10, bottom: 10, left: 5, right: 5 };
+const contentInset = { top: 10, bottom: 10, left: 10, right: 10 };
 
 const Decorator = ({ x, y, value, timestamp, colour }) => {
   const [showLabel, setShowLabel] = useState(false);
@@ -123,6 +119,24 @@ export default function Chart(props) {
     );
   }
 
+  function handleResponderMove(event) {
+    const touchBank =
+      event.touchHistory.touchBank[Platform.select({ default: 0, ios: 1 })];
+    const change =
+      ((touchBank.currentPageX - touchBank.previousPageX) / width) *
+      (baseRange[1] - baseRange[0]);
+    const newMinX = minX - change;
+    const newMaxX = maxX - change;
+
+    if (
+      newMinX >= timestamps[0] &&
+      newMaxX <= timestamps[timestamps.length - 1]
+    ) {
+      setMinX(newMinX);
+      setMaxX(newMaxX);
+    }
+  }
+
   const handlePinchGestureEvent = ({ nativeEvent: event }) => {
     const oldRange = baseRange[1] - baseRange[0];
     const newRange = oldRange * (1 / event.scale);
@@ -146,22 +160,6 @@ export default function Chart(props) {
     }
   };
 
-  const handlePanGestureEvent = ({ nativeEvent: event }) => {
-    const oldRange = baseRange[1] - baseRange[0];
-    const change = 0.2 * (event.translationX / width) * oldRange;
-    const newMinX = minX - change;
-    const newMaxX = maxX - change;
-
-    if (
-      newMinX >= timestamps[0] &&
-      newMaxX <= timestamps[timestamps.length - 1] &&
-      Math.abs(change) > oldRange / 100
-    ) {
-      setMinX(newMinX);
-      setMaxX(newMaxX);
-    }
-  };
-
   const handleStateChange = ({ nativeEvent: event }) => {
     if (event.oldState === State.ACTIVE) {
       setBaseRange([minX, maxX]);
@@ -169,93 +167,96 @@ export default function Chart(props) {
   };
 
   return (
-    <View style={{ flex: 1, flexDirection: "row", padding: 20 }}>
-      <YAxis
-        style={{ flex: 1 }}
-        data={datasets.reduce((acc, dataset) => acc.concat(dataset.data), [])}
-        contentInset={contentInset}
-        svg={{ fontSize: 10, fill: theme.colors.primary }}
-        numberOfTicks={10}
-      />
-      <PinchGestureHandler
-        onGestureEvent={handlePinchGestureEvent}
-        onHandlerStateChange={handleStateChange}
+    <PinchGestureHandler
+      onGestureEvent={handlePinchGestureEvent}
+      onHandlerStateChange={handleStateChange}
+    >
+      <View
+        style={{ flex: 1, padding: 15 }}
+        onMoveShouldSetResponder={(_) => true}
+        onResponderMove={(event) => handleResponderMove(event)}
       >
-        <PanGestureHandler
-          onGestureEvent={handlePanGestureEvent}
-          onHandlerStateChange={handleStateChange}
-          maxPointers={1}
+        <View
+          style={{ flex: 1, flexDirection: "row" }}
+          onLayout={(event) => {
+            setWidth(event.nativeEvent.layout.width);
+          }}
         >
-          <View
-            style={{ flex: 30, marginLeft: 10, marginRight: 10 }}
-            onLayout={(event) => {
-              setWidth(event.nativeEvent.layout.width);
-            }}
-          >
-            <View style={{ flex: 30 }}>
+          <YAxis
+            style={{ width: 35 }}
+            data={datasets.reduce(
+              (acc, dataset) => acc.concat(dataset.data),
+              []
+            )}
+            formatLabel={(value) => value.toPrecision(4)}
+            contentInset={contentInset}
+            svg={{ fontSize: 10, fill: theme.colors.primary }}
+            numberOfTicks={10}
+          />
+          <View style={{ flex: 1, marginHorizontal: 15 }}>
+            {chartOptions.showTemperature ? (
               <LineChart
-                style={{ position: "absolute", width: "100%", height: "100%" }}
-                data={datasets}
-                xAccessor={({ index }) => timestamps[index]}
+                style={{
+                  position: "absolute",
+                  width: "100%",
+                  height: "100%",
+                }}
+                data={chartOptions.temperatureData}
+                xAccessor={({ item }) => item.timestamp}
+                yAccessor={({ item }) => item.temperature}
                 contentInset={contentInset}
                 curve={D3.curveBasis}
+                svg={{ stroke: "orange" }}
                 xMin={minX}
                 xMax={maxX}
               >
-                <Grid direction={Grid.Direction.HORIZONTAL} />
-                <Decorators timestamps={timestamps} />
+                {chartOptions.temperatureData.map((item, index) => (
+                  <Decorator
+                    key={index}
+                    value={item.temperature}
+                    timestamp={item.timestamp}
+                    colour="orange"
+                  />
+                ))}
               </LineChart>
-              {chartOptions.showTemperature ? (
-                <LineChart
-                  style={{
-                    position: "absolute",
-                    width: "100%",
-                    height: "100%",
-                  }}
-                  data={chartOptions.temperatureData}
-                  xAccessor={({ item }) => item.timestamp}
-                  yAccessor={({ item }) => item.temperature}
-                  contentInset={contentInset}
-                  curve={D3.curveBasis}
-                  svg={{ stroke: "orange" }}
-                  xMin={minX}
-                  xMax={maxX}
-                >
-                  {chartOptions.temperatureData.map((item, index) => (
-                    <Decorator
-                      key={index}
-                      value={item.temperature}
-                      timestamp={item.timestamp}
-                      colour="orange"
-                    />
-                  ))}
-                </LineChart>
-              ) : null}
-            </View>
-            <XAxis
-              style={{ flex: 1 }}
-              data={baseRange}
-              xAccessor={({ item }) => item}
-              formatLabel={formatTimestampLabel}
+            ) : null}
+            <LineChart
+              style={{ position: "absolute", width: "100%", height: "100%" }}
+              data={datasets}
+              xAccessor={({ index }) => timestamps[index]}
               contentInset={contentInset}
-              svg={{ fontSize: 10, fill: theme.colors.primary }}
-              numberOfTicks={5}
-            />
+              curve={D3.curveBasis}
+              xMin={minX}
+              xMax={maxX}
+            >
+              <Grid direction={Grid.Direction.HORIZONTAL} />
+              <Decorators timestamps={timestamps} />
+            </LineChart>
           </View>
-        </PanGestureHandler>
-      </PinchGestureHandler>
-      {chartOptions.showTemperature ? (
-        <YAxis
-          style={{ flex: 1 }}
-          data={chartOptions.temperatureData}
-          yAccessor={({ item }) => item.temperature}
+          <View style={{ width: 35 }}>
+            {chartOptions.showTemperature ? (
+              <YAxis
+                style={{ flex: 1 }}
+                data={chartOptions.temperatureData}
+                yAccessor={({ item }) => item.temperature}
+                formatLabel={(value) => value.toPrecision(4)}
+                contentInset={contentInset}
+                svg={{ fontSize: 10, fill: theme.colors.primary }}
+                numberOfTicks={10}
+              />
+            ) : null}
+          </View>
+        </View>
+        <XAxis
+          style={{ height: 25, marginHorizontal: 35, marginTop: 10 }}
+          data={[minX, maxX]}
+          xAccessor={({ item }) => item}
+          formatLabel={formatTimestampLabel}
           contentInset={contentInset}
           svg={{ fontSize: 10, fill: theme.colors.primary }}
-          numberOfTicks={10}
+          numberOfTicks={5}
         />
-      ) : (
-        <View style={{ flex: 1 }} />
-      )}
-    </View>
+      </View>
+    </PinchGestureHandler>
   );
 }

@@ -85,14 +85,23 @@ export default function Model(props) {
         onMoveShouldSetResponder={(_) => true}
         onResponderMove={(event) => handleResponderMove(event)}
       >
-        <Canvas style={{ flex: 8 }} camera={{ position: [0, 0, 40] }}>
+        <Canvas style={{ flex: 1 }} camera={{ position: [0, 0, 40] }}>
           <ambientLight intensity={0.5} />
           <spotLight intensity={0.8} position={[300, 300, 400]} />
           <Suspense fallback={<LoadingIndicator />}>
             {props.children({ rotation, zoom, sensorColours })}
           </Suspense>
         </Canvas>
-        <View style={{ flex: 1, marginHorizontal: 30, marginVertical: 5 }}>
+        <View
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 80,
+            marginHorizontal: 35,
+          }}
+        >
           <Slider
             value={index}
             onValueChange={(value) => setIndex(value)}
@@ -101,7 +110,7 @@ export default function Model(props) {
             thumbStyle={{ backgroundColor: theme.colors.primary }}
           />
           <XAxis
-            style={{ flex: 1 }}
+            style={{ height: 25 }}
             data={props.data}
             xAccessor={({ item }) => item.timestamp}
             formatLabel={formatTimestampLabel}
