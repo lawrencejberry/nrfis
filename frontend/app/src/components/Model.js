@@ -18,24 +18,6 @@ window.performance = {
   now: () => {},
 };
 
-function mapColour(dataType, v) {
-  if (dataType == "str") {
-    if (v < -200) return "grey";
-    else if (v > 200) return "grey";
-    else {
-      const hue = (1 - (v + 200) / 400) * 270;
-      return `hsl(${hue},100%,50%)`;
-    }
-  } else if (dataType == "tmp") {
-    if (v < -10) return "grey";
-    else if (v > 10) return "grey";
-    else {
-      const hue = (1 - (v + 10) / 20) * 270;
-      return `hsl(${hue},100%,50%)`;
-    }
-  }
-}
-
 export default function Model(props) {
   const [rotation, setRotation] = useState(new THREE.Euler(0, 0));
   const [sensorColours, setSensorColours] = useState({});
@@ -43,17 +25,34 @@ export default function Model(props) {
   const [zoom, setZoom] = useState(1);
   const [baseZoom, setBaseZoom] = useState(1);
 
+  const mapColour = (value) => {
+    const min = props.modelOptions.scale[0];
+    const max = props.modelOptions.scale[1];
+
+    if (value < max && value > min) {
+      const hue = (1 - (value - min) / (max - min)) * 270;
+      return `hsl(${hue},100%,50%)`;
+    }
+
+    return "grey";
+  };
+
   useEffect(() => {
-    if (Array.isArray(props.data) && props.data.length) {
+    if (props.data.length) {
       const colours = Object.fromEntries(
-        Object.entries(props.data[index]).map(([k, v]) => [
-          k,
-          mapColour(props.dataType, v),
+        Object.entries(props.data[index]).map(([sensor, value]) => [
+          sensor,
+          mapColour(value),
         ])
       );
       setSensorColours(colours);
     }
-  }, [props.data, index]);
+  }, [
+    props.data,
+    props.modelOptions.colourMode,
+    props.modelOptions.scale,
+    index,
+  ]);
 
   function handleResponderMove(event) {
     const touchBank =
