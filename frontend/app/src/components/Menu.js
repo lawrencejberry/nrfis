@@ -369,23 +369,33 @@ export default function Menu(props) {
       />
       <Divider />
       <Text>DATA OPTIONS</Text>
-      {[
-        "Data Type",
-        "Averaging Window",
-        "Start Time",
-        "End Time",
-      ].map((element) => renderButton(element))}
-      <Button
-        title="Refresh"
-        onPress={() => {
-          props.refresh(dataType, averagingWindow, startTime, endTime);
-        }}
-        type="outline"
-        titleStyle={{ color: theme.colors.actionable }}
-        buttonStyle={{ borderColor: theme.colors.actionable }}
-        loading={props.isLoading}
-        loadingProps={{ size: 16 }}
+      <ButtonGroup
+        buttons={["Live", "Historical"]}
+        selectedIndex={props.liveMode}
+        disabled={props.live ? [] : [0]} // Live mode disabled when not available
+        onPress={(index) => props.setLiveMode(index)}
       />
+      {props.liveMode ? (
+        <>
+          {[
+            "Data Type",
+            "Averaging Window",
+            "Start Time",
+            "End Time",
+          ].map((element) => renderButton(element))}
+          <Button
+            title="Refresh"
+            onPress={() => {
+              props.refresh(dataType, averagingWindow, startTime, endTime);
+            }}
+            type="outline"
+            titleStyle={{ color: theme.colors.actionable }}
+            buttonStyle={{ borderColor: theme.colors.actionable }}
+            loading={props.isLoading}
+            loadingProps={{ size: 16 }}
+          />
+        </>
+      ) : null}
       <Divider />
       {props.mode ? renderChartMenu() : renderModelMenu()}
       <Modal

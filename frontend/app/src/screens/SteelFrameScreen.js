@@ -5,7 +5,7 @@ import { SteelFrameModel } from "../models";
 
 export default function SteelFrameScreen() {
   return (
-    <Screen packageURL="steel-frame">
+    <Screen packageURL="steel-frame" packageServerName="SteelFrame">
       {(props) => <SteelFrameModel {...props} />}
     </Screen>
   );

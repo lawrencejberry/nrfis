@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { View } from "react-native";
 
 import Menu from "./Menu";
@@ -10,11 +10,14 @@ import {
   theme,
   chartColours,
   modelColourScale,
+  LiveStatusContext,
 } from "../utils";
 
 export default function Screen(props) {
   const [data, setData] = useState([]);
   const [mode, setMode] = useState(0); // 0 for Model, 1 for Chart
+  const [live, setLive] = useState(false);
+  const [liveMode, setLiveMode] = useState(1); // 0 for Live, 1 for Historical
   const [dataRange, setDataRange] = useState([]);
   const [dataType, setDataType] = useState("str");
   const [isLoading, setIsLoading] = useState(false);
@@ -28,6 +31,17 @@ export default function Screen(props) {
     colourMode: 0, // 0 = adaptive
     scale: [0, 0],
   });
+
+  const { packages: livePackages } = useContext(LiveStatusContext);
+
+  useEffect(() => {
+    const live = livePackages.includes(props.packageServerName);
+    setLive(live);
+    if (!live) {
+      // Set to historical mode when package is not live
+      setLiveMode(1);
+    }
+  }, [livePackages]);
 
   async function refresh(dataType, averagingWindow, startTime, endTime) {
     setIsLoading(true);
@@ -113,6 +127,9 @@ export default function Screen(props) {
         }}
         mode={mode}
         setMode={setMode}
+        live={live}
+        liveMode={liveMode}
+        setLiveMode={setLiveMode}
         dataType={dataType}
         dataRange={dataRange}
         isLoading={isLoading}
