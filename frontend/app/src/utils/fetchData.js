@@ -27,11 +27,8 @@ export default async function fetchData(
 
 // Returns an array of dates between two dates
 const getDaysArray = (startTime, endTime) => {
-  for (
-    const dates = [], d = new Date(startTime);
-    d <= endTime;
-    d.setDate(d.getDate() + 1)
-  ) {
+  const dates = [];
+  for (let d = new Date(startTime); d <= endTime; d.setDate(d.getDate() + 1)) {
     dates.push(new Date(d));
   }
   return dates;
@@ -45,9 +42,14 @@ export async function fetchTemperatureData(startTime, endTime) {
       const response = await fetch(
         `https://www.cl.cam.ac.uk/research/dtg/weather/daily-text.cgi?${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
       );
-      const data = Papa.parse(await response.text()).slice(8);
+      const parsedData = Papa.parse(
+        (await response.text())
+          .split("\n")
+          .slice(8, -1)
+          .join("\n")
+      );
       temperatureData.push(
-        ...data.map((sample) => ({
+        ...parsedData.data.map((sample) => ({
           timestamp: date.setHours(...sample[0].split(":")),
           temperature: sample[1],
         }))
