@@ -43,7 +43,9 @@ class SteelFrameMetadata(Base):
     uid = Column(String, primary_key=True)
     channel = Column(Integer)
     index = Column(Integer)
-    name = Column(String, unique=True)
+    name = Column(
+        String
+    )  # Not unique as the steel frame strain and temp sensors can be colocated and so have the same name
     type = Column(String)
     recording = Column(Boolean)
     corresponding_sensor = Column(String)

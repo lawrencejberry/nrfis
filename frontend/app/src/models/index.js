@@ -1,2 +1,3 @@
 export { default as LoadingIndicator } from "./LoadingIndicator";
-export { default as SteelFrame } from "./SteelFrame";
+export { default as SteelFrameModel } from "./SteelFrameModel";
+export { default as StrongFloorModel } from "./StrongFloorModel";

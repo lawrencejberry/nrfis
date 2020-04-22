@@ -1,5 +1,9 @@
-from fastapi import FastAPI
+import os
 
+from fastapi import FastAPI
+from starlette.staticfiles import StaticFiles
+
+from . import ROOT_DIR
 from .routers import fbg
 
 app = FastAPI(
@@ -9,3 +13,7 @@ app = FastAPI(
 )
 
 app.include_router(fbg.router, prefix="/fbg", tags=["FBG"])
+
+app.mount(
+    "/static", StaticFiles(directory=os.path.join(ROOT_DIR, "static")), name="static"
+)
