@@ -188,7 +188,9 @@ export default function Menu(props) {
             borderWidth: 1,
             borderColor: theme.colors.border,
           }}
-          colors={["hsl(270,100%,50%)", "hsl(0,100%,50%)"]}
+          colors={[...Array(270).keys()]
+            .reverse()
+            .map((hue) => `hsl(${hue},100%,50%)`)}
           start={[0, 0.5]}
           end={[1, 0.5]}
         />
