@@ -21,8 +21,12 @@ export default function App() {
   });
 
   async function checkLiveStatus() {
-    const status = await fetchLiveStatus();
-    setLiveStatus(status);
+    try {
+      const status = await fetchLiveStatus();
+      setLiveStatus(status);
+    } catch (error) {
+      setLiveStatus({ live: false, packages: [], sampling_rate: 0 });
+    }
   }
 
   useEffect(() => {

@@ -62,14 +62,10 @@ export async function fetchTemperatureData(startTime, endTime) {
 }
 
 export async function fetchLiveStatus() {
-  try {
-    const response = await fetch("http://129.169.72.175/fbg/live-status/", {
-      method: "GET",
-      headers: { "media-type": "application/json" },
-    });
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error(error);
-  }
+  const response = await fetch("http://129.169.72.175/fbg/live-status/", {
+    method: "GET",
+    headers: { "media-type": "application/json" },
+  });
+  const data = await response.json();
+  return data;
 }
