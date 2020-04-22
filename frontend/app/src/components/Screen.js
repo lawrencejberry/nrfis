@@ -17,7 +17,8 @@ export default function Screen(props) {
   const [data, setData] = useState([]);
   const [mode, setMode] = useState(0); // 0 for Model, 1 for Chart
   const [live, setLive] = useState(false);
-  const [liveMode, setLiveMode] = useState(1); // 0 for Live, 1 for Historical
+  const [liveData, setLiveData] = useState([]);
+  const [liveMode, setLiveMode] = useState(false); // true for Live, false for Historical
   const [dataRange, setDataRange] = useState([]);
   const [dataType, setDataType] = useState("str");
   const [isLoading, setIsLoading] = useState(false);
@@ -32,16 +33,33 @@ export default function Screen(props) {
     scale: [0, 0],
   });
 
-  const { packages: livePackages } = useContext(LiveStatusContext);
+  const liveStatus = useContext(LiveStatusContext);
 
   useEffect(() => {
-    const live = livePackages.includes(props.packageServerName);
+    const live = liveStatus.packages.includes(props.packageServerName);
     setLive(live);
-    if (!live) {
+    if (live) {
+      // Set to absolute colour scale when pacakge is live
+      setModelOptions({ ...modelOptions, colourMode: 1 });
+    } else {
       // Set to historical mode when package is not live
-      setLiveMode(1);
+      setLiveMode(false);
     }
-  }, [livePackages]);
+  }, [liveStatus, props.packageServerName]);
+
+  useEffect(() => {
+    let ws = new WebSocket(
+      `ws://129.169.72.175/fbg/live-data/?data-type=${dataType}`
+    );
+    ws.onmessage = (event) => {
+      const data = liveData;
+      if (data.length > 30) data.shift();
+      setLiveData([...data, JSON.parse(event.data)[props.packageServerName]]);
+    };
+    return () => {
+      ws.close(); // Clean up the previous websocket when changing the liveMode or dataType
+    };
+  }, [liveMode, dataType]);
 
   async function refresh(dataType, averagingWindow, startTime, endTime) {
     setIsLoading(true);
@@ -97,7 +115,12 @@ export default function Screen(props) {
     if (mode == 0) {
       // Model
       return (
-        <Model data={data} modelOptions={modelOptions}>
+        <Model
+          data={data}
+          liveMode={liveMode}
+          liveData={liveData}
+          modelOptions={modelOptions}
+        >
           {({ rotation, zoom, sensorColours }) =>
             props.children({
               rotation,
@@ -110,7 +133,14 @@ export default function Screen(props) {
       );
     } else {
       // Chart
-      return <Chart data={data} chartOptions={chartOptions} />;
+      return (
+        <Chart
+          data={data}
+          liveMode={liveMode}
+          liveData={liveData}
+          chartOptions={chartOptions}
+        />
+      );
     }
   }
 

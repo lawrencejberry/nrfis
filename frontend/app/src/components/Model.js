@@ -38,9 +38,13 @@ export default function Model(props) {
   };
 
   useEffect(() => {
-    if (props.data.length) {
+    const sample = props.liveMode
+      ? props.liveData[props.liveData.length - 1]
+      : props.data[index];
+
+    if (sample) {
       const colours = Object.fromEntries(
-        Object.entries(props.data[index]).map(([sensor, value]) => [
+        Object.entries(sample).map(([sensor, value]) => [
           sensor,
           mapColour(value),
         ])
@@ -49,6 +53,8 @@ export default function Model(props) {
     }
   }, [
     props.data,
+    props.liveMode,
+    props.liveData,
     props.modelOptions.colourMode,
     props.modelOptions.scale,
     index,
@@ -92,32 +98,34 @@ export default function Model(props) {
             {props.children({ rotation, zoom, sensorColours })}
           </Suspense>
         </Canvas>
-        <View
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 80,
-            marginHorizontal: 35,
-          }}
-        >
-          <Slider
-            value={index}
-            onValueChange={(value) => setIndex(value)}
-            maximumValue={props.data.length ? props.data.length - 1 : 0}
-            step={1}
-            thumbStyle={{ backgroundColor: theme.colors.primary }}
-          />
-          <XAxis
-            style={{ height: 25 }}
-            data={props.data}
-            xAccessor={({ item }) => item.timestamp}
-            formatLabel={formatTimestampLabel}
-            svg={{ fontSize: 10, fill: theme.colors.primary }}
-            numberOfTicks={5}
-          />
-        </View>
+        {props.liveMode ? null : (
+          <View
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 80,
+              marginHorizontal: 35,
+            }}
+          >
+            <Slider
+              value={index}
+              onValueChange={(value) => setIndex(value)}
+              maximumValue={props.data.length ? props.data.length - 1 : 0}
+              step={1}
+              thumbStyle={{ backgroundColor: theme.colors.primary }}
+            />
+            <XAxis
+              style={{ height: 25 }}
+              data={props.data}
+              xAccessor={({ item }) => item.timestamp}
+              formatLabel={formatTimestampLabel}
+              svg={{ fontSize: 10, fill: theme.colors.primary }}
+              numberOfTicks={5}
+            />
+          </View>
+        )}
       </View>
     </PinchGestureHandler>
   );

@@ -22,8 +22,8 @@ export default function App() {
 
   async function checkLiveStatus() {
     try {
-      const status = await fetchLiveStatus();
-      setLiveStatus(status);
+      const newLiveStatus = await fetchLiveStatus();
+      setLiveStatus(newLiveStatus);
     } catch (error) {
       setLiveStatus({ live: false, packages: [], sampling_rate: 0 });
     }
@@ -31,8 +31,10 @@ export default function App() {
 
   useEffect(() => {
     checkLiveStatus();
-    const intervalID = setInterval(checkLiveStatus, 60000);
-    return () => clearInterval(intervalID);
+    const intervalID = setInterval(checkLiveStatus, 5000);
+    return () => {
+      clearInterval(intervalID);
+    };
   }, []);
 
   return (

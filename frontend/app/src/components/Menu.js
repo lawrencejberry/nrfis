@@ -171,6 +171,7 @@ export default function Menu(props) {
       <ButtonGroup
         buttons={["Adaptive", "Absolute"]}
         selectedIndex={props.modelOptions.colourMode}
+        disabled={props.liveMode ? [0] : []} // Adaptive button disabled when in live mode
         onPress={(index) =>
           props.setModelOptions({
             ...props.modelOptions,
@@ -371,18 +372,18 @@ export default function Menu(props) {
       <Text>DATA OPTIONS</Text>
       <ButtonGroup
         buttons={["Live", "Historical"]}
-        selectedIndex={props.liveMode}
-        disabled={props.live ? [] : [0]} // Live mode disabled when not available
-        onPress={(index) => props.setLiveMode(index)}
+        selectedIndex={props.liveMode ? 0 : 1} // 0 = Live, 1 = Historical
+        disabled={props.live ? [] : [0]} // Live button disabled when live mode is unavailable
+        onPress={(index) =>
+          index ? props.setLiveMode(false) : props.setLiveMode(true)
+        }
       />
-      {props.liveMode ? (
+      {renderButton("Data Type")}
+      {props.liveMode ? null : (
         <>
-          {[
-            "Data Type",
-            "Averaging Window",
-            "Start Time",
-            "End Time",
-          ].map((element) => renderButton(element))}
+          {["Averaging Window", "Start Time", "End Time"].map((element) =>
+            renderButton(element)
+          )}
           <Button
             title="Refresh"
             onPress={() => {
@@ -395,7 +396,7 @@ export default function Menu(props) {
             loadingProps={{ size: 16 }}
           />
         </>
-      ) : null}
+      )}
       <Divider />
       {props.mode ? renderChartMenu() : renderModelMenu()}
       <Modal
