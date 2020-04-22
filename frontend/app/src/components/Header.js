@@ -1,20 +1,22 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Image } from "react-native";
 import { Header as HeaderBar } from "react-native-elements";
 
-import { theme } from "../utils";
+import { theme, LiveStatusContext } from "../utils";
 
 export default function Header() {
+  const liveStatus = useContext(LiveStatusContext);
+
   return (
     <HeaderBar
       containerStyle={{
         height: 70,
         paddingVertical: 20,
         paddingHorizontal: 20,
-        borderBottomColor: theme.colors.secondary
+        borderBottomColor: theme.colors.secondary,
       }}
       statusBarProps={{
-        hidden: true
+        hidden: true,
       }}
       placement="left"
       backgroundColor={theme.colors.secondary}
