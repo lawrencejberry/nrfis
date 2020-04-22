@@ -38,11 +38,12 @@ export default function Screen(props) {
   useEffect(() => {
     const live = liveStatus.packages.includes(props.packageServerName);
     setLive(live);
-    if (live) {
-      // Set to absolute colour scale and showTemperature false when pacakge is live
-      setModelOptions({ ...modelOptions, colourMode: 1 });
+    if (liveMode) {
+      // Set to absolute colour scale and showTemperature false when pacakge is in live mode
+      setModelOptions({ ...modelOptions, colourMode: 1, scale: [-200, 200] });
       setChartOptions({ ...chartOptions, showTemperature: false });
-    } else {
+    }
+    if (!live) {
       // Set to historical mode when package is not live
       setLiveMode(false);
     }
