@@ -85,7 +85,6 @@ export default function Modal(props) {
     setIsVisible(true);
     Animated.timing(animVal, {
       easing: Easing.inOut(Easing.quad),
-      // Using native driver in the modal makes the content flash
       useNativeDriver: true,
       duration: 300,
       toValue: 1,
@@ -95,7 +94,6 @@ export default function Modal(props) {
   hide = () => {
     Animated.timing(animVal, {
       easing: Easing.inOut(Easing.quad),
-      // Using native driver in the modal makes the content flash
       useNativeDriver: true,
       duration: 300,
       toValue: 0,

@@ -7,17 +7,17 @@ import { theme, LiveStatusContext } from "../utils";
 export default function Header() {
   const { live } = useContext(LiveStatusContext);
 
-  animVal = useRef(new Animated.Value(1)).current;
+  opacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
-        Animated.timing(animVal, {
+        Animated.timing(opacity, {
           toValue: 0,
           duration: 600,
           useNativeDriver: true,
         }),
-        Animated.timing(animVal, {
+        Animated.timing(opacity, {
           toValue: 1,
           delay: 200,
           duration: 600,
@@ -71,7 +71,7 @@ export default function Header() {
               >
                 Live
               </Text>
-              <Animated.View style={{ opacity: animVal }}>
+              <Animated.View style={{ opacity: opacity }}>
                 <Icon name="controller-record" type="entypo" color="#f54842" />
               </Animated.View>
             </View>
