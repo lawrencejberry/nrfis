@@ -39,8 +39,9 @@ export default function Screen(props) {
     const live = liveStatus.packages.includes(props.packageServerName);
     setLive(live);
     if (live) {
-      // Set to absolute colour scale when pacakge is live
+      // Set to absolute colour scale and showTemperature false when pacakge is live
       setModelOptions({ ...modelOptions, colourMode: 1 });
+      setChartOptions({ ...chartOptions, showTemperature: false });
     } else {
       // Set to historical mode when package is not live
       setLiveMode(false);
@@ -48,18 +49,34 @@ export default function Screen(props) {
   }, [liveStatus, props.packageServerName]);
 
   useEffect(() => {
-    let ws = new WebSocket(
-      `ws://129.169.72.175/fbg/live-data/?data-type=${dataType}`
-    );
-    ws.onmessage = (event) => {
-      const data = liveData;
-      if (data.length > 30) data.shift();
-      setLiveData([...data, JSON.parse(event.data)[props.packageServerName]]);
-    };
-    return () => {
-      ws.close(); // Clean up the previous websocket when changing the liveMode or dataType
-    };
-  }, [liveMode, dataType]);
+    if (liveMode) {
+      let ws = new WebSocket(
+        `ws://129.169.72.175/fbg/live-data/?data-type=${dataType}`
+      );
+      ws.onmessage = (event) => {
+        const message = event.data;
+        const data = JSON.parse(message);
+        const newSample = data[props.packageServerName];
+        const { timestamp, ...readings } = newSample;
+        const sensorNames = Object.keys(readings);
+        setChartOptions({
+          ...chartOptions,
+          sensors: sensorNames.map((sensorName, index) => ({
+            name: sensorName,
+            isSelected: index < 3, // By default display only the first three sensors on the chart
+            colour: chartColours[index % chartColours.length],
+          })),
+        });
+        setLiveData((liveData) =>
+          liveData.length > 30 ? [newSample] : [...liveData, newSample]
+        );
+      };
+      return () => {
+        ws.close(); // Clean up the previous websocket when changing the liveMode or dataType
+        setLiveData((liveData) => []);
+      };
+    }
+  }, [liveMode, dataType, props.packageServerName]);
 
   async function refresh(dataType, averagingWindow, startTime, endTime) {
     setIsLoading(true);

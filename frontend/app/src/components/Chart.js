@@ -69,7 +69,7 @@ const Decorators = ({ x, y, data: datasets, timestamps }) =>
   );
 
 export default function Chart(props) {
-  const { data, chartOptions } = props;
+  const { data, liveData, liveMode, chartOptions } = props;
 
   const [width, setWidth] = useState(0);
   const [datasets, setDatasets] = useState([]);
@@ -84,16 +84,18 @@ export default function Chart(props) {
       chartOptions.sensors
         .filter(({ isSelected }) => isSelected)
         .map(({ name, colour }) => ({
-          data: data.map((sample) => sample[name]),
+          data: (liveMode ? liveData : data).map((sample) => sample[name]),
           svg: { stroke: colour },
           label: name,
         }))
     );
-  }, [data, chartOptions.sensors]);
+  }, [data, liveData, liveMode, chartOptions.sensors]);
 
   useEffect(() => {
-    setTimestamps(data.map((sample) => sample.timestamp));
-  }, [data]);
+    setTimestamps(
+      liveMode ? [...Array(35).keys()] : data.map((sample) => sample.timestamp)
+    );
+  }, [data, liveMode]);
 
   useEffect(() => {
     setMinX(timestamps[0]);
@@ -251,7 +253,7 @@ export default function Chart(props) {
           style={{ height: 25, marginHorizontal: 35, marginTop: 10 }}
           data={[minX, maxX]}
           xAccessor={({ item }) => item}
-          formatLabel={formatTimestampLabel}
+          formatLabel={liveMode ? (value) => value : formatTimestampLabel}
           contentInset={contentInset}
           svg={{ fontSize: 10, fill: theme.colors.primary }}
           numberOfTicks={5}

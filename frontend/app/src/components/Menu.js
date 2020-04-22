@@ -211,26 +211,28 @@ export default function Menu(props) {
     <>
       <Text>CHART OPTIONS</Text>
       {["Select Sensors"].map((element) => renderButton(element))}
-      <Button
-        title={
-          props.chartOptions.showTemperature
-            ? "Hide Outdoor Temperature"
-            : "Show Outdoor Temperature"
-        }
-        type={props.chartOptions.showTemperature ? "solid" : "outline"}
-        onPress={() =>
-          props.setChartOptions({
-            ...props.chartOptions,
-            showTemperature: !props.chartOptions.showTemperature,
-          })
-        }
-        titleStyle={{
-          fontWeight: "normal",
-          color: props.chartOptions.showTemperature
-            ? theme.colors.background
-            : theme.colors.secondary,
-        }}
-      />
+      {props.liveMode ? null : (
+        <Button
+          title={
+            props.chartOptions.showTemperature
+              ? "Hide Outdoor Temperature"
+              : "Show Outdoor Temperature"
+          }
+          type={props.chartOptions.showTemperature ? "solid" : "outline"}
+          onPress={() =>
+            props.setChartOptions({
+              ...props.chartOptions,
+              showTemperature: !props.chartOptions.showTemperature,
+            })
+          }
+          titleStyle={{
+            fontWeight: "normal",
+            color: props.chartOptions.showTemperature
+              ? theme.colors.background
+              : theme.colors.secondary,
+          }}
+        />
+      )}
       <Divider />
       <Text>LEGEND</Text>
       <View
