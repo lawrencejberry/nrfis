@@ -11,8 +11,8 @@ export default function SteelFrameModel(props) {
   const { camera } = useThree();
 
   const [{ nodes, materials }, context] = useLoader(GLTFLoader, [
-    "http://192.168.1.253:8000/steel-frame.glb",
-    "http://192.168.1.253:8000/steel-frame-context.glb", // Local static file server
+    "http://129.169.72.175/static/models/steel-frame.glb",
+    "http://129.169.72.175/static/models/steel-frame-context.glb", // Local static file server
   ]);
 
   useEffect(() => {
