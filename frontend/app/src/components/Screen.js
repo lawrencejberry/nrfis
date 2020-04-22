@@ -21,6 +21,7 @@ export default function Screen(props) {
   const [liveMode, setLiveMode] = useState(false); // true for Live, false for Historical
   const [dataRange, setDataRange] = useState([]);
   const [dataType, setDataType] = useState("str");
+  const [liveDataType, setLiveDataType] = useState("str");
   const [isLoading, setIsLoading] = useState(false);
   const [chartOptions, setChartOptions] = useState({
     sensors: [], // [{ name: sensorName, isSelected: true}, ... }]
@@ -52,7 +53,7 @@ export default function Screen(props) {
   useEffect(() => {
     if (liveMode) {
       let ws = new WebSocket(
-        `ws://129.169.72.175/fbg/live-data/?data-type=${dataType}`
+        `ws://129.169.72.175/fbg/live-data/?data-type=${liveDataType}`
       );
       ws.onmessage = (event) => {
         const message = event.data;
@@ -77,7 +78,7 @@ export default function Screen(props) {
         setLiveData((liveData) => []);
       };
     }
-  }, [liveMode, dataType, props.packageServerName]);
+  }, [liveMode, liveDataType, props.packageServerName]);
 
   async function refresh(dataType, averagingWindow, startTime, endTime) {
     setIsLoading(true);
@@ -179,6 +180,8 @@ export default function Screen(props) {
         liveMode={liveMode}
         setLiveMode={setLiveMode}
         dataType={dataType}
+        liveDataType={liveDataType}
+        setLiveDataType={setLiveDataType}
         dataRange={dataRange}
         isLoading={isLoading}
         refresh={refresh}

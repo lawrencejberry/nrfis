@@ -286,8 +286,8 @@ export default function Menu(props) {
       case "Data Type":
         return (
           <Picker
-            value={dataType}
-            setValue={setDataType}
+            value={props.liveMode ? props.liveDataType : dataType}
+            setValue={props.liveMode ? props.setLiveDataType : setDataType}
             options={[
               { label: "Raw", value: "raw" },
               { label: "Strain", value: "str" },
