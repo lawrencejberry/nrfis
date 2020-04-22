@@ -25,5 +25,20 @@ export function renderSensorColour(sensorColours, sensorNames) {
       );
     }
   }
+  return <meshBasicMaterial attach="material" transparent={true} opacity={0} />;
+}
+
+export function renderSensor(sensorColours, sensorName, position, size) {
+  if (sensorColours[sensorName]) {
+    return (
+      <mesh visible position={position}>
+        <boxGeometry attach="geometry" args={size} />
+        <meshBasicMaterial
+          attach="material"
+          color={sensorColours[sensorName]}
+        />
+      </mesh>
+    );
+  }
   return null;
 }
