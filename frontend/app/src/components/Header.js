@@ -1,11 +1,31 @@
-import React, { useContext } from "react";
-import { Image } from "react-native";
-import { Header as HeaderBar } from "react-native-elements";
+import React, { useContext, useEffect, useRef } from "react";
+import { View, Image, Text, Animated } from "react-native";
+import { Header as HeaderBar, Icon } from "react-native-elements";
 
 import { theme, LiveStatusContext } from "../utils";
 
 export default function Header() {
-  const liveStatus = useContext(LiveStatusContext);
+  const { live } = useContext(LiveStatusContext);
+
+  animVal = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(animVal, {
+          toValue: 0,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+        Animated.timing(animVal, {
+          toValue: 1,
+          delay: 200,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  });
 
   return (
     <HeaderBar
@@ -33,10 +53,35 @@ export default function Header() {
         />
       }
       rightComponent={
-        <Image
-          source={require("../../assets/images/cambridge.png")}
-          style={{ width: 100, height: 20 }}
-        />
+        <View style={{ flex: 10, flexDirection: "row", alignItems: "center" }}>
+          {live ? (
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginRight: 20,
+              }}
+            >
+              <Text
+                style={{
+                  marginRight: 5,
+                  marginBottom: 2,
+                  color: "white",
+                }}
+              >
+                Live
+              </Text>
+              <Animated.View style={{ opacity: animVal }}>
+                <Icon name="controller-record" type="entypo" color="#f54842" />
+              </Animated.View>
+            </View>
+          ) : null}
+
+          <Image
+            source={require("../../assets/images/cambridge.png")}
+            style={{ width: 100, height: 20, marginBottom: 2 }}
+          />
+        </View>
       }
     />
   );
