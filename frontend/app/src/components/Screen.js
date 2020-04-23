@@ -20,9 +20,14 @@ export default function Screen(props) {
   const [liveData, setLiveData] = useState([]);
   const [liveMode, setLiveMode] = useState(false); // true for Live, false for Historical
   const [dataRange, setDataRange] = useState([]);
-  const [dataType, setDataType] = useState("str");
-  const [liveDataType, setLiveDataType] = useState("str");
   const [isLoading, setIsLoading] = useState(false);
+  const [screenState, setScreenState] = useState({
+    dataType: "",
+    liveDataType: "str",
+    averagingWindow: "",
+    startTime: "",
+    endTime: "",
+  });
   const [chartOptions, setChartOptions] = useState({
     sensors: [], // [{ name: sensorName, isSelected: true}, ... }]
     showTemperature: false,
@@ -44,10 +49,10 @@ export default function Screen(props) {
       setModelOptions({
         ...modelOptions,
         colourMode: 1,
-        scale: modelColourScale[liveDataType],
+        scale: modelColourScale[screenState.liveDataType],
       });
       setChartOptions({ ...chartOptions, showTemperature: false });
-      if (liveDataType === "raw") {
+      if (screenState.liveDataType === "raw") {
         // Set to chart mode when liveDataType is raw
         setMode(1);
       }
@@ -56,12 +61,12 @@ export default function Screen(props) {
       // Set to historical mode when package is not live
       setLiveMode(false);
     }
-  }, [liveStatus, liveDataType, props.packageServerName]);
+  }, [liveStatus, screenState.liveDataType, props.packageServerName]);
 
   useEffect(() => {
     if (liveMode) {
       let ws = new WebSocket(
-        `ws://129.169.72.175/fbg/live-data/?data-type=${liveDataType}`
+        `ws://129.169.72.175/fbg/live-data/?data-type=${screenState.liveDataType}`
       );
       ws.onmessage = (event) => {
         const message = event.data;
@@ -87,7 +92,7 @@ export default function Screen(props) {
         setLiveData((liveData) => []);
       };
     }
-  }, [liveMode, liveDataType, props.packageServerName]);
+  }, [liveMode, screenState.liveDataType, props.packageServerName]);
 
   async function refresh(dataType, averagingWindow, startTime, endTime) {
     setIsLoading(true);
@@ -101,7 +106,6 @@ export default function Screen(props) {
         endTime.toISOString()
       );
       setData(data);
-      setDataType(dataType);
       const allReadings = data.reduce(
         (acc, { timestamp, ...readings }) =>
           acc.concat(Object.values(readings)),
@@ -114,6 +118,14 @@ export default function Screen(props) {
       if (dataType === "raw") {
         setMode(1); // Chart mode
       }
+      // Set new screen state
+      setScreenState({
+        ...screenState,
+        dataType: dataType,
+        averagingWindow: averagingWindow,
+        startTime: startTime,
+        endTime: endTime,
+      });
 
       // Set chart options
       const { timestamp, ...readings } = data[0]; // Extract sensor readings for the first sample
@@ -188,9 +200,8 @@ export default function Screen(props) {
         live={live}
         liveMode={liveMode}
         setLiveMode={setLiveMode}
-        dataType={dataType}
-        liveDataType={liveDataType}
-        setLiveDataType={setLiveDataType}
+        screenState={screenState}
+        setScreenState={setScreenState}
         dataRange={dataRange}
         isLoading={isLoading}
         refresh={refresh}

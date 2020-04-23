@@ -18,7 +18,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { XAxis } from "react-native-svg-charts";
 
 import Modal from "./Modal";
-import { theme, modelColourScale } from "../utils";
+import { theme, modelColourScale, labels } from "../utils";
 
 const MultiSelect = ({ options, setOptions }) => (
   <ScrollView style={{ maxHeight: "100%" }}>
@@ -134,11 +134,18 @@ export default function Menu(props) {
     }
   }
 
-  function renderButton(element) {
+  function renderButton(element, value) {
+    let label = value;
+    if (value && Object.keys(labels).includes(element)) {
+      label = labels[element].find((element) => element.value === value).label;
+    }
+    if (value instanceof Date) {
+      label = value.toUTCString();
+    }
     return (
       <Button
         key={element}
-        title={element}
+        title={`${element}${label ? `: ${label}` : ""}`}
         type={shownElement == element ? "solid" : "outline"}
         onPress={() => showSelector(element)}
         titleStyle={{
@@ -181,7 +188,9 @@ export default function Menu(props) {
           props.setModelOptions({
             ...props.modelOptions,
             colourMode: index,
-            scale: index ? modelColourScale[props.dataType] : props.dataRange,
+            scale: index
+              ? modelColourScale[props.screenState.dataType]
+              : props.dataRange,
           })
         }
       />
@@ -295,13 +304,14 @@ export default function Menu(props) {
       case "Data Type":
         return (
           <Picker
-            value={props.liveMode ? props.liveDataType : dataType}
-            setValue={props.liveMode ? props.setLiveDataType : setDataType}
-            options={[
-              { label: "Raw", value: "raw" },
-              { label: "Strain", value: "str" },
-              { label: "Temperature", value: "tmp" },
-            ]}
+            value={props.liveMode ? props.screenState.liveDataType : dataType}
+            setValue={
+              props.liveMode
+                ? (liveDataType) =>
+                    props.setScreenState({ ...props.screenState, liveDataType })
+                : setDataType
+            }
+            options={labels["Data Type"]}
           />
         );
       case "Averaging Window":
@@ -309,16 +319,7 @@ export default function Menu(props) {
           <Picker
             value={averagingWindow}
             setValue={setAveragingWindow}
-            options={[
-              { label: "---", value: "" },
-              { label: "Millisecond", value: "milliseconds" },
-              { label: "Second", value: "second" },
-              { label: "Minute", value: "minute" },
-              { label: "Hour", value: "hour" },
-              { label: "Day", value: "day" },
-              { label: "Week", value: "week" },
-              { label: "Month", value: "month" },
-            ]}
+            options={labels["Averaging Window"]}
           />
         );
       case "Start Time":
@@ -366,7 +367,9 @@ export default function Menu(props) {
   }
 
   function modelModeDisabled() {
-    const dt = props.liveMode ? props.liveDataType : props.dataType;
+    const dt = props.liveMode
+      ? props.screenState.liveDataType
+      : props.screenState.dataType;
     return dt !== "raw" ? [] : [0];
   }
 
@@ -394,12 +397,19 @@ export default function Menu(props) {
           index ? props.setLiveMode(false) : props.setLiveMode(true)
         }
       />
-      {renderButton("Data Type")}
+      {renderButton(
+        "Data Type",
+        props.liveMode
+          ? props.screenState.liveDataType
+          : props.screenState.dataType
+      )}
       {props.liveMode ? null : (
         <>
-          {["Averaging Window", "Start Time", "End Time"].map((element) =>
-            renderButton(element)
-          )}
+          {[
+            ["Averaging Window", props.screenState.averagingWindow],
+            ["Start Time", props.screenState.startTime],
+            ["End Time", props.screenState.endTime],
+          ].map(([element, value]) => renderButton(element, value))}
           <Button
             title="Refresh"
             onPress={() => {
