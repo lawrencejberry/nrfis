@@ -361,6 +361,11 @@ export default function Menu(props) {
     }
   }
 
+  function modelModeDisabled() {
+    const dt = props.liveMode ? props.liveDataType : props.dataType;
+    return dt !== "raw" ? [] : [0];
+  }
+
   return (
     <View
       style={props.style}
@@ -372,7 +377,7 @@ export default function Menu(props) {
       <ButtonGroup
         buttons={["Model", "Chart"]}
         selectedIndex={props.mode}
-        disabled={props.dataType !== "raw" ? [] : [0]} // Model mode only enabled for str or tmp
+        disabled={modelModeDisabled()} // Model mode only enabled for str or tmp
         onPress={(index) => props.setMode(index)}
       />
       <Divider />

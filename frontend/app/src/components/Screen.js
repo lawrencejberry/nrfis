@@ -47,6 +47,10 @@ export default function Screen(props) {
         scale: modelColourScale[liveDataType],
       });
       setChartOptions({ ...chartOptions, showTemperature: false });
+      if (liveDataType === "raw") {
+        // Set to chart mode when liveDataType is raw
+        setMode(1);
+      }
     }
     if (!live) {
       // Set to historical mode when package is not live
