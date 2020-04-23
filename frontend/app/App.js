@@ -47,9 +47,9 @@ export default function App() {
               activeTintColor: theme.colors.actionable,
             }}
           >
-            <Tab.Screen name="Basement" component={BasementScreen} />
-            <Tab.Screen name="Strong Floor" component={StrongFloorScreen} />
             <Tab.Screen name="Steel Frame" component={SteelFrameScreen} />
+            <Tab.Screen name="Strong Floor" component={StrongFloorScreen} />
+            <Tab.Screen name="Basement" component={BasementScreen} />
           </Tab.Navigator>
         </NavigationContainer>
       </LiveStatusContext.Provider>
