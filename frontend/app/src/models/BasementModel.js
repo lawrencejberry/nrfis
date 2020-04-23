@@ -452,25 +452,25 @@ export default function BasementModel(props) {
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Tmp_bot03",
-            [5.5, -0.7, 3.15],
+            [5.5, -0.7, 18],
             [0.3, 0.1, 0.6]
           )}
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Tmp_top01",
-            [5.5, 1.9, 1.05],
+            [5.5, 1.9, 3],
             [0.3, 0.1, 0.6]
           )}
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Tmp_top02",
-            [5.5, 1.9, 2.1],
+            [5.5, 1.9, 10.5],
             [0.3, 0.1, 0.6]
           )}
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Tmp_top03",
-            [5.5, 1.9, 3.15],
+            [5.5, 1.9, 18],
             [0.3, 0.1, 0.6]
           )}
         </group>
