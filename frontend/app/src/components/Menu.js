@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { Platform, View, Picker as WheelPickerIOS } from "react-native";
+import {
+  Platform,
+  View,
+  Picker as WheelPickerIOS,
+  ScrollView,
+} from "react-native";
 import {
   Divider,
   Button,
@@ -16,7 +21,7 @@ import Modal from "./Modal";
 import { theme, modelColourScale } from "../utils";
 
 const MultiSelect = ({ options, setOptions }) => (
-  <>
+  <ScrollView style={{ height: "70%" }}>
     {options.map(({ name, isSelected }, index) => {
       return (
         <ListItem
@@ -34,7 +39,7 @@ const MultiSelect = ({ options, setOptions }) => (
         />
       );
     })}
-  </>
+  </ScrollView>
 );
 
 const Picker = ({ value, setValue, options }) => {
