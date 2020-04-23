@@ -41,14 +41,18 @@ export default function Screen(props) {
     setLive(live);
     if (liveMode) {
       // Set to absolute colour scale and showTemperature false when pacakge is in live mode
-      setModelOptions({ ...modelOptions, colourMode: 1, scale: [-200, 200] });
+      setModelOptions({
+        ...modelOptions,
+        colourMode: 1,
+        scale: modelColourScale[liveDataType],
+      });
       setChartOptions({ ...chartOptions, showTemperature: false });
     }
     if (!live) {
       // Set to historical mode when package is not live
       setLiveMode(false);
     }
-  }, [liveStatus, props.packageServerName]);
+  }, [liveStatus, liveDataType, props.packageServerName]);
 
   useEffect(() => {
     if (liveMode) {
