@@ -12,7 +12,7 @@ export default function StrongFloorModel(props) {
 
   const [{ nodes }, context] = useLoader(GLTFLoader, [
     "http://129.169.72.175/static/models/strong-floor.glb",
-    "http://129.169.72.175/static/models/strong-floor-context.glb", // Local static file server
+    "http://129.169.72.175/static/models/strong-floor-context.glb",
   ]);
 
   useEffect(() => {

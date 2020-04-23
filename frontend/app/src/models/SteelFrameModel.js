@@ -12,7 +12,7 @@ export default function SteelFrameModel(props) {
 
   const [{ nodes, materials }, context] = useLoader(GLTFLoader, [
     "http://129.169.72.175/static/models/steel-frame.glb",
-    "http://129.169.72.175/static/models/steel-frame-context.glb", // Local static file server
+    "http://129.169.72.175/static/models/steel-frame-context.glb",
   ]);
 
   useEffect(() => {
