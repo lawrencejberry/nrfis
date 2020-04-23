@@ -63,6 +63,7 @@ export default function Screen(props) {
         const sensorNames = Object.keys(readings);
         setChartOptions({
           ...chartOptions,
+          showTemperature: false,
           sensors: sensorNames.map((sensorName, index) => ({
             name: sensorName,
             isSelected: index < 3, // By default display only the first three sensors on the chart
