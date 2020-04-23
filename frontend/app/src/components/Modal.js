@@ -8,7 +8,7 @@ import {
   Text,
   View,
   TouchableWithoutFeedback,
-  TouchableHighlight
+  TouchableHighlight,
 } from "react-native";
 
 import { theme } from "../utils";
@@ -29,14 +29,14 @@ const Header = ({ label }) => {
         borderBottomColor: BORDER_COLOR,
         borderBottomWidth: StyleSheet.hairlineWidth,
         padding: 14,
-        backgroundColor: "transparent"
+        backgroundColor: "transparent",
       }}
     >
       <Text
         style={{
           textAlign: "center",
           color: TITLE_COLOR,
-          fontSize: TITLE_FONT_SIZE
+          fontSize: TITLE_FONT_SIZE,
         }}
       >
         {label}
@@ -53,7 +53,7 @@ const ConfirmButton = ({ onPress, label }) => {
         height: 57,
         marginBottom: 0,
         justifyContent: "center",
-        backgroundColor: BACKGROUND_COLOR_LIGHT
+        backgroundColor: BACKGROUND_COLOR_LIGHT,
       }}
       underlayColor={HIGHLIGHT_COLOR_LIGHT}
       onPress={onPress}
@@ -65,7 +65,7 @@ const ConfirmButton = ({ onPress, label }) => {
           color: BUTTON_FONT_COLOR,
           fontSize: BUTTON_FONT_SIZE,
           fontWeight: "600",
-          backgroundColor: "transparent"
+          backgroundColor: "transparent",
         }}
       >
         {label}
@@ -85,20 +85,18 @@ export default function Modal(props) {
     setIsVisible(true);
     Animated.timing(animVal, {
       easing: Easing.inOut(Easing.quad),
-      // Using native driver in the modal makes the content flash
-      useNativeDriver: false,
+      useNativeDriver: true,
       duration: 300,
-      toValue: 1
+      toValue: 1,
     }).start();
   };
 
   hide = () => {
     Animated.timing(animVal, {
       easing: Easing.inOut(Easing.quad),
-      // Using native driver in the modal makes the content flash
-      useNativeDriver: false,
+      useNativeDriver: true,
       duration: 300,
-      toValue: 0
+      toValue: 0,
     }).start(() => {
       setIsVisible(false);
     });
@@ -123,8 +121,8 @@ export default function Modal(props) {
             backgroundColor: "black",
             opacity: animVal.interpolate({
               inputRange: [0, 1],
-              outputRange: [0, 0.4]
-            })
+              outputRange: [0, 0.4],
+            }),
           }}
         />
       </TouchableWithoutFeedback>
@@ -142,10 +140,10 @@ export default function Modal(props) {
                 translateY: animVal.interpolate({
                   inputRange: [0, 1],
                   outputRange: [height, 0],
-                  extrapolate: "clamp"
-                })
-              }
-            ]
+                  extrapolate: "clamp",
+                }),
+              },
+            ],
           }}
           pointerEvents="box-none"
         >
@@ -155,7 +153,7 @@ export default function Modal(props) {
               marginBottom: 8,
               overflow: "hidden",
               backgroundColor: BACKGROUND_COLOR_LIGHT,
-              paddingHorizontal: 12
+              paddingHorizontal: 12,
             }}
           >
             <Header label={label} />

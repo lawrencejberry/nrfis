@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { Platform, View, Picker as WheelPickerIOS } from "react-native";
+import {
+  Platform,
+  View,
+  Picker as WheelPickerIOS,
+  ScrollView,
+} from "react-native";
 import {
   Divider,
   Button,
@@ -16,7 +21,7 @@ import Modal from "./Modal";
 import { theme, modelColourScale } from "../utils";
 
 const MultiSelect = ({ options, setOptions }) => (
-  <>
+  <ScrollView style={{ height: "70%" }}>
     {options.map(({ name, isSelected }, index) => {
       return (
         <ListItem
@@ -34,7 +39,7 @@ const MultiSelect = ({ options, setOptions }) => (
         />
       );
     })}
-  </>
+  </ScrollView>
 );
 
 const Picker = ({ value, setValue, options }) => {
@@ -171,6 +176,7 @@ export default function Menu(props) {
       <ButtonGroup
         buttons={["Adaptive", "Absolute"]}
         selectedIndex={props.modelOptions.colourMode}
+        disabled={props.liveMode ? [0] : []} // Adaptive button disabled when in live mode
         onPress={(index) =>
           props.setModelOptions({
             ...props.modelOptions,
@@ -210,26 +216,28 @@ export default function Menu(props) {
     <>
       <Text>CHART OPTIONS</Text>
       {["Select Sensors"].map((element) => renderButton(element))}
-      <Button
-        title={
-          props.chartOptions.showTemperature
-            ? "Hide Outdoor Temperature"
-            : "Show Outdoor Temperature"
-        }
-        type={props.chartOptions.showTemperature ? "solid" : "outline"}
-        onPress={() =>
-          props.setChartOptions({
-            ...props.chartOptions,
-            showTemperature: !props.chartOptions.showTemperature,
-          })
-        }
-        titleStyle={{
-          fontWeight: "normal",
-          color: props.chartOptions.showTemperature
-            ? theme.colors.background
-            : theme.colors.secondary,
-        }}
-      />
+      {props.liveMode ? null : (
+        <Button
+          title={
+            props.chartOptions.showTemperature
+              ? "Hide Outdoor Temperature"
+              : "Show Outdoor Temperature"
+          }
+          type={props.chartOptions.showTemperature ? "solid" : "outline"}
+          onPress={() =>
+            props.setChartOptions({
+              ...props.chartOptions,
+              showTemperature: !props.chartOptions.showTemperature,
+            })
+          }
+          titleStyle={{
+            fontWeight: "normal",
+            color: props.chartOptions.showTemperature
+              ? theme.colors.background
+              : theme.colors.secondary,
+          }}
+        />
+      )}
       <Divider />
       <Text>LEGEND</Text>
       <View
@@ -283,8 +291,8 @@ export default function Menu(props) {
       case "Data Type":
         return (
           <Picker
-            value={dataType}
-            setValue={setDataType}
+            value={props.liveMode ? props.liveDataType : dataType}
+            setValue={props.liveMode ? props.setLiveDataType : setDataType}
             options={[
               { label: "Raw", value: "raw" },
               { label: "Strain", value: "str" },
@@ -353,6 +361,11 @@ export default function Menu(props) {
     }
   }
 
+  function modelModeDisabled() {
+    const dt = props.liveMode ? props.liveDataType : props.dataType;
+    return dt !== "raw" ? [] : [0];
+  }
+
   return (
     <View
       style={props.style}
@@ -364,28 +377,38 @@ export default function Menu(props) {
       <ButtonGroup
         buttons={["Model", "Chart"]}
         selectedIndex={props.mode}
-        disabled={props.dataType !== "raw" ? [] : [0]} // Model mode only enabled for str or tmp
+        disabled={modelModeDisabled()} // Model mode only enabled for str or tmp
         onPress={(index) => props.setMode(index)}
       />
       <Divider />
       <Text>DATA OPTIONS</Text>
-      {[
-        "Data Type",
-        "Averaging Window",
-        "Start Time",
-        "End Time",
-      ].map((element) => renderButton(element))}
-      <Button
-        title="Refresh"
-        onPress={() => {
-          props.refresh(dataType, averagingWindow, startTime, endTime);
-        }}
-        type="outline"
-        titleStyle={{ color: theme.colors.actionable }}
-        buttonStyle={{ borderColor: theme.colors.actionable }}
-        loading={props.isLoading}
-        loadingProps={{ size: 16 }}
+      <ButtonGroup
+        buttons={["Live", "Historical"]}
+        selectedIndex={props.liveMode ? 0 : 1} // 0 = Live, 1 = Historical
+        disabled={props.live ? [] : [0]} // Live button disabled when live mode is unavailable
+        onPress={(index) =>
+          index ? props.setLiveMode(false) : props.setLiveMode(true)
+        }
       />
+      {renderButton("Data Type")}
+      {props.liveMode ? null : (
+        <>
+          {["Averaging Window", "Start Time", "End Time"].map((element) =>
+            renderButton(element)
+          )}
+          <Button
+            title="Refresh"
+            onPress={() => {
+              props.refresh(dataType, averagingWindow, startTime, endTime);
+            }}
+            type="outline"
+            titleStyle={{ color: theme.colors.actionable }}
+            buttonStyle={{ borderColor: theme.colors.actionable }}
+            loading={props.isLoading}
+            loadingProps={{ size: 16 }}
+          />
+        </>
+      )}
       <Divider />
       {props.mode ? renderChartMenu() : renderModelMenu()}
       <Modal

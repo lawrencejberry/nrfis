@@ -5,7 +5,7 @@ import { StrongFloorModel } from "../models";
 
 export default function StrongFloorScreen() {
   return (
-    <Screen packageURL="strong-floor">
+    <Screen packageURL="strong-floor" packageServerName="StrongFloor">
       {(props) => <StrongFloorModel {...props} />}
     </Screen>
   );

@@ -43,7 +43,7 @@ const theme = {
       fontSize: 16,
       fontFamily: font,
       fontWeight: "normal",
-      color: colors.primary,
+      color: colors.secondary,
     },
     selectedTextStyle: { fontWeight: "500" },
     containerStyle: { borderColor: colors.primary, borderWidth: 1 },

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { View } from "react-native";
 
 import Menu from "./Menu";
@@ -10,13 +10,18 @@ import {
   theme,
   chartColours,
   modelColourScale,
+  LiveStatusContext,
 } from "../utils";
 
 export default function Screen(props) {
   const [data, setData] = useState([]);
   const [mode, setMode] = useState(0); // 0 for Model, 1 for Chart
+  const [live, setLive] = useState(false);
+  const [liveData, setLiveData] = useState([]);
+  const [liveMode, setLiveMode] = useState(false); // true for Live, false for Historical
   const [dataRange, setDataRange] = useState([]);
   const [dataType, setDataType] = useState("str");
+  const [liveDataType, setLiveDataType] = useState("str");
   const [isLoading, setIsLoading] = useState(false);
   const [chartOptions, setChartOptions] = useState({
     sensors: [], // [{ name: sensorName, isSelected: true}, ... }]
@@ -28,6 +33,61 @@ export default function Screen(props) {
     colourMode: 0, // 0 = adaptive
     scale: [0, 0],
   });
+
+  const liveStatus = useContext(LiveStatusContext);
+
+  useEffect(() => {
+    const live = liveStatus.packages.includes(props.packageServerName);
+    setLive(live);
+    if (liveMode) {
+      // Set to absolute colour scale and showTemperature false when pacakge is in live mode
+      setModelOptions({
+        ...modelOptions,
+        colourMode: 1,
+        scale: modelColourScale[liveDataType],
+      });
+      setChartOptions({ ...chartOptions, showTemperature: false });
+      if (liveDataType === "raw") {
+        // Set to chart mode when liveDataType is raw
+        setMode(1);
+      }
+    }
+    if (!live) {
+      // Set to historical mode when package is not live
+      setLiveMode(false);
+    }
+  }, [liveStatus, liveDataType, props.packageServerName]);
+
+  useEffect(() => {
+    if (liveMode) {
+      let ws = new WebSocket(
+        `ws://129.169.72.175/fbg/live-data/?data-type=${liveDataType}`
+      );
+      ws.onmessage = (event) => {
+        const message = event.data;
+        const data = JSON.parse(message);
+        const newSample = data[props.packageServerName];
+        const { timestamp, ...readings } = newSample;
+        const sensorNames = Object.keys(readings);
+        setChartOptions({
+          ...chartOptions,
+          showTemperature: false,
+          sensors: sensorNames.map((sensorName, index) => ({
+            name: sensorName,
+            isSelected: index < 3, // By default display only the first three sensors on the chart
+            colour: chartColours[index % chartColours.length],
+          })),
+        });
+        setLiveData((liveData) =>
+          liveData.length > 30 ? [newSample] : [...liveData, newSample]
+        );
+      };
+      return () => {
+        ws.close(); // Clean up the previous websocket when changing the liveMode or dataType
+        setLiveData((liveData) => []);
+      };
+    }
+  }, [liveMode, liveDataType, props.packageServerName]);
 
   async function refresh(dataType, averagingWindow, startTime, endTime) {
     setIsLoading(true);
@@ -83,7 +143,12 @@ export default function Screen(props) {
     if (mode == 0) {
       // Model
       return (
-        <Model data={data} modelOptions={modelOptions}>
+        <Model
+          data={data}
+          liveMode={liveMode}
+          liveData={liveData}
+          modelOptions={modelOptions}
+        >
           {({ rotation, zoom, sensorColours }) =>
             props.children({
               rotation,
@@ -96,7 +161,14 @@ export default function Screen(props) {
       );
     } else {
       // Chart
-      return <Chart data={data} chartOptions={chartOptions} />;
+      return (
+        <Chart
+          data={data}
+          liveMode={liveMode}
+          liveData={liveData}
+          chartOptions={chartOptions}
+        />
+      );
     }
   }
 
@@ -113,7 +185,12 @@ export default function Screen(props) {
         }}
         mode={mode}
         setMode={setMode}
+        live={live}
+        liveMode={liveMode}
+        setLiveMode={setLiveMode}
         dataType={dataType}
+        liveDataType={liveDataType}
+        setLiveDataType={setLiveDataType}
         dataRange={dataRange}
         isLoading={isLoading}
         refresh={refresh}

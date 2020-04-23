@@ -60,3 +60,12 @@ export async function fetchTemperatureData(startTime, endTime) {
   }
   return temperatureData;
 }
+
+export async function fetchLiveStatus() {
+  const response = await fetch("http://129.169.72.175/fbg/live-status/", {
+    method: "GET",
+    headers: { "media-type": "application/json" },
+  });
+  const data = await response.json();
+  return data;
+}
