@@ -21,7 +21,7 @@ import Modal from "./Modal";
 import { theme, modelColourScale } from "../utils";
 
 const MultiSelect = ({ options, setOptions }) => (
-  <ScrollView style={{ height: "70%" }}>
+  <ScrollView style={{ maxHeight: "100%" }}>
     {options.map(({ name, isSelected }, index) => {
       return (
         <ListItem
@@ -243,8 +243,10 @@ export default function Menu(props) {
       <View
         style={{
           flex: 1,
+          flexDirection: "row",
           flexWrap: "wrap",
           alignItems: "flex-start",
+          marginBottom: 20,
         }}
       >
         {props.chartOptions.sensors
@@ -253,8 +255,10 @@ export default function Menu(props) {
             <ListItem
               key={name}
               containerStyle={{
-                width: "50%",
+                minWidth: 150,
+                maxWidth: 250,
                 padding: 0,
+                marginHorizontal: 10,
               }}
               title={name}
               titleStyle={{ fontSize: 12 }}
@@ -367,7 +371,7 @@ export default function Menu(props) {
   }
 
   return (
-    <View
+    <ScrollView
       style={props.style}
       onLayout={(event) => {
         setWidth(event.nativeEvent.layout.width);
@@ -432,6 +436,6 @@ export default function Menu(props) {
       >
         {(dialogProps) => renderDialogSelector(shownElement, dialogProps)}
       </Dialog>
-    </View>
+    </ScrollView>
   );
 }

@@ -131,7 +131,6 @@ export default function Modal(props) {
           style={{
             flex: 1,
             width: width,
-
             justifyContent: "flex-end",
             alignSelf: "flex-end",
             padding: 10,
@@ -149,6 +148,7 @@ export default function Modal(props) {
         >
           <View
             style={{
+              maxHeight: height - 12,
               borderRadius: BORDER_RADIUS,
               marginBottom: 8,
               overflow: "hidden",

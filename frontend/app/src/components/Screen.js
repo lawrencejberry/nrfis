@@ -174,10 +174,10 @@ export default function Screen(props) {
 
   return (
     <View style={{ flex: 1, flexDirection: "row" }}>
-      <View style={{ flex: 5 }}>{renderVisualisation()}</View>
+      <View style={{ flex: 3 }}>{renderVisualisation()}</View>
       <Menu
         style={{
-          flex: 2,
+          width: 100,
           borderLeftWidth: 2,
           borderColor: theme.colors.border,
           padding: 10,
