@@ -184,7 +184,7 @@ export default function Chart(props) {
             setWidth(event.nativeEvent.layout.width);
           }}
         >
-          <View style={{ width: 80, flexDirection: "row", marginRight: 10 }}>
+          <View style={{ width: 82, flexDirection: "row", marginRight: 10 }}>
             <Text
               style={{
                 fontWeight: "bold",
