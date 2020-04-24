@@ -224,7 +224,7 @@ export default function Menu(props) {
   const renderChartMenu = () => (
     <>
       <Text>CHART OPTIONS</Text>
-      {["Select Sensors"].map((element) => renderButton(element))}
+      {renderButton("Select Sensors")}
       {props.liveMode ? null : (
         <Button
           title={
