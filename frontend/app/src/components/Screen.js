@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { View } from "react-native";
+import { View, Alert } from "react-native";
 
 import Menu from "./Menu";
 import Model from "./Model";
@@ -105,6 +105,9 @@ export default function Screen(props) {
         startTime.toISOString(),
         endTime.toISOString()
       );
+      if (!data.length) {
+        throw "No data available for this time period";
+      }
       setData(data);
       const allReadings = data.reduce(
         (acc, { timestamp, ...readings }) =>
@@ -146,7 +149,7 @@ export default function Screen(props) {
         scale: modelOptions.colourMode ? modelColourScale[dataType] : dataRange,
       });
     } catch (error) {
-      console.error(error);
+      Alert.alert("Refresh error", error);
     }
     setIsLoading(false);
   }
