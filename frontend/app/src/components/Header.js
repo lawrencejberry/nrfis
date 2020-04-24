@@ -13,7 +13,7 @@ export default function Header() {
   opacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    Animated.loop(
+    const animation = Animated.loop(
       Animated.sequence([
         Animated.timing(opacity, {
           toValue: 0,
@@ -27,8 +27,12 @@ export default function Header() {
           useNativeDriver: true,
         }),
       ])
-    ).start();
-  });
+    );
+    if (live) {
+      animation.start();
+    }
+    return () => animation.stop();
+  }, [live]);
 
   return (
     <>
@@ -60,32 +64,30 @@ export default function Header() {
           <View
             style={{ flex: 10, flexDirection: "row", alignItems: "center" }}
           >
-            {live ? (
-              <View
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginRight: 20,
+              }}
+            >
+              <Text
                 style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  marginRight: 20,
+                  marginRight: 5,
+                  marginBottom: 2,
+                  color: "white",
                 }}
               >
-                <Text
-                  style={{
-                    marginRight: 5,
-                    marginBottom: 2,
-                    color: "white",
-                  }}
-                >
-                  Live
-                </Text>
-                <Animated.View style={{ opacity: opacity }}>
-                  <Icon
-                    name="controller-record"
-                    type="entypo"
-                    color="#f54842"
-                  />
-                </Animated.View>
-              </View>
-            ) : null}
+                {live ? "Live" : "Not live"}
+              </Text>
+              <Animated.View style={{ opacity: opacity }}>
+                <Icon
+                  name="controller-record"
+                  type="entypo"
+                  color={live ? "#f54842" : theme.colors.primary}
+                />
+              </Animated.View>
+            </View>
             <Icon
               containerStyle={{ marginHorizontal: 20 }}
               name="help-with-circle"
