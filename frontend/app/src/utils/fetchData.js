@@ -51,7 +51,7 @@ export async function fetchTemperatureData(startTime, endTime) {
       temperatureData.push(
         ...parsedData.data.map((sample) => ({
           timestamp: date.setHours(...sample[0].split(":")),
-          temperature: sample[1],
+          temperature: parseFloat(sample[1]),
         }))
       );
     } catch (error) {
