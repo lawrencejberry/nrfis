@@ -40,438 +40,693 @@ export default function BasementModel(props) {
             </mesh>
           </group>
         ) : null}
-        <group name="Raft sensors" position={[-8.1, 0, -4]}>
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_bot08",
-            [5.5, -0.7, 8.4],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_bot09",
-            [5.5, -0.7, 9.45],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_bot10",
-            [5.5, -0.7, 10.5],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_bot11",
-            [5.5, -0.7, 11.55],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_bot12",
-            [5.5, -0.7, 12.6],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_bot13",
-            [5.5, -0.7, 13.65],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_bot14",
-            [5.5, -0.7, 14.7],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_bot15",
-            [5.5, -0.7, 15.75],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_bot16",
-            [5.5, -0.7, 16.8],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_bot17",
-            [5.5, -0.7, 17.85],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_top01",
-            [5.5, 1.9, 1.05],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_top02",
-            [5.5, 1.9, 2.1],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_top03",
-            [5.5, 1.9, 3.15],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_top04",
-            [5.5, 1.9, 4.2],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_top05",
-            [5.5, 1.9, 5.25],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_top06",
-            [5.5, 1.9, 6.3],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_top07",
-            [5.5, 1.9, 7.35],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_top08",
-            [5.5, 1.9, 8.4],
-            [0.3, 0.1, 0.6]
-          )}
+        <group
+          name="Basement raft and wall sensors"
+          position={[6.5, -1.5, -4.3]}
+        >
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Str_bot01",
-            [5.5, -0.7, 1.05],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_top09",
-            [5.5, 1.9, 9.45],
+            [-8.42, 0.1, 1.8],
             [0.3, 0.1, 0.6]
           )}
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Str_bot02",
-            [5.5, -0.7, 2.1],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_top10",
-            [5.5, 1.9, 10.5],
+            [-8.42, 0.1, 2.8],
             [0.3, 0.1, 0.6]
           )}
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Str_bot03",
-            [5.5, -0.7, 3.15],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_top11",
-            [5.5, 1.9, 11.55],
+            [-8.42, 0.1, 3.8],
             [0.3, 0.1, 0.6]
           )}
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Str_bot04",
-            [5.5, -0.7, 4.2],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_top12",
-            [5.5, 1.9, 12.6],
+            [-8.42, 0.1, 4.8],
             [0.3, 0.1, 0.6]
           )}
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Str_bot05",
-            [5.5, -0.7, 5.25],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_top13",
-            [5.5, 1.9, 13.65],
+            [-8.42, 0.1, 5.8],
             [0.3, 0.1, 0.6]
           )}
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Str_bot06",
-            [5.5, -0.7, 6.3],
-            [0.3, 0.1, 0.6]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_EW01_Str_top14",
-            [5.5, 1.9, 14.7],
+            [-8.42, 0.1, 6.8],
             [0.3, 0.1, 0.6]
           )}
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Str_bot07",
-            [5.5, -0.7, 7.35],
+            [-8.42, 0.1, 7.8],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_bot08",
+            [-8.42, 0.1, 8.8],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_bot09",
+            [-8.42, 0.1, 9.8],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_bot10",
+            [-8.42, 0.1, 10.8],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_bot11",
+            [-8.42, 0.1, 11.8],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_bot12",
+            [-8.42, 0.1, 12.8],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_bot13",
+            [-8.42, 0.1, 13.8],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_bot14",
+            [-8.42, 0.1, 14.8],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_bot15",
+            [-8.42, 0.1, 15.8],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_bot16",
+            [-8.42, 0.1, 16.8],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_bot17",
+            [-8.42, 0.1, 17.8],
             [0.3, 0.1, 0.6]
           )}
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Str_bot18",
-            [5.5, -0.7, 18.9],
+            [-8.42, 0.1, 18.8],
             [0.3, 0.1, 0.6]
           )}
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Str_bot19",
-            [5.5, -0.7, 19.95],
+            [-8.42, 0.1, 19.8],
             [0.3, 0.1, 0.6]
           )}
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Str_bot20",
-            [5.5, -0.7, 21.0],
+            [-8.42, 0.1, 20.8],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_top01",
+            [-8.42, 0.45, 1.81],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_top02",
+            [-8.42, 0.45, 2.81],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_top03",
+            [-8.42, 0.45, 3.81],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_top04",
+            [-8.42, 0.45, 4.81],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_top05",
+            [-8.42, 0.45, 5.81],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_top06",
+            [-8.42, 0.45, 6.81],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_top07",
+            [-8.42, 0.45, 7.81],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_top08",
+            [-8.42, 0.45, 8.81],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_top09",
+            [-8.42, 0.45, 9.81],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_top10",
+            [-8.42, 0.45, 10.81],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_top11",
+            [-8.42, 0.45, 11.81],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_top12",
+            [-8.42, 0.45, 12.81],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_top13",
+            [-8.42, 0.45, 13.81],
+            [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EW01_Str_top14",
+            [-8.42, 0.45, 14.81],
             [0.3, 0.1, 0.6]
           )}
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Str_top15",
-            [5.5, 1.9, 15.75],
+            [-8.42, 0.45, 15.81],
             [0.3, 0.1, 0.6]
           )}
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Str_top16",
-            [5.5, 1.9, 16.8],
+            [-8.42, 0.45, 16.81],
             [0.3, 0.1, 0.6]
           )}
           {renderSensor(
             props.sensorColours,
-            "BA_FBG_NS01_Str_bot01",
-            [0.9928571428571429, -0.7, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_bot02",
-            [1.9857142857142858, -0.7, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_bot03",
-            [2.9785714285714286, -0.7, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_bot04",
-            [3.9714285714285715, -0.7, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_bot05",
-            [4.964285714285714, -0.7, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_bot06",
-            [5.957142857142857, -0.7, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_bot07",
-            [6.95, -0.7, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_bot08",
-            [7.942857142857143, -0.7, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_bot09",
-            [8.935714285714287, -0.7, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_bot10",
-            [9.928571428571429, -0.7, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_bot11",
-            [10.921428571428573, -0.7, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_bot12",
-            [11.914285714285715, -0.7, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_bot13",
-            [12.907142857142858, -0.7, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_bot14",
-            [13.9, -0.7, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_top01",
-            [0.9928571428571429, 1.9, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_top02",
-            [1.9857142857142858, 1.9, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_top03",
-            [2.9785714285714286, 1.9, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_top04",
-            [3.9714285714285715, 1.9, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_top05",
-            [4.964285714285714, 1.9, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_top06",
-            [5.957142857142857, 1.9, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_top07",
-            [6.95, 1.9, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_top08",
-            [7.942857142857143, 1.9, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_top09",
-            [8.935714285714287, 1.9, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_top10",
-            [9.928571428571429, 1.9, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_top11",
-            [10.921428571428573, 1.9, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_top12",
-            [11.914285714285715, 1.9, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_top13",
-            [12.907142857142858, 1.9, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
-            "BA_FBG_NS01_Str_top14",
-            [13.9, 1.9, 10.5],
-            [0.6, 0.1, 0.3]
-          )}
-          {renderSensor(
-            props.sensorColours,
             "BA_FBG_EW01_Str_top17",
-            [5.5, 1.9, 17.85],
+            [-8.42, 0.45, 17.81],
             [0.3, 0.1, 0.6]
           )}
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Str_top18",
-            [5.5, 1.9, 18.9],
+            [-8.42, 0.45, 18.81],
             [0.3, 0.1, 0.6]
           )}
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Str_top19",
-            [5.5, 1.9, 19.95],
+            [-8.42, 0.45, 19.81],
             [0.3, 0.1, 0.6]
           )}
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Str_top20",
-            [5.5, 1.9, 21.0],
+            [-8.42, 0.45, 20.79],
             [0.3, 0.1, 0.6]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_bot01",
+            [-0.81, 0.08, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_bot02",
+            [-1.81, 0.08, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_bot03",
+            [-2.81, 0.08, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_bot04",
+            [-3.81, 0.08, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_bot05",
+            [-4.81, 0.08, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_bot06",
+            [-5.81, 0.08, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_bot07",
+            [-6.81, 0.08, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_bot08",
+            [-7.81, 0.08, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_bot09",
+            [-8.81, 0.08, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_bot10",
+            [-9.81, 0.08, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_bot11",
+            [-10.81, 0.08, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_bot12",
+            [-11.81, 0.08, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_bot13",
+            [-12.81, 0.08, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_bot14",
+            [-13.8, 0.08, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_top01",
+            [-0.79, 0.43, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_top02",
+            [-1.79, 0.43, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_top03",
+            [-2.79, 0.43, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_top04",
+            [-3.79, 0.43, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_top05",
+            [-4.79, 0.43, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_top06",
+            [-5.79, 0.43, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_top07",
+            [-6.79, 0.43, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_top08",
+            [-7.79, 0.43, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_top09",
+            [-8.79, 0.43, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_top10",
+            [-9.79, 0.43, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_top11",
+            [-10.79, 0.43, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_top12",
+            [-11.79, 0.43, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_top13",
+            [-12.79, 0.43, 11.21],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NS01_Str_top14",
+            [-13.81, 0.43, 11.21],
+            [0.6, 0.1, 0.3]
           )}
           {renderSensor(
             props.sensorColours,
             "BA_FBG_EW01_Tmp_bot03",
-            [5.5, -0.7, 18],
+            [-8.42, 0.1, 16.71],
             [0.3, 0.1, 0.6]
           )}
           {renderSensor(
             props.sensorColours,
-            "BA_FBG_EW01_Tmp_top01",
-            [5.5, 1.9, 3],
-            [0.3, 0.1, 0.6]
+            "BA_FBG_NS01_Tmp_top01",
+            [-8.42, 0.45, 6.29],
+            [0.6, 0.1, 0.3]
           )}
           {renderSensor(
             props.sensorColours,
-            "BA_FBG_EW01_Tmp_top02",
-            [5.5, 1.9, 10.5],
-            [0.3, 0.1, 0.6]
+            "BA_FBG_NS01_Tmp_top02",
+            [-8.42, 0.45, 11.46],
+            [0.6, 0.1, 0.3]
           )}
           {renderSensor(
             props.sensorColours,
-            "BA_FBG_EW01_Tmp_top03",
-            [5.5, 1.9, 18],
-            [0.3, 0.1, 0.6]
+            "BA_FBG_NS01_Tmp_top03",
+            [-8.42, 0.45, 16.7],
+            [0.6, 0.1, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EE01_Str_wal01",
+            [-8.42, 0.7, 21.89],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EE01_Str_wal02",
+            [-8.42, 1.78, 21.89],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EE01_Str_wal03",
+            [-8.42, 0.7, 21.73],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EE01_Str_wal04",
+            [-8.42, 1.68, 21.73],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EE01_Tmp_wal05",
+            [-8.42, 1.2, 21.89],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EE01_Tmp_wal06",
+            [-8.42, 1.19, 21.73],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EE01_Str_thk01",
+            [-8.42, 0.8, 21.59],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EE01_Str_thk02",
+            [-8.42, 1.8, 21.59],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EE01_Str_thk03",
+            [-8.42, 0.8, 21.01],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EE01_Str_thk04",
+            [-8.42, 1.8, 21.01],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EE01_Tmp_thk05",
+            [-8.42, 1.0, 21.59],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_EE01_Tmp_thk06",
+            [-8.42, 1.0, 21.01],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_WW01_Str_wal01",
+            [-8.42, 0.7, 0.57],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_WW01_Str_wal02",
+            [-8.42, 1.79, 0.57],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_WW01_Str_wal03",
+            [-8.42, 0.7, 0.73],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_WW01_Str_wal04",
+            [-8.42, 1.7, 0.73],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_WW01_Tmp_wal05",
+            [-8.42, 1.2, 0.57],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_WW01_Tmp_wal06",
+            [-8.42, 1.2, 0.73],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_WW01_Str_thk01",
+            [-8.42, 0.8, 0.87],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_WW01_Str_thk02",
+            [-8.42, 1.77, 0.87],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_WW01_Str_thk03",
+            [-8.42, 0.8, 1.43],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_WW01_Str_thk04",
+            [-8.42, 1.88, 1.43],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_WW01_Tmp_thk05",
+            [-8.42, 1.0, 0.87],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_WW01_Tmp_thk06",
+            [-8.42, 1.0, 1.43],
+            [0.3, 0.6, 0.1]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NN01_Str_wal01",
+            [-0.57, 0.69, 11.21],
+            [0.1, 0.6, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NN01_Str_wal02",
+            [-0.57, 1.69, 11.21],
+            [0.1, 0.6, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NN01_Str_wal03",
+            [-0.73, 0.7, 11.21],
+            [0.1, 0.6, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NN01_Str_wal04",
+            [-0.73, 1.69, 11.21],
+            [0.1, 0.6, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NN01_Tmp_wal05",
+            [-0.57, 1.2, 11.21],
+            [0.1, 0.6, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_NN01_Tmp_wal06",
+            [-0.73, 1.2, 11.21],
+            [0.1, 0.6, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_SS01_Str_wal01",
+            [-14.05, 0.7, 11.21],
+            [0.1, 0.6, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_SS01_Str_wal02",
+            [-14.05, 1.7, 11.21],
+            [0.1, 0.6, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_SS01_Str_wal03",
+            [-13.89, 0.7, 11.21],
+            [0.1, 0.6, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_SS01_Str_wal04",
+            [-13.89, 1.7, 11.21],
+            [0.1, 0.6, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_SS01_Tmp_wal05",
+            [-14.05, 1.2, 11.21],
+            [0.1, 0.6, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_SS01_Tmp_wal06",
+            [-13.89, 1.2, 11.21],
+            [0.1, 0.6, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_SS01_Str_thk01",
+            [-13.75, 0.8, 11.21],
+            [0.1, 0.6, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_SS01_Str_thk02",
+            [-13.75, 1.91, 11.21],
+            [0.1, 0.6, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_SS01_Str_thk03",
+            [-13.18, 0.8, 11.21],
+            [0.1, 0.6, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_SS01_Str_thk04",
+            [-13.18, 1.77, 11.21],
+            [0.1, 0.6, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_SS01_Tmp_thk05",
+            [-13.75, 1.0, 11.21],
+            [0.1, 0.6, 0.3]
+          )}
+          {renderSensor(
+            props.sensorColours,
+            "BA_FBG_SS01_Tmp_thk06",
+            [-13.18, 1.0, 11.21],
+            [0.1, 0.6, 0.3]
           )}
         </group>
       </scene>
