@@ -89,7 +89,7 @@ export default function Header() {
               </Animated.View>
             </View>
             <Icon
-              containerStyle={{ marginHorizontal: 20 }}
+              containerStyle={{ marginRight: 20 }}
               name="help-with-circle"
               type="entypo"
               color="white"
