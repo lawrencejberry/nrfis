@@ -16,7 +16,7 @@ export default function StrongFloorModel(props) {
   ]);
 
   useEffect(() => {
-    camera.zoom = props.zoom;
+    camera.zoom = 2 * props.zoom;
     camera.updateProjectionMatrix();
   }, [props.zoom]);
 
