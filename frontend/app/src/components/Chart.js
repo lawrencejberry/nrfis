@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View } from "react-native";
-import { Text } from "react-native-elements";
+import { Button, Text } from "react-native-elements";
 import { Circle, G, Rect, Line, Text as SVGText } from "react-native-svg";
 import { LineChart, Grid, YAxis, XAxis } from "react-native-svg-charts";
 import * as D3 from "d3-shape";
@@ -274,6 +274,20 @@ export default function Chart(props) {
           contentInset={contentInset}
           svg={{ fontSize: 10, fill: theme.colors.primary }}
           numberOfTicks={5}
+        />
+        <Button
+          containerStyle={{
+            position: "absolute",
+            right: 0,
+            margin: 11,
+          }}
+          type="outline"
+          title="Reset"
+          onPress={() => {
+            setMinX(timestamps[0]);
+            setMaxX(timestamps[timestamps.length - 1]);
+            setBaseRange([timestamps[0], timestamps[timestamps.length - 1]]);
+          }}
         />
       </View>
     </PinchGestureHandler>
