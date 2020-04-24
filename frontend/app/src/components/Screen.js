@@ -178,6 +178,7 @@ export default function Screen(props) {
           data={data}
           liveMode={liveMode}
           liveData={liveData}
+          screenState={screenState}
           chartOptions={chartOptions}
         />
       );

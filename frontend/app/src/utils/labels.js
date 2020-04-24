@@ -1,7 +1,7 @@
 const dataTypeLabels = [
-  { label: "Raw", value: "raw" },
-  { label: "Strain", value: "str" },
-  { label: "Temperature", value: "tmp" },
+  { label: "Raw", value: "raw", unit: "nm" },
+  { label: "Strain", value: "str", unit: "με" },
+  { label: "Temperature", value: "tmp", unit: "°C" },
 ];
 
 const averagingWindowLabels = [

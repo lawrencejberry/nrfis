@@ -7,7 +7,7 @@ import * as D3 from "d3-shape";
 import { State, PinchGestureHandler } from "react-native-gesture-handler";
 
 import formatTimestampLabel from "./utils";
-import { theme } from "../utils";
+import { theme, labels } from "../utils";
 
 const contentInset = { top: 10, bottom: 10, left: 10, right: 10 };
 
@@ -69,7 +69,7 @@ const Decorators = ({ x, y, data: datasets, timestamps }) =>
   );
 
 export default function Chart(props) {
-  const { data, liveData, liveMode, chartOptions } = props;
+  const { data, liveData, liveMode, screenState, chartOptions } = props;
 
   const [width, setWidth] = useState(0);
   const [datasets, setDatasets] = useState([]);
@@ -174,7 +174,7 @@ export default function Chart(props) {
       onHandlerStateChange={handleStateChange}
     >
       <View
-        style={{ flex: 1, padding: 15 }}
+        style={{ flex: 1, paddingVertical: 15, paddingRight: 5 }}
         onMoveShouldSetResponder={(_) => true}
         onResponderMove={(event) => handleResponderMove(event)}
       >
@@ -184,18 +184,35 @@ export default function Chart(props) {
             setWidth(event.nativeEvent.layout.width);
           }}
         >
-          <YAxis
-            style={{ width: 35 }}
-            data={datasets.reduce(
-              (acc, dataset) => acc.concat(dataset.data),
-              []
-            )}
-            formatLabel={(value) => value.toPrecision(4)}
-            contentInset={contentInset}
-            svg={{ fontSize: 10, fill: theme.colors.primary }}
-            numberOfTicks={10}
-          />
-          <View style={{ flex: 1, marginHorizontal: 15 }}>
+          <View style={{ width: 80, flexDirection: "row", marginRight: 10 }}>
+            <Text
+              style={{
+                fontWeight: "bold",
+                color: theme.colors.primary,
+                alignSelf: "center",
+              }}
+            >
+              {liveMode
+                ? labels["Data Type"].find(
+                    (element) => element.value === screenState.liveDataType
+                  ).unit
+                : labels["Data Type"].find(
+                    (element) => element.value === screenState.dataType
+                  ).unit}
+            </Text>
+            <YAxis
+              style={{ flex: 1 }}
+              data={datasets.reduce(
+                (acc, dataset) => acc.concat(dataset.data),
+                []
+              )}
+              formatLabel={(value) => value.toPrecision(4)}
+              contentInset={contentInset}
+              svg={{ fontSize: 10, fill: theme.colors.primary }}
+              numberOfTicks={10}
+            />
+          </View>
+          <View style={{ flex: 1 }}>
             {chartOptions.showTemperature ? (
               <LineChart
                 style={{
@@ -241,7 +258,7 @@ export default function Chart(props) {
                 style={{ flex: 1 }}
                 data={chartOptions.temperatureData}
                 yAccessor={({ item }) => item.temperature}
-                formatLabel={(value) => value.toPrecision(4)}
+                formatLabel={(value) => value.toPrecision(2)}
                 contentInset={contentInset}
                 svg={{ fontSize: 10, fill: theme.colors.primary }}
                 numberOfTicks={10}
@@ -250,7 +267,7 @@ export default function Chart(props) {
           </View>
         </View>
         <XAxis
-          style={{ height: 25, marginHorizontal: 35, marginTop: 10 }}
+          style={{ height: 25, marginLeft: 90, marginRight: 35, marginTop: 10 }}
           data={[minX, maxX]}
           xAccessor={({ item }) => item}
           formatLabel={liveMode ? (value) => value : formatTimestampLabel}
