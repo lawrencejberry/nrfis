@@ -1,10 +1,13 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { View, Image, Text, Animated } from "react-native";
 import { Header as HeaderBar, Icon } from "react-native-elements";
 
+import HelpOverlay from "./HelpOverlay";
 import { theme, LiveStatusContext } from "../utils";
 
 export default function Header() {
+  const [showHelp, setShowHelp] = useState(false);
+
   const { live } = useContext(LiveStatusContext);
 
   opacity = useRef(new Animated.Value(1)).current;
@@ -28,61 +31,77 @@ export default function Header() {
   });
 
   return (
-    <HeaderBar
-      containerStyle={{
-        height: 70,
-        paddingVertical: 20,
-        paddingHorizontal: 20,
-        borderBottomColor: theme.colors.secondary,
-      }}
-      statusBarProps={{
-        hidden: true,
-      }}
-      placement="left"
-      backgroundColor={theme.colors.secondary}
-      leftComponent={
-        <Image
-          source={require("../../assets/images/logo.png")}
-          style={{ width: 75, height: 55 }}
-        />
-      }
-      centerComponent={
-        <Image
-          source={require("../../assets/images/title.png")}
-          style={{ width: 60, height: 10 }}
-        />
-      }
-      rightComponent={
-        <View style={{ flex: 10, flexDirection: "row", alignItems: "center" }}>
-          {live ? (
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginRight: 20,
-              }}
-            >
-              <Text
+    <>
+      <HeaderBar
+        containerStyle={{
+          height: 70,
+          paddingVertical: 20,
+          paddingHorizontal: 20,
+          borderBottomColor: theme.colors.secondary,
+        }}
+        statusBarProps={{
+          hidden: true,
+        }}
+        placement="left"
+        backgroundColor={theme.colors.secondary}
+        leftComponent={
+          <Image
+            source={require("../../assets/images/logo.png")}
+            style={{ width: 75, height: 55 }}
+          />
+        }
+        centerComponent={
+          <Image
+            source={require("../../assets/images/title.png")}
+            style={{ width: 60, height: 10 }}
+          />
+        }
+        rightComponent={
+          <View
+            style={{ flex: 10, flexDirection: "row", alignItems: "center" }}
+          >
+            {live ? (
+              <View
                 style={{
-                  marginRight: 5,
-                  marginBottom: 2,
-                  color: "white",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginRight: 20,
                 }}
               >
-                Live
-              </Text>
-              <Animated.View style={{ opacity: opacity }}>
-                <Icon name="controller-record" type="entypo" color="#f54842" />
-              </Animated.View>
-            </View>
-          ) : null}
-
-          <Image
-            source={require("../../assets/images/cambridge.png")}
-            style={{ width: 100, height: 20, marginBottom: 2 }}
-          />
-        </View>
-      }
-    />
+                <Text
+                  style={{
+                    marginRight: 5,
+                    marginBottom: 2,
+                    color: "white",
+                  }}
+                >
+                  Live
+                </Text>
+                <Animated.View style={{ opacity: opacity }}>
+                  <Icon
+                    name="controller-record"
+                    type="entypo"
+                    color="#f54842"
+                  />
+                </Animated.View>
+              </View>
+            ) : null}
+            <Icon
+              containerStyle={{ marginHorizontal: 20 }}
+              name="help-with-circle"
+              type="entypo"
+              color="white"
+              underlayColor={"transparent"}
+              onPress={() => setShowHelp(!showHelp)}
+            />
+            <Image
+              source={require("../../assets/images/cambridge.png")}
+              style={{ width: 100, height: 20, marginBottom: 2 }}
+            />
+          </View>
+        }
+      />
+      <HelpOverlay isActive={showHelp} setIsActive={setShowHelp} />
+    </>
   );
 }
