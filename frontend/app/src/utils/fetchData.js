@@ -1,4 +1,5 @@
 import Papa from "papaparse";
+import { Alert } from "react-native";
 
 export default async function fetchData(
   sensorPackage,
@@ -7,22 +8,18 @@ export default async function fetchData(
   startTime,
   endTime
 ) {
-  try {
-    const response = await fetch(
-      `http://129.169.72.175/fbg/${sensorPackage}/${dataType}/?averaging-window=${averagingWindow}&start-time=${startTime}&end-time=${endTime}`,
-      {
-        method: "GET",
-        headers: { "media-type": "application/json" },
-      }
-    );
-    const data = await response.json();
-    data.forEach((sample) => {
-      sample.timestamp = Date.parse(sample.timestamp);
-    }); // Store times as Unix timestamps
-    return data;
-  } catch (error) {
-    console.error(error);
+  const response = await fetch(
+    `http://129.169.72.175/fbg/${sensorPackage}/${dataType}/?averaging-window=${averagingWindow}&start-time=${startTime}&end-time=${endTime}`,
+    {
+      method: "GET",
+      headers: { "media-type": "application/json" },
+    }
+  );
+  const data = await response.json();
+  if (response.status !== 200) {
+    throw data.detail;
   }
+  return data;
 }
 
 // Returns an array of dates between two dates

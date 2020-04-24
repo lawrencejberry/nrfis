@@ -108,6 +108,9 @@ export default function Screen(props) {
       if (!data.length) {
         throw "No data available for this time period";
       }
+      data.forEach((sample) => {
+        sample.timestamp = Date.parse(sample.timestamp);
+      }); // Store times as Unix timestamps
       setData(data);
       const allReadings = data.reduce(
         (acc, { timestamp, ...readings }) =>
