@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { View } from "react-native";
+import { View, Alert } from "react-native";
 
 import Menu from "./Menu";
 import Model from "./Model";
@@ -20,9 +20,14 @@ export default function Screen(props) {
   const [liveData, setLiveData] = useState([]);
   const [liveMode, setLiveMode] = useState(false); // true for Live, false for Historical
   const [dataRange, setDataRange] = useState([]);
-  const [dataType, setDataType] = useState("str");
-  const [liveDataType, setLiveDataType] = useState("str");
   const [isLoading, setIsLoading] = useState(false);
+  const [screenState, setScreenState] = useState({
+    dataType: "",
+    liveDataType: "str",
+    averagingWindow: "",
+    startTime: "",
+    endTime: "",
+  });
   const [chartOptions, setChartOptions] = useState({
     sensors: [], // [{ name: sensorName, isSelected: true}, ... }]
     showTemperature: false,
@@ -44,10 +49,10 @@ export default function Screen(props) {
       setModelOptions({
         ...modelOptions,
         colourMode: 1,
-        scale: modelColourScale[liveDataType],
+        scale: modelColourScale[screenState.liveDataType],
       });
       setChartOptions({ ...chartOptions, showTemperature: false });
-      if (liveDataType === "raw") {
+      if (screenState.liveDataType === "raw") {
         // Set to chart mode when liveDataType is raw
         setMode(1);
       }
@@ -56,12 +61,12 @@ export default function Screen(props) {
       // Set to historical mode when package is not live
       setLiveMode(false);
     }
-  }, [liveStatus, liveDataType, props.packageServerName]);
+  }, [liveStatus, screenState.liveDataType, props.packageServerName]);
 
   useEffect(() => {
     if (liveMode) {
       let ws = new WebSocket(
-        `ws://129.169.72.175/fbg/live-data/?data-type=${liveDataType}`
+        `ws://129.169.72.175/fbg/live-data/?data-type=${screenState.liveDataType}`
       );
       ws.onmessage = (event) => {
         const message = event.data;
@@ -87,7 +92,7 @@ export default function Screen(props) {
         setLiveData((liveData) => []);
       };
     }
-  }, [liveMode, liveDataType, props.packageServerName]);
+  }, [liveMode, screenState.liveDataType, props.packageServerName]);
 
   async function refresh(dataType, averagingWindow, startTime, endTime) {
     setIsLoading(true);
@@ -100,8 +105,13 @@ export default function Screen(props) {
         startTime.toISOString(),
         endTime.toISOString()
       );
+      if (!data.length) {
+        throw "No data available for this time period";
+      }
+      data.forEach((sample) => {
+        sample.timestamp = Date.parse(sample.timestamp);
+      }); // Store times as Unix timestamps
       setData(data);
-      setDataType(dataType);
       const allReadings = data.reduce(
         (acc, { timestamp, ...readings }) =>
           acc.concat(Object.values(readings)),
@@ -114,6 +124,14 @@ export default function Screen(props) {
       if (dataType === "raw") {
         setMode(1); // Chart mode
       }
+      // Set new screen state
+      setScreenState({
+        ...screenState,
+        dataType: dataType,
+        averagingWindow: averagingWindow,
+        startTime: startTime,
+        endTime: endTime,
+      });
 
       // Set chart options
       const { timestamp, ...readings } = data[0]; // Extract sensor readings for the first sample
@@ -134,7 +152,7 @@ export default function Screen(props) {
         scale: modelOptions.colourMode ? modelColourScale[dataType] : dataRange,
       });
     } catch (error) {
-      console.error(error);
+      Alert.alert("Refresh error", error);
     }
     setIsLoading(false);
   }
@@ -166,6 +184,7 @@ export default function Screen(props) {
           data={data}
           liveMode={liveMode}
           liveData={liveData}
+          screenState={screenState}
           chartOptions={chartOptions}
         />
       );
@@ -174,10 +193,10 @@ export default function Screen(props) {
 
   return (
     <View style={{ flex: 1, flexDirection: "row" }}>
-      <View style={{ flex: 5 }}>{renderVisualisation()}</View>
+      <View style={{ flex: 3 }}>{renderVisualisation()}</View>
       <Menu
         style={{
-          flex: 2,
+          width: 100,
           borderLeftWidth: 2,
           borderColor: theme.colors.border,
           padding: 10,
@@ -188,9 +207,8 @@ export default function Screen(props) {
         live={live}
         liveMode={liveMode}
         setLiveMode={setLiveMode}
-        dataType={dataType}
-        liveDataType={liveDataType}
-        setLiveDataType={setLiveDataType}
+        screenState={screenState}
+        setScreenState={setScreenState}
         dataRange={dataRange}
         isLoading={isLoading}
         refresh={refresh}

@@ -2,7 +2,7 @@ import React, { Suspense, useState, useEffect } from "react";
 import { View, Platform } from "react-native";
 import * as THREE from "three";
 import { Canvas } from "react-three-fiber";
-import { Slider } from "react-native-elements";
+import { Slider, Button } from "react-native-elements";
 import { State, PinchGestureHandler } from "react-native-gesture-handler";
 import { XAxis } from "react-native-svg-charts";
 
@@ -98,6 +98,20 @@ export default function Model(props) {
             {props.children({ rotation, zoom, sensorColours })}
           </Suspense>
         </Canvas>
+        <Button
+          containerStyle={{
+            position: "absolute",
+            right: 0,
+            margin: 11,
+          }}
+          type="outline"
+          title="Reset"
+          onPress={() => {
+            setRotation(new THREE.Euler(0, 0));
+            setZoom(1);
+            setBaseZoom(1);
+          }}
+        />
         {props.liveMode ? null : (
           <View
             style={{

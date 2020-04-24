@@ -16,7 +16,7 @@ export default function BasementModel(props) {
   );
 
   useEffect(() => {
-    camera.zoom = props.zoom;
+    camera.zoom = props.zoom * 0.6;
     camera.updateProjectionMatrix();
   }, [props.zoom]);
 

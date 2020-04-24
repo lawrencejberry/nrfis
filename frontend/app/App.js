@@ -48,8 +48,8 @@ export default function App() {
             }}
           >
             <Tab.Screen name="Steel Frame" component={SteelFrameScreen} />
-            <Tab.Screen name="Strong Floor" component={StrongFloorScreen} />
             <Tab.Screen name="Basement" component={BasementScreen} />
+            <Tab.Screen name="Strong Floor" component={StrongFloorScreen} />
           </Tab.Navigator>
         </NavigationContainer>
       </LiveStatusContext.Provider>
