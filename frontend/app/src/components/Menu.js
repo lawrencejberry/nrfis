@@ -282,10 +282,12 @@ export default function Menu(props) {
         {props.chartOptions.showTemperature ? (
           <ListItem
             containerStyle={{
-              width: "50%",
+              minWidth: 150,
+              maxWidth: 250,
               padding: 0,
+              marginHorizontal: 10,
             }}
-            title="OUTDOOR TEMP."
+            title="OUTDOOR TEMPERATURE"
             titleStyle={{ fontSize: 12 }}
             rightIcon={{
               name: "minus",
