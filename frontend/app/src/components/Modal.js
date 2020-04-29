@@ -115,8 +115,8 @@ export default function Modal(props) {
       <TouchableWithoutFeedback>
         <Animated.View
           style={{
-            width: Dimensions.get("window").width,
-            height: Dimensions.get("window").height,
+            width: Dimensions.get("screen").width,
+            height: Dimensions.get("screen").height,
             position: "absolute",
             backgroundColor: "black",
             opacity: animVal.interpolate({

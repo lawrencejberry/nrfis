@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
-  ScrollView,
   Modal,
   Animated,
   TouchableWithoutFeedback,
@@ -58,8 +57,8 @@ export default function HelpOverlay({ isActive, setIsActive }) {
       <>
         <Animated.View
           style={{
-            width: Dimensions.get("window").width,
-            height: Dimensions.get("window").height,
+            width: Dimensions.get("screen").width,
+            height: Dimensions.get("screen").height,
             position: "absolute",
             backgroundColor: "black",
             opacity: helpOverlayOpacity.interpolate({
