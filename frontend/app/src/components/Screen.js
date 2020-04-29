@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { View, Alert } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 
 import Menu from "./Menu";
 import Model from "./Model";
@@ -39,6 +40,7 @@ export default function Screen(props) {
     colourMode: 1, // 0 = adaptive, 1 = absolute
     scale: [-200, 200],
   });
+  const [showVisualisation, setShowVisualisation] = useState(true);
 
   const liveStatus = useContext(LiveStatusContext);
 
@@ -172,6 +174,15 @@ export default function Screen(props) {
     setIsLoading(false);
   }
 
+  useFocusEffect(
+    React.useCallback(() => {
+      setShowVisualisation(true);
+      return () => {
+        setShowVisualisation(false);
+      };
+    }, [])
+  );
+
   function renderVisualisation() {
     if (mode == 0) {
       // Model
@@ -208,7 +219,9 @@ export default function Screen(props) {
 
   return (
     <View style={{ flex: 1, flexDirection: "row" }}>
-      <View style={{ flex: 3 }}>{renderVisualisation()}</View>
+      <View style={{ flex: 3 }}>
+        {showVisualisation ? renderVisualisation() : null}
+      </View>
       <Menu
         style={{
           width: 100,
