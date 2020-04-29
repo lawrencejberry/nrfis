@@ -66,3 +66,12 @@ export async function fetchLiveStatus() {
   const data = await response.json();
   return data;
 }
+
+export async function fetchSensorNames(packageServerName, dataType) {
+  const response = await fetch("http://129.169.72.175/openapi.json");
+  const data = await response.json();
+  const schema = `${packageServerName}_${dataType}`;
+  const { timestamp, ...readings } = data.components.schemas[schema].properties;
+  const sensorNames = Object.keys(readings);
+  return sensorNames;
+}

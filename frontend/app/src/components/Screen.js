@@ -7,6 +7,7 @@ import Chart from "./Chart";
 import {
   fetchData,
   fetchTemperatureData,
+  fetchSensorNames,
   theme,
   chartColours,
   modelColourScale,
@@ -63,33 +64,47 @@ export default function Screen(props) {
     }
   }, [liveStatus, screenState.liveDataType, props.packageServerName]);
 
+  async function setSensorNames() {
+    try {
+      const sensorNames = await fetchSensorNames(
+        props.packageServerName,
+        screenState.liveDataType
+      );
+      setChartOptions({
+        ...chartOptions,
+        showTemperature: false,
+        sensors: sensorNames.map((sensorName, index) => ({
+          name: sensorName,
+          isSelected: index < 3, // By default display only the first three sensors on the chart
+          colour: chartColours[index % chartColours.length],
+        })),
+      });
+    } catch (error) {
+      Alert.alert("Live data error", "Could not fetch sensor names");
+      setLiveMode(false);
+    }
+  }
+
   useEffect(() => {
     if (liveMode) {
       let ws = new WebSocket(
         `ws://129.169.72.175/fbg/live-data/?data-type=${screenState.liveDataType}`
       );
+
+      setSensorNames();
+
       ws.onmessage = (event) => {
         const message = event.data;
         const data = JSON.parse(message);
         const newSample = data[props.packageServerName];
-        const { timestamp, ...readings } = newSample;
-        const sensorNames = Object.keys(readings);
-        setChartOptions({
-          ...chartOptions,
-          showTemperature: false,
-          sensors: sensorNames.map((sensorName, index) => ({
-            name: sensorName,
-            isSelected: index < 3, // By default display only the first three sensors on the chart
-            colour: chartColours[index % chartColours.length],
-          })),
-        });
         setLiveData((liveData) =>
           liveData.length > 30 ? [newSample] : [...liveData, newSample]
         );
       };
+
       return () => {
         ws.close(); // Clean up the previous websocket when changing the liveMode or dataType
-        setLiveData((liveData) => []);
+        setLiveData(() => []);
       };
     }
   }, [liveMode, screenState.liveDataType, props.packageServerName]);
