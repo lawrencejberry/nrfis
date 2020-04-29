@@ -126,7 +126,7 @@ export default function Menu(props) {
     // Set dialog or modal active depending on platform and selector
     if (
       Platform.OS === "android" &&
-      ["startTime", "endTime"].includes(shownElement)
+      ["Start Time", "End Time"].includes(shownElement)
     ) {
       setIsDialogActive(true);
     } else {
