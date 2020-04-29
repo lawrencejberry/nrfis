@@ -80,7 +80,7 @@ export default function HelpOverlay({ isActive, setIsActive }) {
                 flexDirection: "column",
               }}
             >
-              <HelpText style={{ alignSelf: "flex-end", marginRight: 300 }}>
+              <HelpText style={{ alignSelf: "flex-end", marginRight: 260 }}>
                 Shows whether the system is currently recording
               </HelpText>
             </View>
@@ -88,13 +88,16 @@ export default function HelpOverlay({ isActive, setIsActive }) {
               <View
                 style={{
                   flex: 3,
+                  justifyContent: "flex-end",
                   alignItems: "flex-end",
                 }}
               >
                 <HelpText
                   style={{
-                    flex: 1,
-                    marginHorizontal: 20,
+                    position: "absolute",
+                    top: 20,
+                    right: 20,
+                    marginLeft: 40,
                   }}
                 >
                   Model mode renders a 3D model of the building with coloured
@@ -102,15 +105,16 @@ export default function HelpOverlay({ isActive, setIsActive }) {
                 </HelpText>
                 <HelpText
                   style={{
-                    flex: 2,
-                    marginHorizontal: 20,
+                    position: "absolute",
+                    top: 100,
+                    right: 20,
                   }}
                 >
                   Select the data you wish to visualise
                 </HelpText>
                 <View
                   style={{
-                    flex: 6,
+                    height: "auto",
                     padding: 20,
                     marginHorizontal: 20,
                     marginBottom: 20,
@@ -154,7 +158,7 @@ export default function HelpOverlay({ isActive, setIsActive }) {
                 </View>
                 <View
                   style={{
-                    flex: 2,
+                    height: "auto",
                     padding: 20,
                     marginHorizontal: 20,
                     marginBottom: 90,
