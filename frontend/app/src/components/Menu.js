@@ -90,7 +90,7 @@ const DateTimePicker = ({ datetime, setDatetime, ...dialogProps }) => {
         mode="datetime"
         date={datetime}
         isVisible={dialogProps.isActive}
-        onCancel={() => null}
+        onCancel={() => dialogProps.handleConfirm()}
         onConfirm={(dt) => {
           dialogProps.handleConfirm();
           setDatetime(dt);
