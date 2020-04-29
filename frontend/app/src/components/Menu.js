@@ -183,7 +183,9 @@ export default function Menu(props) {
       <ButtonGroup
         buttons={["Adaptive", "Absolute"]}
         selectedIndex={props.modelOptions.colourMode}
-        disabled={props.liveMode ? [0] : []} // Adaptive button disabled when in live mode
+        disabled={
+          props.liveMode ? [0] : props.screenState.dataType ? [] : [0, 1]
+        } // Adaptive button disabled when in live mode, both buttons disabled when no data has been loaded
         onPress={(index) =>
           props.setModelOptions({
             ...props.modelOptions,
