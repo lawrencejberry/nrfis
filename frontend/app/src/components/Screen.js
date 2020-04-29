@@ -36,8 +36,8 @@ export default function Screen(props) {
   });
   const [modelOptions, setModelOptions] = useState({
     showContext: true,
-    colourMode: 0, // 0 = adaptive
-    scale: [0, 0],
+    colourMode: 1, // 0 = adaptive, 1 = absolute
+    scale: [-200, 200],
   });
 
   const liveStatus = useContext(LiveStatusContext);
