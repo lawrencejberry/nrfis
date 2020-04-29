@@ -4,22 +4,21 @@ import {
   Easing,
   StyleSheet,
   Dimensions,
+  Platform,
   Modal as ReactNativeModal,
-  Text,
   View,
   TouchableWithoutFeedback,
   TouchableHighlight,
 } from "react-native";
+import { Text } from "react-native-elements";
 
 import { theme } from "../utils";
 
 const BORDER_RADIUS = 13;
 const BACKGROUND_COLOR_LIGHT = theme.colors.background;
 const BORDER_COLOR = theme.colors.border;
-const TITLE_FONT_SIZE = 20;
-const TITLE_COLOR = "#8f8f8f";
+const FONT_SIZE = Platform.select({ default: 14, ios: 18 });
 const BUTTON_FONT_COLOR = theme.colors.actionable;
-const BUTTON_FONT_SIZE = 20;
 const HIGHLIGHT_COLOR_LIGHT = "#ebebeb";
 
 const Header = ({ label }) => {
@@ -35,8 +34,9 @@ const Header = ({ label }) => {
       <Text
         style={{
           textAlign: "center",
-          color: TITLE_COLOR,
-          fontSize: TITLE_FONT_SIZE,
+          color: theme.colors.primary,
+          fontSize: FONT_SIZE,
+          fontWeight: "400",
         }}
       >
         {label}
@@ -63,7 +63,7 @@ const ConfirmButton = ({ onPress, label }) => {
           padding: 10,
           textAlign: "center",
           color: BUTTON_FONT_COLOR,
-          fontSize: BUTTON_FONT_SIZE,
+          fontSize: FONT_SIZE,
           fontWeight: "600",
           backgroundColor: "transparent",
         }}

@@ -21,7 +21,7 @@ import Modal from "./Modal";
 import { theme, modelColourScale, labels } from "../utils";
 
 const MultiSelect = ({ options, setOptions }) => (
-  <ScrollView style={{ maxHeight: "100%" }}>
+  <ScrollView style={{ maxHeight: "100%", marginVertical: 8 }}>
     {options.map(({ name, isSelected }, index) => {
       return (
         <ListItem
@@ -60,7 +60,7 @@ const Picker = ({ value, setValue, options }) => {
     );
   } else if (Platform.OS === "android") {
     return (
-      <ScrollView style={{ maxHeight: "100%" }}>
+      <ScrollView style={{ maxHeight: "100%", marginVertical: 8 }}>
         {options.map((option, _) => (
           <ListItem
             key={option.value}

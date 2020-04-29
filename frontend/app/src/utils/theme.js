@@ -50,6 +50,10 @@ const theme = {
     containerStyle: { borderColor: colors.primary, borderWidth: 1 },
     innerBorderStyle: { width: 0 },
   },
+  ListItem: {
+    titleStyle: { fontSize: Platform.select({ default: 14, ios: 18 }) },
+    containerStyle: { paddingVertical: 10 },
+  },
 };
 
 export default theme;
