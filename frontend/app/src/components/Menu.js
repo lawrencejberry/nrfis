@@ -60,7 +60,7 @@ const Picker = ({ value, setValue, options }) => {
     );
   } else if (Platform.OS === "android") {
     return (
-      <>
+      <ScrollView style={{ maxHeight: "100%" }}>
         {options.map((option, _) => (
           <ListItem
             key={option.value}
@@ -69,7 +69,7 @@ const Picker = ({ value, setValue, options }) => {
             checkmark={option.value === value}
           />
         ))}
-      </>
+      </ScrollView>
     );
   }
 };
