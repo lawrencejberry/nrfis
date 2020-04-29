@@ -82,42 +82,72 @@ export default function Model(props) {
   };
 
   return (
-    <View
-      style={{ flex: 1 }}
-      onMoveShouldSetResponder={(_) => true}
-      onResponderMove={(event) => handleResponderMove(event)}
-    >
-      <Canvas
-        style={{
-          position: "absolute",
-          width: "100%",
-          height: "100%",
-        }}
-        camera={{ position: [0, 0, 40] }}
+    <View style={{ flex: 1 }}>
+      <View
+        style={{ flex: 1 }}
+        onMoveShouldSetResponder={(_) => true}
+        onResponderMove={(event) => handleResponderMove(event)}
       >
-        <ambientLight intensity={0.5} />
-        <spotLight intensity={0.8} position={[300, 300, 400]} />
-        <Suspense fallback={<LoadingIndicator />}>
-          {props.children({ rotation, zoom, sensorColours })}
-        </Suspense>
-      </Canvas>
-      <PinchGestureHandler
-        onGestureEvent={handlePinchGestureEvent}
-        onHandlerStateChange={handleStateChange}
-      >
-        <View
+        <Canvas
           style={{
             position: "absolute",
             width: "100%",
             height: "100%",
           }}
-        />
-      </PinchGestureHandler>
+          camera={{ position: [0, 0, 40] }}
+        >
+          <ambientLight intensity={0.5} />
+          <spotLight intensity={0.8} position={[300, 300, 400]} />
+          <Suspense fallback={<LoadingIndicator />}>
+            {props.children({ rotation, zoom, sensorColours })}
+          </Suspense>
+        </Canvas>
+        <PinchGestureHandler
+          onGestureEvent={handlePinchGestureEvent}
+          onHandlerStateChange={handleStateChange}
+        >
+          <View
+            style={{
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+            }}
+          />
+        </PinchGestureHandler>
+        {props.liveMode ? null : (
+          <View
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 80,
+              marginHorizontal: 35,
+            }}
+          >
+            <Slider
+              value={index}
+              onValueChange={(value) => setIndex(value)}
+              maximumValue={props.data.length ? props.data.length - 1 : 0}
+              step={1}
+              thumbStyle={{ backgroundColor: theme.colors.primary }}
+            />
+            <XAxis
+              style={{ height: 25 }}
+              data={props.data}
+              xAccessor={({ item }) => item.timestamp}
+              formatLabel={formatTimestampLabel}
+              svg={{ fontSize: 10, fill: theme.colors.primary }}
+              numberOfTicks={5}
+            />
+          </View>
+        )}
+      </View>
       <Button
         containerStyle={{
           position: "absolute",
           right: 0,
-          margin: 11,
+          margin: 12,
         }}
         type="outline"
         title="Reset"
@@ -127,34 +157,6 @@ export default function Model(props) {
           setBaseZoom(1);
         }}
       />
-      {props.liveMode ? null : (
-        <View
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 80,
-            marginHorizontal: 35,
-          }}
-        >
-          <Slider
-            value={index}
-            onValueChange={(value) => setIndex(value)}
-            maximumValue={props.data.length ? props.data.length - 1 : 0}
-            step={1}
-            thumbStyle={{ backgroundColor: theme.colors.primary }}
-          />
-          <XAxis
-            style={{ height: 25 }}
-            data={props.data}
-            xAccessor={({ item }) => item.timestamp}
-            formatLabel={formatTimestampLabel}
-            svg={{ fontSize: 10, fill: theme.colors.primary }}
-            numberOfTicks={5}
-          />
-        </View>
-      )}
     </View>
   );
 }
