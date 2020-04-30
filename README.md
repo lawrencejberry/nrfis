@@ -3,6 +3,7 @@
 ![](https://github.com/lawjb/nrfis/workflows/Data%20Collection%20System%20Tests/badge.svg)
 ![](https://github.com/lawjb/nrfis/workflows/Web%20Server%20Tests/badge.svg)
 [![codecov](https://codecov.io/gh/lawjb/nrfis/branch/master/graph/badge.svg?token=yzF2kxTgQs)](https://codecov.io/gh/lawjb/nrfis)
+![](https://github.com/lawjb/nrfis/workflows/Expo%20App%20Publication/badge.svg)
 
 ## Data Collection System
 
