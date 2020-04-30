@@ -5,6 +5,7 @@
     "description": "A user interface into the University of Cambridge's Civil Engineering building monitoring system. The system continuously records strain and temperature change in the steel frame, basement and strong floor, and offers a platform for visualising both historical and real-time data on interactive 3D models and scatter plots.",
     "privacy": "public",
     "platforms": ["ios", "android"],
+    "githubUrl": "https://github.com/lawjb/nrfis",
     "version": "0.2.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
@@ -29,7 +30,10 @@
         }
       }
     },
-    "android": { "package": "com.nrfis.nrfisapp", "versionCode": 1 },
+    "android": {
+      "package": "com.nrfis.nrfisapp",
+      "versionCode": 1
+    },
     "androidNavigationBar": {
       "visible": "sticky-immersive"
     },
