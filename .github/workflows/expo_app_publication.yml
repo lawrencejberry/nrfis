@@ -23,5 +23,7 @@ jobs:
           expo-username: ${{ secrets.EXPO_CLI_USERNAME }}
           expo-password: ${{ secrets.EXPO_CLI_PASSWORD }}
 
-      - run: yarn install ./frontend/app
-      - run: expo publish ./frontend/app
+      - run: |
+          npm install
+          expo publish
+        working-directory: ./frontend/app
