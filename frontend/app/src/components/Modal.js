@@ -85,7 +85,7 @@ export default function Modal(props) {
     setIsVisible(true);
     Animated.timing(animVal, {
       easing: Easing.inOut(Easing.quad),
-      useNativeDriver: true,
+      useNativeDriver: false,
       duration: 300,
       toValue: 1,
     }).start();
@@ -94,7 +94,7 @@ export default function Modal(props) {
   hide = () => {
     Animated.timing(animVal, {
       easing: Easing.inOut(Easing.quad),
-      useNativeDriver: true,
+      useNativeDriver: false,
       duration: 300,
       toValue: 0,
     }).start(() => {

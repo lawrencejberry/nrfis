@@ -18,13 +18,13 @@ export default function Header() {
         Animated.timing(opacity, {
           toValue: 0,
           duration: 600,
-          useNativeDriver: true,
+          useNativeDriver: false,
         }),
         Animated.timing(opacity, {
           toValue: 1,
           delay: 200,
           duration: 600,
-          useNativeDriver: true,
+          useNativeDriver: false,
         }),
       ])
     );
