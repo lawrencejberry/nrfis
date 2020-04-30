@@ -4,22 +4,21 @@ import {
   Easing,
   StyleSheet,
   Dimensions,
+  Platform,
   Modal as ReactNativeModal,
-  Text,
   View,
   TouchableWithoutFeedback,
   TouchableHighlight,
 } from "react-native";
+import { Text } from "react-native-elements";
 
 import { theme } from "../utils";
 
 const BORDER_RADIUS = 13;
 const BACKGROUND_COLOR_LIGHT = theme.colors.background;
 const BORDER_COLOR = theme.colors.border;
-const TITLE_FONT_SIZE = 20;
-const TITLE_COLOR = "#8f8f8f";
+const FONT_SIZE = Platform.select({ default: 14, ios: 18 });
 const BUTTON_FONT_COLOR = theme.colors.actionable;
-const BUTTON_FONT_SIZE = 20;
 const HIGHLIGHT_COLOR_LIGHT = "#ebebeb";
 
 const Header = ({ label }) => {
@@ -35,8 +34,9 @@ const Header = ({ label }) => {
       <Text
         style={{
           textAlign: "center",
-          color: TITLE_COLOR,
-          fontSize: TITLE_FONT_SIZE,
+          color: theme.colors.primary,
+          fontSize: FONT_SIZE,
+          fontWeight: "400",
         }}
       >
         {label}
@@ -63,7 +63,7 @@ const ConfirmButton = ({ onPress, label }) => {
           padding: 10,
           textAlign: "center",
           color: BUTTON_FONT_COLOR,
-          fontSize: BUTTON_FONT_SIZE,
+          fontSize: FONT_SIZE,
           fontWeight: "600",
           backgroundColor: "transparent",
         }}
@@ -85,7 +85,7 @@ export default function Modal(props) {
     setIsVisible(true);
     Animated.timing(animVal, {
       easing: Easing.inOut(Easing.quad),
-      useNativeDriver: true,
+      useNativeDriver: false,
       duration: 300,
       toValue: 1,
     }).start();
@@ -94,7 +94,7 @@ export default function Modal(props) {
   hide = () => {
     Animated.timing(animVal, {
       easing: Easing.inOut(Easing.quad),
-      useNativeDriver: true,
+      useNativeDriver: false,
       duration: 300,
       toValue: 0,
     }).start(() => {
@@ -115,8 +115,8 @@ export default function Modal(props) {
       <TouchableWithoutFeedback>
         <Animated.View
           style={{
-            width: Dimensions.get("window").width,
-            height: Dimensions.get("window").height,
+            width: Dimensions.get("screen").width,
+            height: Dimensions.get("screen").height,
             position: "absolute",
             backgroundColor: "black",
             opacity: animVal.interpolate({

@@ -1,6 +1,7 @@
 import { Platform } from "react-native";
 
 const font = Platform.select({ default: "Roboto", ios: "Helvetica" });
+const fontSize = Platform.select({ default: 10, ios: 16 });
 
 const colors = {
   primary: "grey", // "#737f8a" - Light grey
@@ -14,7 +15,7 @@ const theme = {
   colors: colors,
   Text: {
     style: {
-      fontSize: 16,
+      fontSize: fontSize,
       fontFamily: font,
       fontWeight: "200",
       marginHorizontal: 16,
@@ -33,14 +34,14 @@ const theme = {
     },
     buttonStyle: { borderWidth: 1 },
     titleStyle: {
-      fontSize: 16,
+      fontSize: fontSize,
       fontFamily: font,
       color: colors.secondary,
     },
   },
   ButtonGroup: {
     textStyle: {
-      fontSize: 16,
+      fontSize: fontSize,
       fontFamily: font,
       fontWeight: "normal",
       color: colors.secondary,
@@ -48,6 +49,10 @@ const theme = {
     selectedTextStyle: { fontWeight: "500" },
     containerStyle: { borderColor: colors.primary, borderWidth: 1 },
     innerBorderStyle: { width: 0 },
+  },
+  ListItem: {
+    titleStyle: { fontSize: Platform.select({ default: 14, ios: 18 }) },
+    containerStyle: { paddingVertical: 10 },
   },
 };
 

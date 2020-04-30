@@ -21,7 +21,7 @@ import Modal from "./Modal";
 import { theme, modelColourScale, labels } from "../utils";
 
 const MultiSelect = ({ options, setOptions }) => (
-  <ScrollView style={{ maxHeight: "100%" }}>
+  <ScrollView style={{ maxHeight: "100%", marginVertical: 8 }}>
     {options.map(({ name, isSelected }, index) => {
       return (
         <ListItem
@@ -60,7 +60,7 @@ const Picker = ({ value, setValue, options }) => {
     );
   } else if (Platform.OS === "android") {
     return (
-      <>
+      <ScrollView style={{ maxHeight: "100%", marginVertical: 8 }}>
         {options.map((option, _) => (
           <ListItem
             key={option.value}
@@ -69,7 +69,7 @@ const Picker = ({ value, setValue, options }) => {
             checkmark={option.value === value}
           />
         ))}
-      </>
+      </ScrollView>
     );
   }
 };
@@ -90,7 +90,7 @@ const DateTimePicker = ({ datetime, setDatetime, ...dialogProps }) => {
         mode="datetime"
         date={datetime}
         isVisible={dialogProps.isActive}
-        onCancel={() => null}
+        onCancel={() => dialogProps.handleConfirm()}
         onConfirm={(dt) => {
           dialogProps.handleConfirm();
           setDatetime(dt);
@@ -126,7 +126,7 @@ export default function Menu(props) {
     // Set dialog or modal active depending on platform and selector
     if (
       Platform.OS === "android" &&
-      ["startTime", "endTime"].includes(shownElement)
+      ["Start Time", "End Time"].includes(shownElement)
     ) {
       setIsDialogActive(true);
     } else {
@@ -183,7 +183,9 @@ export default function Menu(props) {
       <ButtonGroup
         buttons={["Adaptive", "Absolute"]}
         selectedIndex={props.modelOptions.colourMode}
-        disabled={props.liveMode ? [0] : []} // Adaptive button disabled when in live mode
+        disabled={
+          props.liveMode ? [0] : props.screenState.dataType ? [] : [0, 1]
+        } // Adaptive button disabled when in live mode, both buttons disabled when no data has been loaded
         onPress={(index) =>
           props.setModelOptions({
             ...props.modelOptions,

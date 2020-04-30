@@ -173,113 +173,120 @@ export default function Chart(props) {
       onGestureEvent={handlePinchGestureEvent}
       onHandlerStateChange={handleStateChange}
     >
-      <View
-        style={{ flex: 1, paddingVertical: 15, paddingRight: 5 }}
-        onMoveShouldSetResponder={(_) => true}
-        onResponderMove={(event) => handleResponderMove(event)}
-      >
+      <View style={{ flex: 1 }}>
         <View
-          style={{ flex: 1, flexDirection: "row" }}
-          onLayout={(event) => {
-            setWidth(event.nativeEvent.layout.width);
-          }}
+          style={{ flex: 1, paddingVertical: 15, paddingRight: 5 }}
+          onMoveShouldSetResponder={(_) => true}
+          onResponderMove={(event) => handleResponderMove(event)}
         >
-          <View style={{ width: 82, flexDirection: "row", marginRight: 10 }}>
-            <Text
-              style={{
-                fontWeight: "bold",
-                color: theme.colors.primary,
-                alignSelf: "center",
-              }}
-            >
-              {liveMode
-                ? labels["Data Type"].find(
-                    (element) => element.value === screenState.liveDataType
-                  ).unit
-                : labels["Data Type"].find(
-                    (element) => element.value === screenState.dataType
-                  ).unit}
-            </Text>
-            <YAxis
-              style={{ flex: 1 }}
-              data={datasets.reduce(
-                (acc, dataset) => acc.concat(dataset.data),
-                []
-              )}
-              formatLabel={(value) => value.toPrecision(4)}
-              contentInset={contentInset}
-              svg={{ fontSize: 10, fill: theme.colors.primary }}
-              numberOfTicks={10}
-            />
-          </View>
-          <View style={{ flex: 1 }}>
-            {chartOptions.showTemperature ? (
-              <LineChart
+          <View
+            style={{ flex: 1, flexDirection: "row" }}
+            onLayout={(event) => {
+              setWidth(event.nativeEvent.layout.width);
+            }}
+          >
+            <View style={{ width: 82, flexDirection: "row", marginRight: 10 }}>
+              <Text
                 style={{
-                  position: "absolute",
-                  width: "100%",
-                  height: "100%",
+                  fontWeight: "bold",
+                  color: theme.colors.primary,
+                  alignSelf: "center",
                 }}
-                data={chartOptions.temperatureData}
-                xAccessor={({ item }) => item.timestamp}
-                yAccessor={({ item }) => item.temperature}
-                contentInset={contentInset}
-                curve={D3.curveBasis}
-                svg={{ stroke: "orange" }}
-                xMin={minX}
-                xMax={maxX}
               >
-                {chartOptions.temperatureData.map((item, index) => (
-                  <Decorator
-                    key={index}
-                    value={item.temperature}
-                    timestamp={item.timestamp}
-                    colour="orange"
-                  />
-                ))}
-              </LineChart>
-            ) : null}
-            <LineChart
-              style={{ position: "absolute", width: "100%", height: "100%" }}
-              data={datasets}
-              xAccessor={({ index }) => timestamps[index]}
-              contentInset={contentInset}
-              curve={D3.curveBasis}
-              xMin={minX}
-              xMax={maxX}
-            >
-              <Grid direction={Grid.Direction.HORIZONTAL} />
-              <Decorators timestamps={timestamps} />
-            </LineChart>
-          </View>
-          <View style={{ width: 35 }}>
-            {chartOptions.showTemperature ? (
+                {liveMode
+                  ? labels["Data Type"].find(
+                      (element) => element.value === screenState.liveDataType
+                    ).unit
+                  : labels["Data Type"].find(
+                      (element) => element.value === screenState.dataType
+                    ).unit}
+              </Text>
               <YAxis
                 style={{ flex: 1 }}
-                data={chartOptions.temperatureData}
-                yAccessor={({ item }) => item.temperature}
-                formatLabel={(value) => value.toPrecision(2)}
+                data={datasets.reduce(
+                  (acc, dataset) => acc.concat(dataset.data),
+                  []
+                )}
+                formatLabel={(value) => value.toPrecision(4)}
                 contentInset={contentInset}
                 svg={{ fontSize: 10, fill: theme.colors.primary }}
                 numberOfTicks={10}
               />
-            ) : null}
+            </View>
+            <View style={{ flex: 1 }}>
+              {chartOptions.showTemperature ? (
+                <LineChart
+                  style={{
+                    position: "absolute",
+                    width: "100%",
+                    height: "100%",
+                  }}
+                  data={chartOptions.temperatureData}
+                  xAccessor={({ item }) => item.timestamp}
+                  yAccessor={({ item }) => item.temperature}
+                  contentInset={contentInset}
+                  curve={D3.curveBasis}
+                  svg={{ stroke: "orange" }}
+                  xMin={minX}
+                  xMax={maxX}
+                >
+                  {chartOptions.temperatureData.map((item, index) => (
+                    <Decorator
+                      key={index}
+                      value={item.temperature}
+                      timestamp={item.timestamp}
+                      colour="orange"
+                    />
+                  ))}
+                </LineChart>
+              ) : null}
+              <LineChart
+                style={{ position: "absolute", width: "100%", height: "100%" }}
+                data={datasets}
+                xAccessor={({ index }) => timestamps[index]}
+                contentInset={contentInset}
+                curve={D3.curveBasis}
+                xMin={minX}
+                xMax={maxX}
+              >
+                <Grid direction={Grid.Direction.HORIZONTAL} />
+                <Decorators timestamps={timestamps} />
+              </LineChart>
+            </View>
+            <View style={{ width: 35 }}>
+              {chartOptions.showTemperature ? (
+                <YAxis
+                  style={{ flex: 1 }}
+                  data={chartOptions.temperatureData}
+                  yAccessor={({ item }) => item.temperature}
+                  formatLabel={(value) => value.toPrecision(2)}
+                  contentInset={contentInset}
+                  svg={{ fontSize: 10, fill: theme.colors.primary }}
+                  numberOfTicks={10}
+                />
+              ) : null}
+            </View>
           </View>
+          <XAxis
+            style={{
+              height: 25,
+              marginLeft: 90,
+              marginRight: 35,
+              marginTop: 10,
+            }}
+            data={[minX, maxX]}
+            xAccessor={({ item }) => item}
+            formatLabel={liveMode ? (value) => value : formatTimestampLabel}
+            contentInset={contentInset}
+            svg={{ fontSize: 10, fill: theme.colors.primary }}
+            numberOfTicks={5}
+          />
         </View>
-        <XAxis
-          style={{ height: 25, marginLeft: 90, marginRight: 35, marginTop: 10 }}
-          data={[minX, maxX]}
-          xAccessor={({ item }) => item}
-          formatLabel={liveMode ? (value) => value : formatTimestampLabel}
-          contentInset={contentInset}
-          svg={{ fontSize: 10, fill: theme.colors.primary }}
-          numberOfTicks={5}
-        />
         <Button
           containerStyle={{
             position: "absolute",
             right: 0,
-            margin: 11,
+            margin: 12,
           }}
           type="outline"
           title="Reset"
