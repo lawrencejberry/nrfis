@@ -116,7 +116,7 @@ export default function Chart(props) {
   if (!datasets.length) {
     return (
       <Text style={{ alignSelf: "center", marginTop: "40%" }}>
-        Click Refresh to load data
+        Please select some data
       </Text>
     );
   }

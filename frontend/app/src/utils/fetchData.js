@@ -1,5 +1,4 @@
 import Papa from "papaparse";
-import { Alert } from "react-native";
 
 export default async function fetchData(
   sensorPackage,
@@ -8,18 +7,36 @@ export default async function fetchData(
   startTime,
   endTime
 ) {
-  const response = await fetch(
-    `http://129.169.72.175/fbg/${sensorPackage}/${dataType}/?averaging-window=${averagingWindow}&start-time=${startTime}&end-time=${endTime}`,
-    {
-      method: "GET",
-      headers: { "media-type": "application/json" },
+  try {
+    // Set up data fetch timeout
+    const controller = new AbortController();
+    const timeoutID = setTimeout(() => {
+      controller.abort();
+    }, 15000);
+    // Fetch data
+    const response = await fetch(
+      `http://129.169.72.175/fbg/${sensorPackage}/${dataType}/?averaging-window=${averagingWindow}&start-time=${startTime}&end-time=${endTime}`,
+      {
+        method: "GET",
+        headers: { "media-type": "application/json" },
+        signal: controller.signal,
+      }
+    );
+    clearTimeout(timeoutID); // Clear timeout when fetch was successful
+    const data = await response.json();
+    if (response.status !== 200) {
+      throw Error(data.detail);
     }
-  );
-  const data = await response.json();
-  if (response.status !== 200) {
-    throw data.detail;
+    return data;
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw Error(
+        "Too much data to download, please select a smaller time window or larger averaging window"
+      );
+    } else {
+      throw error;
+    }
   }
-  return data;
 }
 
 // Returns an array of dates between two dates
