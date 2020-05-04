@@ -123,7 +123,7 @@ export default function Screen(props) {
         endTime.toISOString()
       );
       if (!data.length) {
-        throw "No data available for this time period";
+        throw Error("No data available for this time period");
       }
       data.forEach((sample) => {
         sample.timestamp = Date.parse(sample.timestamp);
@@ -169,7 +169,7 @@ export default function Screen(props) {
         scale: modelOptions.colourMode ? modelColourScale[dataType] : dataRange,
       });
     } catch (error) {
-      Alert.alert("Refresh error", error);
+      Alert.alert("Refresh error", error.message);
     }
     setIsLoading(false);
   }
