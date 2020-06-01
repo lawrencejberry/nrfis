@@ -7,7 +7,7 @@
 
 This is a monitoring system and user interface for the new Civil Engineering building in West Cambridge, developed as part of a fourth year CUED project. The system is designed to autonomously record data from the building's FBG sensors, distribute this data via a web API, and allow a user to download and visualise it in various frontend clients.
 
-![alt text](https://github.com/lawjb/nrfis/docs/figs/framework.png "Architecture overview")
+![alt text](https://raw.githubusercontent.com/lawjb/nrfis/master/docs/figs/framework.png "Architecture overview")
 
 ## Data Collection System
 
@@ -48,7 +48,7 @@ pytest backend/data_collection_system
 
 The _Web Server_ is a Python [FastAPI](https://fastapi.tiangolo.com) application which allows users to access past sensor data via a REST API and accompanying website. The API can be accessed from within the Enginering network (either a wired connection in the department, on the _CUED_ WiFi network, or on the Engineering VPN) at: http://129.169.72.175, and the website at: http://129.169.72.175/docs. The website lists all available endpoints and provides an interface for fetching and downloading data. There is also a WebSocket endpoint for streaming real-time data at up to 10Hz: `ws://129.169.72.175/fbg/live-data/?data-type=<raw/str/tmp>`.
 
-![alt text](https://github.com/lawjb/nrfis/docs/figs/api_overview.png "API request and response overview")
+![alt text](https://raw.githubusercontent.com/lawjb/nrfis/master/docs/figs/api_overview.png "API request and response overview")
 
 ### To install:
 
