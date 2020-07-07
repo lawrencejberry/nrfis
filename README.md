@@ -106,18 +106,29 @@ The app can then be tested on the iOS simulator on a Mac, or on a real iOS or An
 
 ### To publish the app:
 
-The app can be published by running
+The app can be published by running:
 
 ```
 cd frontend/app
 expo publish
 ```
 
-This will upload the latest build to Expo, which will automatically be installed by users as an OTA update the next time they open the app.
+This will upload the latest build to Expo, which will automatically be installed by users as an OTA update the next time they open either the Expo app or the standalone build.
+
+### To build the app:
+
+A standalone version of the app, independent of the Expo client, can be built using:
+
+```
+cd frontend/app
+expo build:android
+```
+
+This will build a .apk file using the Expo build service, which can then be distributed and installed on Android. Publishing updates as above will update this standalone app the next time the user opens it. You can also build for iOS, though distribution of standalone iOS apps is limited without an Apple developer license.
 
 ### To download the app:
 
-Download the app for Android [here](https://exp-shell-app-assets.s3.us-west-1.amazonaws.com/android/%40lawrencejb/nrfis-app-6853c0f18ae744a7904f1ff4dea43ede-signed.apk). You may need to enable the installation of apps from unknown sources. Note that the app requires you to be connected to the Engineering department VPN to work. Instructions for setting this up are available [here](https://help.uis.cam.ac.uk/service/network-services/remote-access/uis-vpn/android-strongswan).
+Download the app for Android [here](https://raw.githubusercontent.com/lawjb/nrfis/master/frontend/app/app_build/nrfis-app-dec969af87ea4806b0690c477219a41f-signed.apk). You may need to enable the installation of apps from unknown sources. Note that the app requires you to be connected to the Engineering department VPN to work. Instructions for setting this up are available [here](https://help.uis.cam.ac.uk/service/network-services/remote-access/uis-vpn/android-strongswan).
 
 Note that the app can currently only be downloaded on Android. The iOS version is restricted to local development, though if necessary an Apple license could be purchased to distribute it via the app store or via TestFlight.
 
